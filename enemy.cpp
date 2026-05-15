@@ -20,7 +20,7 @@ void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap) {
             ALLEGRO_COLOR c = al_get_pixel(mapBitmap, x, y);
             unsigned char r, g, b, a;
             al_unmap_rgba(c, &r, &g, &b, &a);
-            if (r > 200 && g > 150 && b < 100) {
+            if (r > 220 && g > 180 && b < 100) {
                 totalY += y;
                 count++;
             }

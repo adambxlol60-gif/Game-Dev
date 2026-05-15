@@ -77,6 +77,7 @@
         al_register_event_source(event_queue, al_get_mouse_event_source());
         al_register_event_source(event_queue, al_get_timer_event_source(timer));
 
+    loadPathFromMap(image);
     Slime slime = initSlime(slimeBmp);
     std::vector<Tower> towers;
     bool running = true;
