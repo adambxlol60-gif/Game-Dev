@@ -12,6 +12,8 @@
     struct Tower {
         float x;
         float y;
+        float w;
+        float h;
     };
 
     int main(int argc, char *argv[]) {
