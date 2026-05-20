@@ -1,0 +1,8 @@
+{
+    "code-runner.executorMap": {
+        "cpp": "cd '/Users/noahbasaria/Desktop/Game Dev/Game-Dev' && make run",
+        "c": "cd '/Users/noahbasaria/Desktop/Game Dev/Game-Dev' && make run"
+    },
+    "code-runner.fileDirectoryAsCwd": true,
+    "code-runner.runInTerminal": true
+}

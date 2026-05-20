@@ -40,7 +40,7 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap) {
     s.bitmap = bitmap;
     s.x = pathX[0];
     s.y = pathY[0];
-    s.speed = 2.0f;
+    s.speed = 1.5f;
     s.target = 1;
     s.done = false;
     return s;
