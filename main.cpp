@@ -5,6 +5,8 @@
     #include <cmath>
     #include "enemy.h"
     #include "function.h"
+    #include <allegro5/allegro_font.h>
+    #include <allegro5/allegro_ttf.h>
 
     const int SCREEN_W = 1280;
     const int SCREEN_H = 960;
@@ -20,6 +22,8 @@
         const float TOWER_SCALE = 0.2f;
         if (!al_init()) return -1;
 
+        al_init_font_addon();
+        al_init_ttf_addon();
         al_init_native_dialog_addon();
 
         if (!al_install_mouse()) {
@@ -74,15 +78,22 @@
 
         ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
         ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-    
+
         al_register_event_source(event_queue, al_get_display_event_source(display));
         al_register_event_source(event_queue, al_get_mouse_event_source());
         al_register_event_source(event_queue, al_get_timer_event_source(timer));
 
-    loadPathFromMap(image);
-    Slime slime = initSlime(slimeBmp);
-    std::vector<Tower> towers;
-    bool running = true;
+        loadPathFromMap(image);
+        std::vector<Slime> slimes;
+        std::vector<Tower> towers;
+        bool running = true;
+        int currentWave = 0;
+        int enemiesInWave = 0;
+        int enemiesSpawned = 0;
+        int frameCount = 0;
+        const int SPAWN_INTERVAL = 60;
+        const int WAVE_DELAY = 300;
+        bool betweenWaves = true;
 
         al_start_timer(timer);
 
@@ -95,28 +106,56 @@
             }
 
             if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-        if (event.mouse.button == 1) {
-            float towerW = al_get_bitmap_width(drakeTower) * TOWER_SCALE;
-            float towerH = al_get_bitmap_height(drakeTower) * TOWER_SCALE;
+                if (event.mouse.button == 1) {
+                    float towerW = al_get_bitmap_width(drakeTower) * TOWER_SCALE;
+                    float towerH = al_get_bitmap_height(drakeTower) * TOWER_SCALE;
 
-            Tower newTower;
-            newTower.x = event.mouse.x - towerW / 2;
-            newTower.y = event.mouse.y - towerH / 2;
+                    Tower newTower;
+                    newTower.x = event.mouse.x - towerW / 2;
+                    newTower.y = event.mouse.y - towerH / 2;
 
-            if (!onPath(image, event.mouse.x, event.mouse.y)) {
-                towers.push_back(newTower);
+                    if (!onPath(image, event.mouse.x, event.mouse.y)) {
+                        towers.push_back(newTower);
+                    }
+                }
             }
-        }
-}
 
             if (event.type == ALLEGRO_EVENT_TIMER) {
-                updateSlime(slime);
+                frameCount++;
+
+                if (betweenWaves) {
+                    if (frameCount >= WAVE_DELAY) {
+                        currentWave++;
+                        enemiesInWave = 5 + (currentWave - 1) * 2;
+                        enemiesSpawned = 0;
+                        betweenWaves = false;
+                        frameCount = 0;
+                    }
+                } else {
+                    if (enemiesSpawned < enemiesInWave && frameCount >= SPAWN_INTERVAL) {
+                        slimes.push_back(initSlime(slimeBmp));
+                        enemiesSpawned++;
+                        frameCount = 0;
+                    }
+                    if (enemiesSpawned >= enemiesInWave) {
+                        bool allDone = true;
+                        for (const Slime& s : slimes)
+                            if (!s.done) { allDone = false; break; }
+                        if (allDone) {
+                            betweenWaves = true;
+                            frameCount = 0;
+                            slimes.clear();
+                        }
+                    }
+                }
+
+                for (Slime& s : slimes) updateSlime(s);
 
                 al_draw_bitmap(image, 0, 0, 0);
                 for (Tower tower : towers) {
                     al_draw_scaled_bitmap(drakeTower, 0, 0, al_get_bitmap_width(drakeTower), al_get_bitmap_height(drakeTower), tower.x, tower.y, al_get_bitmap_width(drakeTower) * TOWER_SCALE, al_get_bitmap_height(drakeTower) * TOWER_SCALE, 0);
                 }
-                drawSlime(slime);
+                for (Slime& s : slimes) drawSlime(s);
                 al_flip_display();
             }
         }
