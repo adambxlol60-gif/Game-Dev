@@ -4,6 +4,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_primitives.h>
 #include "enemy.h"
 
 const int SCREEN_W = 1280;
@@ -80,6 +82,8 @@ inline bool towerTouchesPath(ALLEGRO_BITMAP* map, Tower tower) {
 
 inline bool initAllegro() {
     if (!al_init()) return false;
+    al_init_font_addon();
+    al_init_primitives_addon();
     al_init_native_dialog_addon();
     if (!al_install_mouse()) {
         al_show_native_message_box(nullptr, "Error", "Error",

@@ -3,11 +3,12 @@
     "configurations": [
         {
             "name": "Run Game",
-            "type": "lldb",
+            "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/game",
             "args": [],
             "cwd": "${workspaceFolder}",
+            "MIMode": "lldb",
             "preLaunchTask": "Build Game"
         }
     ]
