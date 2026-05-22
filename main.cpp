@@ -1,8 +1,4 @@
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_native_dialog.h>
-#include <vector>
-#include "enemy.h"
 #include "function.h"
 
 int main(int argc, char *argv[]) {
