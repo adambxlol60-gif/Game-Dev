@@ -5,12 +5,14 @@ struct Slime {
     ALLEGRO_BITMAP* bitmap;
     float x;
     float y;
+    float vx;
+    float vy;
     float speed;
     int target;
     bool done;
+    int hp;
 };
 
-// Function prototypes
 Slime initSlime(ALLEGRO_BITMAP* bitmap);
 void updateSlime(Slime& s);
 void drawSlime(const Slime& s);

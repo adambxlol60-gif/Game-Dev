@@ -24,11 +24,13 @@ int main(int argc, char *argv[]) {
     loadPathFromMap(image);
 
     Tower towers[MAX_TOWERS];
+    TowerState towerStates[MAX_TOWERS];
     int towerCount = 0;
     int drakeW = al_get_bitmap_width(drakeTower);
     int drakeH = al_get_bitmap_height(drakeTower);
 
     std::vector<Slime> slimes;
+    std::vector<Bullet> bullets;
     bool running = true;
     int currentWave = 0;
     int enemiesInWave = 0;
@@ -82,6 +84,8 @@ int main(int argc, char *argv[]) {
             }
 
             for (Slime& s : slimes) updateSlime(s);
+            updateTowers(towers, towerStates, towerCount, slimes, bullets);
+            updateBullets(bullets, slimes);
 
             al_draw_bitmap(image, 0, 0, 0);
             for (int i = 0; i < towerCount; i++) {
@@ -89,6 +93,7 @@ int main(int argc, char *argv[]) {
                     towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
             }
             for (Slime& s : slimes) drawSlime(s);
+            drawBullets(bullets);
             al_flip_display();
         }
     }

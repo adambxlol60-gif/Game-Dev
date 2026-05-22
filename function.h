@@ -5,6 +5,10 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 #include "enemy.h"
+#include <vector>
+#include <algorithm>
+#include <math.h>
+#include <allegro5/allegro_primitives.h>
 
 const int SCREEN_W = 1280;
 const int SCREEN_H = 960;
@@ -27,6 +31,127 @@ inline Tower getModelRect(Tower t) {
     m.w = t.w * MODEL_W_FRAC;
     m.h = t.h * MODEL_H_FRAC;
     return m;
+}
+
+const float TOWER_RANGE = 200.0f;
+const int   TOWER_COOLDOWN = 30;   // frames between shots (60fps -> 0.5s)
+const float BULLET_SPEED = 14.0f;
+
+struct TowerState {
+    int cooldown = 0;
+};
+
+struct Bullet {
+    float x, y;
+    float vx, vy;
+    int damage;
+    bool alive;
+};
+
+inline float dist2(float ax, float ay, float bx, float by) {
+    float dx = ax - bx, dy = ay - by;
+    return dx*dx + dy*dy;
+}
+
+inline int findTarget(Tower t, const std::vector<Slime>& slimes) {
+    Tower m = getModelRect(t);
+    float cx = m.x + m.w * 0.5f;
+    float cy = m.y + m.h * 0.5f;
+    float r2 = TOWER_RANGE * TOWER_RANGE;
+    int best = -1;
+    float bestD = r2;
+    for (size_t i = 0; i < slimes.size(); i++) {
+        if (slimes[i].done) continue;
+        float d = dist2(cx, cy, slimes[i].x, slimes[i].y);
+        if (d <= bestD) { bestD = d; best = (int)i; }
+    }
+    return best;
+}
+
+inline void updateTowers(Tower towers[], TowerState states[], int towerCount,
+                         std::vector<Slime>& slimes, std::vector<Bullet>& bullets) {
+    for (int i = 0; i < towerCount; i++) {
+        if (states[i].cooldown > 0) { states[i].cooldown--; continue; }
+        int idx = findTarget(towers[i], slimes);
+        if (idx < 0) continue;
+
+        Tower m = getModelRect(towers[i]);
+        float cx = m.x + m.w * 0.5f;
+        float cy = m.y + m.h * 0.5f;
+
+        // Predict intercept: solve |P + V*t| = BULLET_SPEED * t
+        float px = slimes[idx].x - cx;
+        float py = slimes[idx].y - cy;
+        float vx = slimes[idx].vx;
+        float vy = slimes[idx].vy;
+        float a = vx*vx + vy*vy - BULLET_SPEED * BULLET_SPEED;
+        float b_ = 2.0f * (px*vx + py*vy);
+        float c  = px*px + py*py;
+        float aimX = slimes[idx].x;
+        float aimY = slimes[idx].y;
+        if (fabsf(a) < 0.0001f) {
+            if (fabsf(b_) > 0.0001f) {
+                float t = -c / b_;
+                if (t > 0) { aimX = slimes[idx].x + vx * t; aimY = slimes[idx].y + vy * t; }
+            }
+        } else {
+            float disc = b_*b_ - 4*a*c;
+            if (disc >= 0) {
+                float sq = sqrtf(disc);
+                float t1 = (-b_ - sq) / (2*a);
+                float t2 = (-b_ + sq) / (2*a);
+                float t = -1;
+                if (t1 > 0 && t2 > 0) t = (t1 < t2) ? t1 : t2;
+                else if (t1 > 0) t = t1;
+                else if (t2 > 0) t = t2;
+                if (t > 0) { aimX = slimes[idx].x + vx * t; aimY = slimes[idx].y + vy * t; }
+            }
+        }
+
+        float dx = aimX - cx;
+        float dy = aimY - cy;
+        float len = sqrtf(dx*dx + dy*dy);
+        if (len < 0.001f) len = 1.0f;
+
+        Bullet b;
+        b.x = cx; b.y = cy;
+        b.vx = (dx/len) * BULLET_SPEED;
+        b.vy = (dy/len) * BULLET_SPEED;
+        b.damage = 1;
+        b.alive = true;
+        bullets.push_back(b);
+
+        states[i].cooldown = TOWER_COOLDOWN;
+    }
+}
+
+inline void updateBullets(std::vector<Bullet>& bullets, std::vector<Slime>& slimes) {
+    for (auto& b : bullets) {
+        if (!b.alive) continue;
+        b.x += b.vx;
+        b.y += b.vy;
+        if (b.x < 0 || b.y < 0 || b.x > SCREEN_W || b.y > SCREEN_H) {
+            b.alive = false;
+            continue;
+        }
+        for (auto& s : slimes) {
+            if (s.done) continue;
+            if (dist2(b.x, b.y, s.x, s.y) < 20.0f * 20.0f) {
+                s.hp -= b.damage;
+                if (s.hp <= 0) s.done = true;
+                b.alive = false;
+                break;
+            }
+        }
+    }
+    bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
+        [](const Bullet& b){ return !b.alive; }), bullets.end());
+}
+
+inline void drawBullets(const std::vector<Bullet>& bullets) {
+    for (const auto& b : bullets)
+        if (b.alive)
+            al_draw_filled_circle(b.x, b.y, 4, al_map_rgb(255, 220, 0));
 }
 
 inline bool onPath(ALLEGRO_BITMAP* map, int mouseX, int mouseY) {
@@ -90,6 +215,11 @@ inline bool initAllegro() {
         al_show_native_message_box(nullptr, "Error", "Error",
             "Failed to initialize image addon!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         return false;
+    }
+    if (!al_init_primitives_addon()) {
+    al_show_native_message_box(nullptr, "Error", "Error",
+        "Failed to initialize primitives addon!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+    return false;
     }
     return true;
 }

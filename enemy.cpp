@@ -40,9 +40,12 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap) {
     s.bitmap = bitmap;
     s.x = pathX[0];
     s.y = pathY[0];
+    s.vx = 0;
+    s.vy = 0;
     s.speed = 1.5f;
     s.target = 1;
     s.done = false;
+    s.hp = 3;
     return s;
 }
 
@@ -58,11 +61,15 @@ void updateSlime(Slime& s) {
     if (dist <= s.speed) {
         s.x = targetX;
         s.y = targetY;
+        s.vx = 0;
+        s.vy = 0;
         s.target++;
         if (s.target >= pointCount) s.done = true;
     } else {
-        s.x += (dx / dist) * s.speed;
-        s.y += (dy / dist) * s.speed;
+        s.vx = (dx / dist) * s.speed;
+        s.vy = (dy / dist) * s.speed;
+        s.x += s.vx;
+        s.y += s.vy;
     }
 }
 
