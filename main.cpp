@@ -25,7 +25,9 @@ int main(int argc, char *argv[]) {
 
     Tower towers[MAX_TOWERS];
     TowerState towerStates[MAX_TOWERS];
+    ALLEGRO_FONT* font = al_create_builtin_font();
     int towerCount = 0;
+    int gold = 500; // starting amount of gold
     int drakeW = al_get_bitmap_width(drakeTower);
     int drakeH = al_get_bitmap_height(drakeTower);
 
@@ -51,7 +53,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            handleMouseClick(event, towers, towerCount, image, drakeTower, drakeW, drakeH);
+            handleMouseClick(event, towers, towerCount, image, drakeTower, drakeW, drakeH, gold);
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
@@ -94,10 +96,12 @@ int main(int argc, char *argv[]) {
             }
             for (Slime& s : slimes) drawSlime(s);
             drawBullets(bullets);
+            drawHud(font, gold, towerCount);
             al_flip_display();
         }
     }
 
+    al_destroy_font(font);
     cleanup(timer, event_queue, slimeBmp, drakeTower, image, display);
     return 0;
 }

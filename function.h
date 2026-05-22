@@ -10,12 +10,15 @@
 #include <vector>
 #include <algorithm>
 #include <math.h>
+#include <cstdio>
 #include <allegro5/allegro_primitives.h>
 
 const int SCREEN_W = 1280;
 const int SCREEN_H = 960;
 const int MAX_TOWERS = 100;
 const float TOWER_SCALE = 0.2f;
+const int drakeCost = 100; //amount of gold to buy a drake
+const int maxDrakeLimit = 10; // maximum number of drake towers
 
 const float MODEL_X_FRAC = 0.37f;
 const float MODEL_Y_FRAC = 0.26f;
@@ -282,7 +285,7 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event,
                               Tower towers[], int& towerCount,
                               ALLEGRO_BITMAP* map,
                               ALLEGRO_BITMAP* drakeTower,
-                              int drakeW, int drakeH) {
+                              int drakeW, int drakeH, int &gold) {
     if (event.mouse.button != 1) return;
 
     float towerW = drakeW * TOWER_SCALE;
@@ -302,10 +305,12 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event,
         model.y + model.h <= SCREEN_H;
 
     if (insideScreen &&
-        towerCount < MAX_TOWERS &&
-        !towerTouchesPath(map, newTower) &&
-        !overlapsAnyTower(newTower, towers, towerCount)) {
-        towers[towerCount++] = newTower;
+    towerCount < maxDrakeLimit &&
+    gold >= drakeCost &&
+    !towerTouchesPath(map, newTower) &&
+    !overlapsAnyTower(newTower, towers, towerCount)) {
+    towers[towerCount++] = newTower;
+    gold -= drakeCost;
     }
 }
 
@@ -337,6 +342,18 @@ inline void cleanup(ALLEGRO_TIMER* timer,
     al_destroy_bitmap(drakeTower);
     al_destroy_bitmap(map);
     al_destroy_display(display);
+}
+
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount) {
+    al_draw_filled_rectangle(0, 0, SCREEN_W, 44, al_map_rgba(0, 0, 0, 200));
+    al_draw_line(0, 44, SCREEN_W, 44, al_map_rgb(80, 80, 80), 1);
+
+    char goldBuf[64], drakeBuf[64];
+    snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Drake = %d)", gold, drakeCost);
+    snprintf(drakeBuf, sizeof(drakeBuf), "Drakes: %d / %d", towerCount, maxDrakeLimit);
+
+    al_draw_text(font, al_map_rgb(255, 215, 0), 20, 14, ALLEGRO_ALIGN_LEFT, goldBuf);
+    al_draw_text(font, al_map_rgb(100, 200, 255), SCREEN_W - 20, 14, ALLEGRO_ALIGN_RIGHT, drakeBuf);
 }
 
 #endif
