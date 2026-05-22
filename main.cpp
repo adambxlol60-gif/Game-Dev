@@ -5,6 +5,13 @@
 #include "enemy.h"
 #include "function.h"
 
+struct Projectile {
+    float x, y;
+    float vx, vy;
+    bool active; 
+};
+
+
 int main(int argc, char *argv[]) {
     if (!initAllegro()) return -1;
 
@@ -35,6 +42,10 @@ int main(int argc, char *argv[]) {
     int drakeH = al_get_bitmap_height(drakeTower);
 
     std::vector<Slime> slimes;
+    std::vector<Projectile> projectiles;
+    const float projectileSpeed = 5.0f;
+    const float towerRange = 150.0f;
+    const int fireCooldown = 60; // 60 frames between shots
     bool running = true;
     int frameCount = 0;
     const int SPAWN_INTERVAL = 60 * 3;
@@ -65,8 +76,39 @@ int main(int argc, char *argv[]) {
             }
 
             for (Slime& s : slimes) updateSlime(s);
+            
+            for (int i = 0; i < towerCount; i++) {
+                towers[i]. fireTimer--;
 
-            al_draw_bitmap(image, 0, 0, 0);
+                if (towers[i].fireTimer <= 0) {
+                    //find nearest slime in range
+                    float cx = towers[i].x + towers[i].w/2;
+                    float cy = towers[i].y + towers[i].h/2;
+
+                    for (Slime& s : slimes) {
+                        if (s.done) continue;
+                        float dx = s.x - cx;
+                        float dy = s.y - cy;
+                        float dist = sqrt(dx * dx + dy * dy);
+
+                        if (dist <= towerRange) {
+                            Projectile b;
+                            b.x = cx;
+                            b.y = cy;
+                            b.vx = (dx / dist) * projectileSpeed;
+                            b.vy = (dy / dist) * projectileSpeed;
+                            b.active = true;
+                            projectiles.push_back(b);
+                            towers[i].fireTimer = fireCooldown;
+                            break;
+                        }
+                    }
+                }
+            }
+
+
+
+           al_draw_bitmap(image, 0, 0, 0);
             for (int i = 0; i < towerCount; i++) {
                 al_draw_scaled_bitmap(drakeTower, 0, 0, drakeW, drakeH,
                     towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);

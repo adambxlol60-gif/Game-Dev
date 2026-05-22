@@ -20,6 +20,7 @@ const float MODEL_H_FRAC = 0.48f;
 
 struct Tower {
     float x, y, w, h;
+    int fireTimer;
 };
 
 inline Tower getModelRect(Tower t) {
