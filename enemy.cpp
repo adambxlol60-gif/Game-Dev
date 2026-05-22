@@ -1,6 +1,8 @@
 #include "enemy.h"
 #include <allegro5/allegro_image.h>
 #include <math.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_primitives.h>
 
 static float pathX[10000];
 static float pathY[10000];
