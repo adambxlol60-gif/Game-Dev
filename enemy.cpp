@@ -2,10 +2,12 @@
 #include <allegro5/allegro_image.h>
 #include <math.h>
 
+// path arrays and point count for slime movement
 static float pathX[10000];
 static float pathY[10000];
 static int pointCount = 0;
 
+// loads the path points from a bitmap where the path is drawn in a specific color
 void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap) {
     int w = al_get_bitmap_width(mapBitmap);
     int h = al_get_bitmap_height(mapBitmap);
@@ -35,6 +37,7 @@ void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap) {
     al_unlock_bitmap(mapBitmap);
 }
 
+// slime structere and function definitions
 Slime initSlime(ALLEGRO_BITMAP* bitmap) {
     Slime s;
     s.bitmap = bitmap;
@@ -49,6 +52,7 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap) {
     return s;
 }
 
+//void updateSlime function to move the slime along the path points
 void updateSlime(Slime& s) {
     if (s.done) return;
 
@@ -73,6 +77,7 @@ void updateSlime(Slime& s) {
     }
 }
 
+// void drawSlime function made to draw the slime sprite at the slime's position
 void drawSlime(const Slime& s) {
     if (s.done) return;
     int w = al_get_bitmap_width(s.bitmap);
