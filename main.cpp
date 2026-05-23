@@ -5,9 +5,12 @@
 int main(int argc, char *argv[]) {
     if (!initAllegro()) return -1;
 
+    // creates a display and loads the bitmaps for the map, tower, and slime
+    // if error, error message pops up
     ALLEGRO_DISPLAY *display = createDisplay();
     if (!display) return -1;
 
+    //bitmaps for the map, tower, and slime
     ALLEGRO_BITMAP *image = nullptr, *drakeTower = nullptr, *slimeBmp = nullptr;
     if (!loadBitmaps(display, image, drakeTower, slimeBmp)) {
         al_destroy_display(display);
@@ -47,6 +50,7 @@ int main(int argc, char *argv[]) {
 
     al_start_timer(timer);
     
+    // while loop to run the game
     while (running) {
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
@@ -88,10 +92,12 @@ int main(int argc, char *argv[]) {
                 }
             }
 
+            //for loop to update the enemies, towers, and bullets, then draw them on the screen
             for (int i = 0; i < slimeCount; i++) updateSlime(slimes[i]);
             updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount);
             updateBullets(bullets, &bulletCount, slimes, slimeCount);
 
+            // draws everthing
             al_draw_bitmap(image, 0, 0, 0);
             for (int i = 0; i < towerCount; i++) {
                 al_draw_scaled_bitmap(drakeTower, 0, 0, drakeW, drakeH,
@@ -104,6 +110,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // cleans up the program resources at the end of the program
     al_destroy_font(font);
     cleanup(timer, event_queue, slimeBmp, drakeTower, image, display);
     return 0;

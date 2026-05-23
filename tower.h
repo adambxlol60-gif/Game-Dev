@@ -1,24 +1,24 @@
 #ifndef TOWER_H
 #define TOWER_H
 
-// ─── Includes ────────────────────────────────────────────────────────────────
+// Includes Section ------------------------------------------------------------------
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <math.h>
 #include "enemy.h"
 #include "bullet.h"
 
-// ─── Screen Constants ────────────────────────────────────────────────────────
+// Screen Constants Section --------------------------------------------------------------
 const int SCREEN_W = 1280;
 const int SCREEN_H = 960;
 
-// ─── Tower Constants ─────────────────────────────────────────────────────────
+// Tower Constants Section ---------------------------------------------------------------
 
 // capacity and scaling
 const int   MAX_TOWERS  = 100;
 const float TOWER_SCALE = 0.2f;
 
-// model rect fractions: defines which sub-rectangle of the sprite is the
+// model rectangle fractions: defines which sub-rectangle of the sprite is the
 // actual tower body used for placement and targeting
 const float MODEL_X_FRAC = 0.37f;
 const float MODEL_Y_FRAC = 0.26f;
@@ -27,9 +27,9 @@ const float MODEL_H_FRAC = 0.48f;
 
 // combat
 const float TOWER_RANGE    = 200.0f;
-const int   TOWER_COOLDOWN = 30;    // frames between shots (60fps -> 0.5s)
+const int   TOWER_COOLDOWN = 30;    // frames between shots
 
-// ─── Structs ─────────────────────────────────────────────────────────────────
+// Structs Section ------------------------------------------------------------------
 
 struct Tower {
     float x, y, w, h; // position and size in screen pixels
@@ -39,9 +39,9 @@ struct TowerState {
     int cooldown = 0; // frames remaining until the tower can shoot again
 };
 
-// ─── Geometry Helpers ────────────────────────────────────────────────────────
+// Geometry Helpers ----------------------------------------------------------------
 
-// returns the model sub-rect of a tower sprite used for collision and targeting
+// returns the model sub-rectangle of a tower sprite
 inline Tower getModelRect(Tower t) {
     Tower m;
     m.x = t.x + t.w * MODEL_X_FRAC;
@@ -51,7 +51,7 @@ inline Tower getModelRect(Tower t) {
     return m;
 }
 
-// checks whether a map pixel falls on the golden path colour
+// checks whether a map pixel falls on the path colour
 inline bool onPath(ALLEGRO_BITMAP* map, int mouseX, int mouseY) {
     ALLEGRO_COLOR color = al_get_pixel(map, mouseX, mouseY);
     unsigned char r, g, b;
@@ -59,9 +59,9 @@ inline bool onPath(ALLEGRO_BITMAP* map, int mouseX, int mouseY) {
     return (r > 160 && g > 120 && b < 120);
 }
 
-// ─── Placement Validation ────────────────────────────────────────────────────
+// Placement Validation ---------------------------------------------------------------
 
-// returns true if the model rects of two towers overlap
+// returns true if the model rectangles of two towers overlap
 inline bool towersOverlap(Tower a, Tower b) {
     Tower ma = getModelRect(a);
     Tower mb = getModelRect(b);
@@ -71,18 +71,18 @@ inline bool towersOverlap(Tower a, Tower b) {
            ma.y + ma.h > mb.y;
 }
 
-// returns true if newTower overlaps any already-placed tower
+// returns true if newTower overlaps any already-placed tower to make it invalid for placement
 inline bool overlapsAnyTower(Tower newTower, Tower towers[], int towerCount) {
     for (int i = 0; i < towerCount; i++)
         if (towersOverlap(newTower, towers[i])) return true;
     return false;
 }
 
-// returns true if any pixel inside the tower's model rect is on the path
+// returns true if any pixel inside the tower's model rectangle is on the path
 inline bool towerTouchesPath(ALLEGRO_BITMAP* map, Tower tower) {
     Tower model = getModelRect(tower);
 
-    // clamp model rect to map bounds
+    // computes the bounding box of the model rectangle
     int mapW   = al_get_bitmap_width(map);
     int mapH   = al_get_bitmap_height(map);
     int left   = (int)model.x;
@@ -106,7 +106,7 @@ inline bool towerTouchesPath(ALLEGRO_BITMAP* map, Tower tower) {
     return touches;
 }
 
-// ─── Targeting ───────────────────────────────────────────────────────────────
+// Targeting Section ---------------------------------------------------
 
 // returns the index of the closest living slime within range, or -1 if none
 inline int findTarget(Tower t, const Slime slimes[], int slimeCount) {
@@ -126,7 +126,7 @@ inline int findTarget(Tower t, const Slime slimes[], int slimeCount) {
     return best;
 }
 
-// ─── Tower Update ────────────────────────────────────────────────────────────
+// Tower Update Section --------------------------------------------------
 
 // ticks each tower's cooldown, finds a target, and fires a lead-predicted bullet
 inline void updateTowers(Tower towers[], TowerState states[], int towerCount,
@@ -139,12 +139,12 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount,
         int idx = findTarget(towers[i], slimes, slimeCount);
         if (idx < 0) continue;
 
-        // find the barrel position (center of model rect)
+        // finds the barrel center of the tower
         Tower m  = getModelRect(towers[i]);
         float cx = m.x + m.w * 0.5f;
         float cy = m.y + m.h * 0.5f;
 
-        // Predict intercept: solve |P + V*t| = BULLET_SPEED * t
+        // predicts where the slime will be based on its constant velocity, and solves so that the bullet will intercept the enemy
         float px = slimes[idx].x - cx;
         float py = slimes[idx].y - cy;
         float vx = slimes[idx].vx;
@@ -153,7 +153,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount,
         float b_ = 2.0f * (px*vx + py*vy);
         float c  = px*px + py*py;
 
-        // default aim: current slime position (fallback if no intercept)
+        // sets the default aim
         float aimX = slimes[idx].x;
         float aimY = slimes[idx].y;
 
@@ -197,7 +197,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount,
     }
 }
 
-// ─── Mouse Click Handler ─────────────────────────────────────────────────────
+// Mouse Click Handler section --------------------------------------------------
 
 // places a new tower at the mouse position if all placement rules pass
 inline void handleMouseClick(const ALLEGRO_EVENT& event,
@@ -213,14 +213,14 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event,
     float towerW = drakeW * TOWER_SCALE;
     float towerH = drakeH * TOWER_SCALE;
 
-    // center the tower on the cursor
+    // center the tower on the cursor to place the towers
     Tower newTower;
     newTower.x = event.mouse.x - towerW / 2;
     newTower.y = event.mouse.y - towerH / 2;
     newTower.w = towerW;
     newTower.h = towerH;
 
-    // check that the model rect is fully inside the screen
+    // check that the model rectangle is fully inside the screen
     Tower model = getModelRect(newTower);
     bool insideScreen =
         model.x >= 0 &&
