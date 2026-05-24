@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
     if (!display) return -1;
 
     //bitmaps for the map, tower, and slime
-    ALLEGRO_BITMAP *image = nullptr, *drakeTower = nullptr, *slimeBmp = nullptr;
-    if (!loadBitmaps(display, image, drakeTower, slimeBmp)) {
+    ALLEGRO_BITMAP *image = nullptr, *towerBmp = nullptr, *slimeBmp = nullptr;
+    if (!loadBitmaps(display, image, towerBmp, slimeBmp)) {
         al_destroy_display(display);
         return -1;
     }
@@ -24,32 +24,32 @@ int main(int argc, char *argv[]) {
 
     loadPathFromMap(image); // loads the slime path from the map bitmap
 
-    Tower towers[MAX_TOWERS];
-    TowerState towerStates[MAX_TOWERS];
+    Tower towers[maxTowers];
+    TowerState towerStates[maxTowers];
     ALLEGRO_FONT* font = al_create_builtin_font();
-   
+
     // game state variables
     int towerCount = 0;
     int gold = 500; // starting amount of gold
-    int drakeW = al_get_bitmap_width(drakeTower);
-    int drakeH = al_get_bitmap_height(drakeTower);
+    int towerBmpW = al_get_bitmap_width(towerBmp);
+    int towerBmpH = al_get_bitmap_height(towerBmp);
 
     // arrays for slimes and bullets, and variables for wave manaagement
-    Slime slimes[MAX_SLIMES];
+    Slime slimes[maxSlimes];
     int slimeCount = 0;
-    Bullet bullets[MAX_BULLETS];
+    Bullet bullets[maxBullets];
     int bulletCount = 0;
     bool running = true;
     int currentWave = 0;
     int enemiesInWave = 0;
     int enemiesSpawned = 0;
     int frameCount = 0;
-    const int SPAWN_INTERVAL = 60;
-    const int WAVE_DELAY = 300;
+    const int spawnInterval = 60;
+    const int waveDelay = 300;
     bool betweenWaves = true;
 
     al_start_timer(timer);
-    
+
     // while loop to run the game
     while (running) {
         ALLEGRO_EVENT event;
@@ -60,14 +60,14 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            handleMouseClick(event, towers, towerCount, image, drakeTower, drakeW, drakeH, gold);
+            handleMouseClick(event, towers, towerCount, image, towerBmp, towerBmpW, towerBmpH, gold);
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
             frameCount++;
 
             if (betweenWaves) {
-                if (frameCount >= WAVE_DELAY) {
+                if (frameCount >= waveDelay) {
                     currentWave++;
                     enemiesInWave = 5 + (currentWave - 1) * 2;
                     enemiesSpawned = 0;
@@ -75,8 +75,8 @@ int main(int argc, char *argv[]) {
                     frameCount = 0;
                 }
             } else {
-                if (enemiesSpawned < enemiesInWave && frameCount >= SPAWN_INTERVAL) {
-                    if (slimeCount < MAX_SLIMES) slimes[slimeCount++] = initSlime(slimeBmp);
+                if (enemiesSpawned < enemiesInWave && frameCount >= spawnInterval) {
+                    if (slimeCount < maxSlimes) slimes[slimeCount++] = initSlime(slimeBmp);
                     enemiesSpawned++;
                     frameCount = 0;
                 }
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
             // draws everthing
             al_draw_bitmap(image, 0, 0, 0);
             for (int i = 0; i < towerCount; i++) {
-                al_draw_scaled_bitmap(drakeTower, 0, 0, drakeW, drakeH,
+                al_draw_scaled_bitmap(towerBmp, 0, 0, towerBmpW, towerBmpH,
                     towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
             }
             for (int i = 0; i < slimeCount; i++) drawSlime(slimes[i]);
@@ -112,6 +112,6 @@ int main(int argc, char *argv[]) {
 
     // cleans up the program resources at the end of the program
     al_destroy_font(font);
-    cleanup(timer, event_queue, slimeBmp, drakeTower, image, display);
+    cleanup(timer, event_queue, slimeBmp, towerBmp, image, display);
     return 0;
 }

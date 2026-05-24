@@ -5,37 +5,35 @@
 #include <allegro5/allegro_primitives.h>
 #include "enemy.h"
 
-// bullet properties
-const float BULLET_SPEED = 14.0f;
-const int   MAX_BULLETS  = 500;
+const int maxBullets = 500;
+// bullet speed (kept here with the rest of the bullet data)
+const float bulletSpeed = 14.0f;
 
+//varaible for the bullet, saves stuff like velocity, damage, and whether it's alive or not
 struct Bullet {
-    float x, y; // position
-    float vx, vy; // velocity
-    int damage; // damage to enemy  
-    bool alive; // wether the bullet is active
+    float x, y;
+    float vx, vy;
+    int damage;
+    bool alive;
 };
 
-//float distance to square of the
 inline float dist2(float ax, float ay, float bx, float by) {
     float dx = ax - bx, dy = ay - by;
     return dx*dx + dy*dy;
 }
 
-// updates the bullet positions and checks for collisions with slimes
-// it also removes bullets that are out of bouunds or have already hit the slime
+//this function updates the bullets position and then checks for a collision with the slimes.
+//It also deletes all the off screen bullets
 inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], int slimeCount) {
-    extern const int SCREEN_W;
-    extern const int SCREEN_H;
-    for (int i = 0; i < *bulletCount; i++) {
-        Bullet* b = &bullets[i];
+    for (int i = 0; i < *bulletCount; i++) { //this simply loops through every bullet and updates its position based on the velocity
+        Bullet* b = &bullets[i]; //if the bullet is not alive we skip it
         if (!b->alive) continue;
-        b->x += b->vx;
+        b->x += b->vx; //moves the bullet
         b->y += b->vy;
-        if (b->x < 0 || b->y < 0 || b->x > SCREEN_W || b->y > SCREEN_H) {
+        if (b->x < 0 || b->y < 0 || b->x > screenW || b->y > screenH) { //if the bullet goes off screen we destroy it
             b->alive = false;
             continue;
-        }
+        } //this part is responsible for checking if the bullet hits the slime. a hit is registered if the distance squared between the bullet and slime is less than 20 pixels squared
         for (int j = 0; j < slimeCount; j++) {
             if (slimes[j].done) continue;
             if (dist2(b->x, b->y, slimes[j].x, slimes[j].y) < 20.0f * 20.0f) {
@@ -46,7 +44,12 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
             }
         }
     }
-    // compact: swap dead bullets with last
+    //Since our bullet array is limited to 500, this loop solves the issue of having more then 500 bullets
+    //What it does is it checks if there are any dead bullets (dead bullets are bullets that have hit a slime or gone of screen)
+    //then an active bullet gets put into the dead bullet spot instead of taking more space
+    //this is very efficient because we wont have to worry of running out of bullet space
+    //the only limit with this code is that once we add larger waves more characters ex. we might have more then 500 bullets on the screen
+    //We will need to increase the maxBullets variable but for now with the way the game is setup we wont have to worry
     for (int i = 0; i < *bulletCount; ) {
         if (!bullets[i].alive)
             bullets[i] = bullets[--(*bulletCount)];
@@ -54,8 +57,7 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
             i++;
     }
 }
-
-// draws the bullets as filled circles for placeholder projectiles
+//this draws the bullet as a small circle, we will add a beter model later
 inline void drawBullets(const Bullet bullets[], int bulletCount) {
     for (int i = 0; i < bulletCount; i++)
         if (bullets[i].alive)

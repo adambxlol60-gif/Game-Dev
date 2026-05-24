@@ -1,7 +1,7 @@
 #pragma once
 #include <allegro5/allegro.h>
 
-const int MAX_SLIMES = 200;
+const int maxSlimes = 200;
 
 //struct for the slime enemy
 struct Slime {
