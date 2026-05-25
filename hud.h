@@ -8,6 +8,7 @@
 
 const int towerCost = 100;
 const int maxTowerLimit = 10;
+const int goldPerKill = 5;
 
 //Draws the hud at the top of the screen, it shows the player how much gold they have and how many towers they have placed out of the tower limit
 inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount) {

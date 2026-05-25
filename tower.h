@@ -27,13 +27,13 @@ struct Tower {
 //Also pretty much all of my function uses inline, this is because we have many files in this project
 //inline is much more efficent then void function because without it I would need to have a seperate file for declaring the functions and then defining it.
 //So basically thanks to inline we save a lot of time and effort
-inline Tower getModelRect(Tower t) {
-    Tower m;
-    m.x = t.x + t.w * modelXFrac;
-    m.y = t.y + t.h * modelYFrac;
-    m.w = t.w * modelWFrac;
-    m.h = t.h * modelHFrac;
-    return m;
+inline Tower towerModelRectangle(Tower t) {
+    Tower model;
+    model.x = t.x + t.w * modelXFrac;
+    model.y = t.y + t.h * modelYFrac;
+    model.w = t.w * modelWFrac;
+    model.h = t.h * modelHFrac;
+    return model;
 }
 //This is for the bullet speed, tower range (field of view) and cooldow time between shots.
 // Makes it super easy to adjust the towers in the future without changing much code.
@@ -50,39 +50,40 @@ struct TowerState {
 //best = -1 means no target found yet; bestD starts at r2 so any candidate must be within range to beat it
 //it loops through every slime, skips dead ones, and tracks the closest in-range slime, returning its index (or -1 if none qualify)
 inline int findTarget(Tower t, const Slime slimes[], int slimeCount) {
-    Tower m = getModelRect(t);
-    float cx = m.x + m.w * 0.5f;
-    float cy = m.y + m.h * 0.5f;
+    Tower model = towerModelRectangle(t);
+    float centerX = model.x + model.w * 0.5f;
+    float centerY = model.y + model.h * 0.5f;
     float r2 = towerRange * towerRange;
     int best = -1;
     float bestD = r2;
     for (int i = 0; i < slimeCount; i++) {
         if (slimes[i].done) continue;
-        float d = dist2(cx, cy, slimes[i].x, slimes[i].y);
-        if (d <= bestD) { bestD = d; best = i; }
+        float distance = dist2(centerX, centerY, slimes[i].x, slimes[i].y); //used dist2 instead of sqrt to make the code run faster 
+        if (distance <= bestD) { 
+            bestD = distance; best = i; }
     }
     return best;
 }
 //Probably the most complex function in the game right now. It makes the bullets shoot but it also predicts where the slime will be when the bullet reaches it.
 //It does this by solving the equation |P + V*t| = bulletSpeed * t, where P is the vector from the tower to the slime, V is the velocity of the slime, and t is the time it takes for the bullet to reach the slime. This gives us a quadratic equation in t, which we can solve using the quadratic formula. We then choose the positive solution that gives us the earliest intercept time.
-//I was able to find this formula online which helped tremedously as before the bullet would miss the slimes a lot
+//I was able to find this formula which helped tremedously as before the bullet would miss the slimes a lot
 inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount) {
     for (int i = 0; i < towerCount; i++) { //this part checks for the cooldown and uses the previous function to find a target slime for the tower
         if (states[i].cooldown > 0) { states[i].cooldown--; continue; }
         int idx = findTarget(towers[i], slimes, slimeCount);
         if (idx < 0) continue;
         //finds towers center
-        Tower m = getModelRect(towers[i]);
-        float cx = m.x + m.w * 0.5f;
-        float cy = m.y + m.h * 0.5f;
+        Tower model = towerModelRectangle(towers[i]);
+        float centerX = model.x + model.w * 0.5f;
+        float centerY = model.y + model.h * 0.5f;
 
         // The prediction math right here it setups a quadratic equation but since its a computer it looks much more complex than it actually is.
-        float px = slimes[idx].x - cx;
-        float py = slimes[idx].y - cy;
+        float px = slimes[idx].x - centerX;
+        float py = slimes[idx].y - centerY;
         float vx = slimes[idx].vx;
         float vy = slimes[idx].vy;
         float a = vx*vx + vy*vy - bulletSpeed * bulletSpeed;
-        float b_ = 2.0f * (px*vx + py*vy);
+        float b_ = 2.0f * (px*vx + py*vy); //b is discrimant 
         float c  = px*px + py*py;
         float aimX = slimes[idx].x;
         float aimY = slimes[idx].y;
@@ -105,18 +106,18 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
             }
         }
         //this calculates the direction from the tower to predicted position and creates a bullet with that velocity
-        float dx = aimX - cx;
-        float dy = aimY - cy;
-        float len = sqrtf(dx*dx + dy*dy);
-        if (len < 0.001f) len = 1.0f;
+        float dx = aimX - centerX;
+        float dy = aimY - centerY;
+        float len = sqrtf(dx*dx + dy*dy); //pyothegorean theorem to find the length of the vector, thanks Pythagoras
+        if (len < 0.001f) len = 1.0f; //safety check that prevents dividing by zero
 
-        Bullet bul;
-        bul.x = cx; bul.y = cy;
-        bul.vx = (dx/len) * bulletSpeed;
-        bul.vy = (dy/len) * bulletSpeed;
-        bul.damage = 1;
-        bul.alive = true;
-        if (*bulletCount < maxBullets) bullets[(*bulletCount)++] = bul;
+        Bullet bullet;
+        bullet.x = centerX; bullet.y = centerY;
+        bullet.vx = (dx/len) * bulletSpeed;
+        bullet.vy = (dy/len) * bulletSpeed;
+        bullet.damage = 1;
+        bullet.alive = true;
+        if (*bulletCount < maxBullets) bullets[(*bulletCount)++] = bullet;
 
         states[i].cooldown = towerCooldown;
     }
@@ -135,12 +136,9 @@ inline bool onPath(ALLEGRO_BITMAP* map, int mouseX, int mouseY) {
 //funny thing is that the hitbox is not the drake itself it is a smaller rectangle in the middle of the tower
 //the reasion for this is because the png of drake is bigger than what it looks like, so the rectangle is there to make it more accurate
 inline bool towersOverlap(Tower a, Tower b) {
-    Tower ma = getModelRect(a);
-    Tower mb = getModelRect(b);
-    return ma.x < mb.x + mb.w &&
-           ma.x + ma.w > mb.x &&
-           ma.y < mb.y + mb.h &&
-           ma.y + ma.h > mb.y;
+    Tower ma = towerModelRectangle(a);
+    Tower mb = towerModelRectangle(b);
+    return ma.x < mb.x + mb.w && ma.x + ma.w > mb.x && ma.y < mb.y + mb.h && ma.y + ma.h > mb.y;
 }
 //this function just loops through every tower and checks if the new tower overlaps with any of them, if it does it returns true and if it doesnt it returns false
 inline bool overlapsAnyTower(Tower newTower, Tower towers[], int towerCount) {
@@ -151,7 +149,7 @@ inline bool overlapsAnyTower(Tower newTower, Tower towers[], int towerCount) {
 //This is the code that checks if the tower touches the path
 // it returns true if any parts of the towers rectangle touches the path
 inline bool towerTouchesPath(ALLEGRO_BITMAP* map, Tower tower) {
-    Tower model = getModelRect(tower);
+    Tower model = towerModelRectangle(tower);
 
     int mapW = al_get_bitmap_width(map);
     int mapH = al_get_bitmap_height(map);
@@ -178,11 +176,7 @@ inline bool towerTouchesPath(ALLEGRO_BITMAP* map, Tower tower) {
     return touches;
 }
 //places a new tower at the mouse position if all placement rules pass
-inline void handleMouseClick(const ALLEGRO_EVENT& event,
-                              Tower towers[], int& towerCount,
-                              ALLEGRO_BITMAP* map,
-                              ALLEGRO_BITMAP* towerBmp,
-                              int towerBmpW, int towerBmpH, int &gold) {
+inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* towerBmp, int towerBmpW, int towerBmpH, int &gold) {
     if (event.mouse.button != 1) return;
 
     float towerW = towerBmpW * towerScale;
@@ -194,17 +188,38 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event,
     newTower.w = towerW;
     newTower.h = towerH;
 
-    Tower model = getModelRect(newTower);
-    bool insideScreen =
-        model.x >= 0 &&
-        model.y >= 0 &&
-        model.x + model.w <= screenW &&
-        model.y + model.h <= screenH;
+    Tower model = towerModelRectangle(newTower);
+    bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW &&model.y + model.h <= screenH;
 
-    if (insideScreen && towerCount < maxTowerLimit && gold >= towerCost && !towerTouchesPath(map, newTower) && !overlapsAnyTower(newTower, towers, towerCount)) {
+    if (insideScreen && towerCount < maxTowerLimit && gold >= towerCost && !towerTouchesPath(map, newTower) && overlapsAnyTower(newTower, towers, towerCount) == false) {
     towers[towerCount++] = newTower;
     gold -= towerCost;
     }
+}
+
+//code for hover ghost tower, it makes it easier for the player to see ifthey can place the tower and if it is in range of the slime, it also shows the towers range as a circle
+inline void towerPlacement(ALLEGRO_BITMAP* towerBmp, int towerBmpW, int towerBmpH, int mouseX, int mouseY, ALLEGRO_BITMAP* map, Tower towers[], int towerCount, int gold) {
+    float towerW = towerBmpW * towerScale;
+    float towerH = towerBmpH * towerScale;
+    Tower preview;
+    preview.x = mouseX - towerW / 2;
+    preview.y = mouseY - towerH / 2;
+    preview.w = towerW;
+    preview.h = towerH;
+
+    Tower model = towerModelRectangle(preview);
+    bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW && model.y + model.h <= screenH;
+
+    bool canPlace = insideScreen && towerCount < maxTowerLimit && gold >= towerCost && !towerTouchesPath(map, preview) && !overlapsAnyTower(preview, towers, towerCount);
+    float centerX = model.x + model.w * 0.5f;
+    float centerY = model.y + model.h * 0.5f;
+    al_draw_circle(centerX, centerY, towerRange, al_map_rgba(120, 120, 120, 180), 2);
+
+    //alpha below 255 makes the sprite see through, the rgb values tint it green or red
+    ALLEGRO_COLOR tint = canPlace
+        ? al_map_rgba(0, 180, 0, 150)
+        : al_map_rgba(180, 0, 0, 150);
+    al_draw_tinted_scaled_bitmap(towerBmp, tint, 0, 0, towerBmpW, towerBmpH, preview.x, preview.y, preview.w, preview.h, 0);
 }
 
 #endif

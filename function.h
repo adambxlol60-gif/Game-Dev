@@ -25,17 +25,17 @@ inline bool initAllegro() {
     al_init_native_dialog_addon();
     if (!al_install_mouse()) {
         al_show_native_message_box(nullptr, "Error", "Error",
-            "Failed to install mouse!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+            "Couldnt install mouse", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         return false;
     }
     if (!al_init_image_addon()) {
         al_show_native_message_box(nullptr, "Error", "Error",
-            "Failed to initialize image addon!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+            "Error with image addons", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         return false;
     }
     if (!al_init_primitives_addon()) {
     al_show_native_message_box(nullptr, "Error", "Error",
-        "Failed to initialize primitives addon!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+        "Error with primtives addons", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
     return false;
     }
     return true;
@@ -45,7 +45,7 @@ inline ALLEGRO_DISPLAY* createDisplay() {
     ALLEGRO_DISPLAY* display = al_create_display(screenW, screenH);
     if (!display) {
         al_show_native_message_box(nullptr, "Error", "Error",
-            "Failed to initialize display!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+            "Dispaly couldnt load", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         return nullptr;
     }
     al_set_window_title(display, "Tower Defense");
@@ -55,24 +55,24 @@ inline ALLEGRO_DISPLAY* createDisplay() {
 }
 //loads the images, if it fails to load any of the 3 images it shows an error message
 //long term we will probably need to make this a function but for now since we only have 3 images its not too bad
-inline bool loadBitmaps(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& towerBmp, ALLEGRO_BITMAP*& slimeBmp) {
+inline bool Images(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& towerBmp, ALLEGRO_BITMAP*& slimeBmp) {
     map = al_load_bitmap("Images/BetaMap.png");
     if (!map) {
         al_show_native_message_box(display, "Error", "Error",
-            "Failed to load BetaMap.png!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+            "Cant load image BetaMap.png", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         return false;
     }
     towerBmp = al_load_bitmap("Images/DrakeTower.png");
     if (!towerBmp) {
         al_show_native_message_box(display, "Error", "Error",
-            "Failed to load DrakeTower.png!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+            "Cant load image DrakeTower.png", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         al_destroy_bitmap(map);
         return false;
     }
     slimeBmp = al_load_bitmap("Images/Slime.png");
     if (!slimeBmp) {
         al_show_native_message_box(display, "Error", "Error",
-            "Failed to load Slime.png!", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+            "Cant load image Slime.png", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         al_destroy_bitmap(towerBmp);
         al_destroy_bitmap(map);
         return false;
@@ -83,18 +83,13 @@ inline bool loadBitmaps(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_
 // the display one is used to check if the player clicks the x button to close the game
 //the mouse one is used to check for mouse clicks to place towers
 //the timer one is used to update the game state every frame
-inline void setupEventQueue(ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* display, ALLEGRO_TIMER* timer) {
+inline void eventQueue(ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_DISPLAY* display, ALLEGRO_TIMER* timer) {
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_mouse_event_source());
     al_register_event_source(queue, al_get_timer_event_source(timer));
 }
 //function to clean up the allegro resources, it destroys the timer, event queue, bitmaps, and display when game is closed
-inline void cleanup(ALLEGRO_TIMER* timer,
-                    ALLEGRO_EVENT_QUEUE* queue,
-                    ALLEGRO_BITMAP* slimeBmp,
-                    ALLEGRO_BITMAP* towerBmp,
-                    ALLEGRO_BITMAP* map,
-                    ALLEGRO_DISPLAY* display) {
+inline void deleteAllegro(ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLEGRO_BITMAP* slimeBmp, ALLEGRO_BITMAP* towerBmp, ALLEGRO_BITMAP* map, ALLEGRO_DISPLAY* display) {
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
     al_destroy_bitmap(slimeBmp);

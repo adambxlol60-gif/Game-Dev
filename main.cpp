@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 
     //bitmaps for the map, tower, and slime
     ALLEGRO_BITMAP *image = nullptr, *towerBmp = nullptr, *slimeBmp = nullptr;
-    if (!loadBitmaps(display, image, towerBmp, slimeBmp)) {
+    if (!Images(display, image, towerBmp, slimeBmp)) {
         al_destroy_display(display);
         return -1;
     }
@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     // creates timer
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-    setupEventQueue(event_queue, display, timer);
+    eventQueue(event_queue, display, timer);
 
     loadPathFromMap(image); // loads the slime path from the map bitmap
 
@@ -40,6 +40,8 @@ int main(int argc, char *argv[]) {
     Bullet bullets[maxBullets];
     int bulletCount = 0;
     bool running = true;
+    //tracks where the mouse is so we can draw the tower preview at the cursor
+    int mouseX = 0, mouseY = 0;
     int currentWave = 0;
     int enemiesInWave = 0;
     int enemiesSpawned = 0;
@@ -61,6 +63,12 @@ int main(int argc, char *argv[]) {
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
             handleMouseClick(event, towers, towerCount, image, towerBmp, towerBmpW, towerBmpH, gold);
+        }
+
+        //updates the saved mouse position every time the cursor moves
+        if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+            mouseX = event.mouse.x;
+            mouseY = event.mouse.y;
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
@@ -95,7 +103,7 @@ int main(int argc, char *argv[]) {
             //for loop to update the enemies, towers, and bullets, then draw them on the screen
             for (int i = 0; i < slimeCount; i++) updateSlime(slimes[i]);
             updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount);
-            updateBullets(bullets, &bulletCount, slimes, slimeCount);
+            updateBullets(bullets, &bulletCount, slimes, slimeCount, &gold);
 
             // draws everthing
             al_draw_bitmap(image, 0, 0, 0);
@@ -105,6 +113,8 @@ int main(int argc, char *argv[]) {
             }
             for (int i = 0; i < slimeCount; i++) drawSlime(slimes[i]);
             drawBullets(bullets, bulletCount);
+            //draws the ghost tower and range circle under the hud so the hud always stays on top
+            towerPlacement(towerBmp, towerBmpW, towerBmpH, mouseX, mouseY, image, towers, towerCount, gold);
             drawHud(font, gold, towerCount);
             al_flip_display();
         }
@@ -112,6 +122,6 @@ int main(int argc, char *argv[]) {
 
     // cleans up the program resources at the end of the program
     al_destroy_font(font);
-    cleanup(timer, event_queue, slimeBmp, towerBmp, image, display);
+    deleteAllegro(timer, event_queue, slimeBmp, towerBmp, image, display);
     return 0;
 }

@@ -4,7 +4,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include "enemy.h"
-
+#include "hud.h"
 const int maxBullets = 500;
 // bullet speed (kept here with the rest of the bullet data)
 const float bulletSpeed = 14.0f;
@@ -24,32 +24,35 @@ inline float dist2(float ax, float ay, float bx, float by) {
 
 //this function updates the bullets position and then checks for a collision with the slimes.
 //It also deletes all the off screen bullets
-inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], int slimeCount) {
+inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], int slimeCount, int* gold) {
     for (int i = 0; i < *bulletCount; i++) { //this simply loops through every bullet and updates its position based on the velocity
-        Bullet* b = &bullets[i]; //if the bullet is not alive we skip it
-        if (!b->alive) continue;
-        b->x += b->vx; //moves the bullet
-        b->y += b->vy;
-        if (b->x < 0 || b->y < 0 || b->x > screenW || b->y > screenH) { //if the bullet goes off screen we destroy it
-            b->alive = false;
+        Bullet& bullet = bullets[i]; //reference to the bullet so we can use dot syntax and still edit the real bullet, not a copy
+        if (!bullet.alive) continue;
+        bullet.x += bullet.vx; //moves the bullet
+        bullet.y += bullet.vy;
+        if (bullet.x < 0 || bullet.y < 0 || bullet.x > screenW || bullet.y > screenH) { //if the bullet goes off screen we destroy it
+            bullet.alive = false;
             continue;
         } //this part is responsible for checking if the bullet hits the slime. a hit is registered if the distance squared between the bullet and slime is less than 20 pixels squared
         for (int j = 0; j < slimeCount; j++) {
             if (slimes[j].done) continue;
-            if (dist2(b->x, b->y, slimes[j].x, slimes[j].y) < 20.0f * 20.0f) {
-                slimes[j].hp -= b->damage;
-                if (slimes[j].hp <= 0) slimes[j].done = true;
-                b->alive = false;
+            if (dist2(bullet.x, bullet.y, slimes[j].x, slimes[j].y) < 20.0f * 20.0f) {
+                slimes[j].hp -= bullet.damage;
+                if (slimes[j].hp <= 0) {
+                    slimes[j].done = true;
+                    *gold += goldPerKill;
+                } //adds gold to the player when they kill a slime had to add a * so that we could modify the gold variable that was declared in main
+                bullet.alive = false;
                 break;
             }
         }
     }
-    //Since our bullet array is limited to 500, this loop solves the issue of having more then 500 bullets
-    //What it does is it checks if there are any dead bullets (dead bullets are bullets that have hit a slime or gone of screen)
-    //then an active bullet gets put into the dead bullet spot instead of taking more space
-    //this is very efficient because we wont have to worry of running out of bullet space
-    //the only limit with this code is that once we add larger waves more characters ex. we might have more then 500 bullets on the screen
-    //We will need to increase the maxBullets variable but for now with the way the game is setup we wont have to worry
+    //So this code here is a way to keep our bullets array clean from dead bullets
+    //at first after running a long time my bullets would stop appearing, the reason was because my array was full
+    //at first I did a simple moving the array down one every time a bullet died
+    //this worked fine untill I added more drakes to the game, our game started lagging and running poorly 
+    //this is because moving the array down is extremely inefficent when yoou have hundreds of bullets
+    //this version is much more efficent because it doesnt move the whole array down but just put new bullet in the dead bullets place
     for (int i = 0; i < *bulletCount; ) {
         if (!bullets[i].alive)
             bullets[i] = bullets[--(*bulletCount)];
