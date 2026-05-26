@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
