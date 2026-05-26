@@ -25,7 +25,7 @@ const int weekndBtnX = drakeBtnX + drakeBtnW + 10;
 const int weekndBtnY = (hudHeight - weekndBtnH) / 2;
 
 //Draws the hud at the top of the screen, it shows the player how much gold they have and how many towers they have placed out of the tower limit
-inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount) {
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, int towerCost) {
     al_draw_filled_rectangle(0, 0, screenW, hudHeight, al_map_rgba(0, 0, 0, 200));
     al_draw_line(0, hudHeight, screenW, hudHeight, al_map_rgb(80, 80, 80), 1);
 

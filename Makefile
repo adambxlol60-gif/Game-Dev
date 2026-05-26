@@ -1,5 +1,5 @@
 CXX = g++
-FLAGS = -I/opt/homebrew/Cellar/allegro/5.2.11.3/include \
+FLAGS = -std=c++17 -I/opt/homebrew/Cellar/allegro/5.2.11.3/include \
         -L/opt/homebrew/Cellar/allegro/5.2.11.3/lib \
         -lallegro_ttf -lallegro_font -lallegro_image \
         -lallegro_primitives -lallegro_acodec -lallegro_audio \

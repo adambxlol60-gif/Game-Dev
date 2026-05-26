@@ -197,7 +197,7 @@ inline bool towerTouchesPath(ALLEGRO_BITMAP* map, Tower tower) {
     return touches;
 }
 //places a new tower at the mouse position if all placement rules pass
-inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, int &gold, bool& drakeSelected, bool& weekndSelected) {
+inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, int &gold, bool& drakeSelected, bool& weekndSelected, int towerCost) {
     if (event.mouse.button != 1) return;
     if (!drakeSelected && !weekndSelected) return;
 
