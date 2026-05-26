@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #ifndef HUD_H
 #define HUD_H
 

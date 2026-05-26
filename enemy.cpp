@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #include "enemy.h"
 #include <allegro5/allegro_image.h>
 #include <math.h>
@@ -49,6 +51,7 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap) {
     s.target = 1;
     s.done = false;
     s.hp = 3;
+    s.maxHp = 3;
     return s;
 }
 
@@ -84,4 +87,10 @@ void drawSlime(const Slime& s) {
     int h = al_get_bitmap_height(s.bitmap);
     const float scale = 0.1f;
     al_draw_scaled_bitmap(s.bitmap, 0, 0, w, h, s.x - (w * scale) / 2, s.y - (h * scale) / 2, w * scale, h * scale, 0);
+
+    //dimensions for the health bar
+    float barWidth = 20.0f; // width of bar
+    float barHeight = 4.0f; // height of bar
+    float barX = s.x - barWidth / 2;
+    float barY = s.y - 16.0f; // position the bar is above the slime
 }

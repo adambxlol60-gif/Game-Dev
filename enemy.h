@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #pragma once
 #include <allegro5/allegro.h>
 
@@ -14,6 +16,7 @@ struct Slime {
     int target;
     bool done;
     int hp;
+    int maxHp;
 };
 
 // slime path points
@@ -21,3 +24,4 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap);
 void updateSlime(Slime& s); // moves the slime along the path
 void drawSlime(const Slime& s); // draws the slime at the correct position
 void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap); // loads the path points from a bitmap where the path is draw in a specific color
+

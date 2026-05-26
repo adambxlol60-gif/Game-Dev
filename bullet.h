@@ -1,3 +1,6 @@
+//created by Noah Basaria and Adam Jurewicz
+
+
 #ifndef BULLET_H
 #define BULLET_H
 

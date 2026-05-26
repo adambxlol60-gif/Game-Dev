@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #include <allegro5/allegro.h>
 #include "function.h"
 
