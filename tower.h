@@ -11,16 +11,22 @@
 //also adds tower limit and cost variable
 const int maxTowers = 100;
 const float towerScale = 0.2f;
+const float weekndScale = 0.11f;
 
 const float modelXFrac = 0.37f;
 const float modelYFrac = 0.26f;
 const float modelWFrac = 0.26f;
 const float modelHFrac = 0.48f;
 
-//saves tower position it size and time to firing its next bullet
+//tower type ids - kept as plain ints so we can branch on them with if/else
+const int TOWER_DRAKE = 0;
+const int TOWER_WEEKND = 1;
+
+//saves tower position, size, fire timer, and which type it is
 struct Tower {
     float x, y, w, h;
     int fireTimer;
+    int type;
 };
 //puts a small rectange in the middle of the tower to combat tower overlap and path collision issues
 //the math is to make the rectangle smaller and centered within the tower's bounding box
@@ -38,7 +44,14 @@ inline Tower towerModelRectangle(Tower t) {
 //This is for the bullet speed, tower range (field of view) and cooldow time between shots.
 // Makes it super easy to adjust the towers in the future without changing much code.
 const float towerRange = 200.0f;
+const float weekndRange = 350.0f;
 const int   towerCooldown = 30;
+
+//rangeOf returns the firing range for a given tower type
+inline float rangeOf(int t) {
+    if (t == TOWER_WEEKND) return weekndRange;
+    return towerRange;
+}
 //Saves information about the tower's cooldown and whether a bullet is alive or not
 struct TowerState {
     int cooldown = 0;
@@ -49,11 +62,11 @@ struct TowerState {
 //then it sets r2 = range squared (squared so we skip a slow sqrt in the loop)
 //best = -1 means no target found yet; bestD starts at r2 so any candidate must be within range to beat it
 //it loops through every slime, skips dead ones, and tracks the closest in-range slime, returning its index (or -1 if none qualify)
-inline int findTarget(Tower t, const Slime slimes[], int slimeCount) {
+inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range) {
     Tower model = towerModelRectangle(t);
     float centerX = model.x + model.w * 0.5f;
     float centerY = model.y + model.h * 0.5f;
-    float r2 = towerRange * towerRange;
+    float r2 = range * range;
     int best = -1;
     float bestD = r2;
     for (int i = 0; i < slimeCount; i++) {
@@ -67,10 +80,11 @@ inline int findTarget(Tower t, const Slime slimes[], int slimeCount) {
 //Probably the most complex function in the game right now. It makes the bullets shoot but it also predicts where the slime will be when the bullet reaches it.
 //It does this by solving the equation |P + V*t| = bulletSpeed * t, where P is the vector from the tower to the slime, V is the velocity of the slime, and t is the time it takes for the bullet to reach the slime. This gives us a quadratic equation in t, which we can solve using the quadratic formula. We then choose the positive solution that gives us the earliest intercept time.
 //I was able to find this formula which helped tremedously as before the bullet would miss the slimes a lot
-inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount) {
+inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount, ALLEGRO_BITMAP* microphoneBmp) {
     for (int i = 0; i < towerCount; i++) { //this part checks for the cooldown and uses the previous function to find a target slime for the tower
         if (states[i].cooldown > 0) { states[i].cooldown--; continue; }
-        int idx = findTarget(towers[i], slimes, slimeCount);
+        float range = rangeOf(towers[i].type);
+        int idx = findTarget(towers[i], slimes, slimeCount, range);
         if (idx < 0) continue;
         //finds towers center
         Tower model = towerModelRectangle(towers[i]);
@@ -117,6 +131,11 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         bullet.vy = (dy/len) * bulletSpeed;
         bullet.damage = 1;
         bullet.alive = true;
+        if (towers[i].type == TOWER_WEEKND) {
+            bullet.sprite = microphoneBmp;
+        } else {
+            bullet.sprite = nullptr;
+        }
         if (*bulletCount < maxBullets) bullets[(*bulletCount)++] = bullet;
 
         states[i].cooldown = towerCooldown;
@@ -176,17 +195,31 @@ inline bool towerTouchesPath(ALLEGRO_BITMAP* map, Tower tower) {
     return touches;
 }
 //places a new tower at the mouse position if all placement rules pass
-inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* towerBmp, int towerBmpW, int towerBmpH, int &gold) {
+inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, int &gold, bool& drakeSelected, bool& weekndSelected) {
     if (event.mouse.button != 1) return;
+    if (!drakeSelected && !weekndSelected) return;
 
-    float towerW = towerBmpW * towerScale;
-    float towerH = towerBmpH * towerScale;
+    //pick the footprint size based on which tower is being placed
+    float towerW;
+    float towerH;
+    if (drakeSelected) {
+        towerW = drakeBmpW * towerScale;
+        towerH = drakeBmpH * towerScale;
+    } else {
+        towerW = drakeBmpW * weekndScale;
+        towerH = drakeBmpH * weekndScale;
+    }
 
     Tower newTower;
     newTower.x = event.mouse.x - towerW / 2;
     newTower.y = event.mouse.y - towerH / 2;
     newTower.w = towerW;
     newTower.h = towerH;
+    if (drakeSelected) {
+        newTower.type = TOWER_DRAKE;
+    } else {
+        newTower.type = TOWER_WEEKND;
+    }
 
     Tower model = towerModelRectangle(newTower);
     bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW &&model.y + model.h <= screenH;
@@ -197,10 +230,36 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
     }
 }
 
-//code for hover ghost tower, it makes it easier for the player to see ifthey can place the tower and if it is in range of the slime, it also shows the towers range as a circle
-inline void towerPlacement(ALLEGRO_BITMAP* towerBmp, int towerBmpW, int towerBmpH, int mouseX, int mouseY, ALLEGRO_BITMAP* map, Tower towers[], int towerCount, int gold) {
-    float towerW = towerBmpW * towerScale;
-    float towerH = towerBmpH * towerScale;
+//code for hover ghost tower, it picks the drake or weeknd sprite based on which button is selected and shows a green or red tint plus the tower range circle
+inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, int mouseX, int mouseY, ALLEGRO_BITMAP* map, Tower towers[], int towerCount, int gold, bool drakeSelected, bool weekndSelected) {
+    if (!drakeSelected && !weekndSelected) return;
+
+    ALLEGRO_BITMAP* spriteBmp;
+    int spriteW;
+    int spriteH;
+    float range;
+    if (drakeSelected) {
+        spriteBmp = drakeBmp;
+        spriteW = drakeBmpW;
+        spriteH = drakeBmpH;
+        range = towerRange;
+    } else {
+        spriteBmp = weekndBmp;
+        spriteW = weekndBmpW;
+        spriteH = weekndBmpH;
+        range = weekndRange;
+    }
+
+    //pick the ghost footprint size to match the tower being previewed
+    float towerW;
+    float towerH;
+    if (drakeSelected) {
+        towerW = drakeBmpW * towerScale;
+        towerH = drakeBmpH * towerScale;
+    } else {
+        towerW = drakeBmpW * weekndScale;
+        towerH = drakeBmpH * weekndScale;
+    }
     Tower preview;
     preview.x = mouseX - towerW / 2;
     preview.y = mouseY - towerH / 2;
@@ -213,13 +272,16 @@ inline void towerPlacement(ALLEGRO_BITMAP* towerBmp, int towerBmpW, int towerBmp
     bool canPlace = insideScreen && towerCount < maxTowerLimit && gold >= towerCost && !towerTouchesPath(map, preview) && !overlapsAnyTower(preview, towers, towerCount);
     float centerX = model.x + model.w * 0.5f;
     float centerY = model.y + model.h * 0.5f;
-    al_draw_circle(centerX, centerY, towerRange, al_map_rgba(120, 120, 120, 180), 2);
+    al_draw_circle(centerX, centerY, range, al_map_rgba(120, 120, 120, 180), 2);
 
     //alpha below 255 makes the sprite see through, the rgb values tint it green or red
-    ALLEGRO_COLOR tint = canPlace
-        ? al_map_rgba(0, 180, 0, 150)
-        : al_map_rgba(180, 0, 0, 150);
-    al_draw_tinted_scaled_bitmap(towerBmp, tint, 0, 0, towerBmpW, towerBmpH, preview.x, preview.y, preview.w, preview.h, 0);
+    ALLEGRO_COLOR tint;
+    if (canPlace) {
+        tint = al_map_rgba(0, 180, 0, 150);
+    } else {
+        tint = al_map_rgba(180, 0, 0, 150);
+    }
+    al_draw_tinted_scaled_bitmap(spriteBmp, tint, 0, 0, spriteW, spriteH, preview.x, preview.y, preview.w, preview.h, 0);
 }
 
 #endif

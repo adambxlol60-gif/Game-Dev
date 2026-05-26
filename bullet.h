@@ -9,12 +9,13 @@ const int maxBullets = 500;
 // bullet speed (kept here with the rest of the bullet data)
 const float bulletSpeed = 14.0f;
 
-//varaible for the bullet, saves stuff like velocity, damage, and whether it's alive or not
+//varaible for the bullet, saves stuff like velocity, damage, whether it's alive, and optional sprite (nullptr = yellow circle)
 struct Bullet {
     float x, y;
     float vx, vy;
     int damage;
     bool alive;
+    ALLEGRO_BITMAP* sprite = nullptr;
 };
 
 inline float dist2(float ax, float ay, float bx, float by) {
@@ -60,11 +61,22 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
             i++;
     }
 }
-//this draws the bullet as a small circle, we will add a beter model later
+//this draws bullets - if a bullet has a sprite it draws the scaled sprite, otherwise the default yellow circle
 inline void drawBullets(const Bullet bullets[], int bulletCount) {
-    for (int i = 0; i < bulletCount; i++)
-        if (bullets[i].alive)
+    for (int i = 0; i < bulletCount; i++) {
+        if (!bullets[i].alive) continue;
+        if (bullets[i].sprite) {
+            int sw = al_get_bitmap_width(bullets[i].sprite);
+            int sh = al_get_bitmap_height(bullets[i].sprite);
+            float scale = 0.18f;
+            al_draw_scaled_bitmap(bullets[i].sprite, 0, 0, sw, sh,
+                bullets[i].x - (sw * scale) / 2,
+                bullets[i].y - (sh * scale) / 2,
+                sw * scale, sh * scale, 0);
+        } else {
             al_draw_filled_circle(bullets[i].x, bullets[i].y, 4, al_map_rgb(255, 220, 0));
+        }
+    }
 }
 
 #endif
