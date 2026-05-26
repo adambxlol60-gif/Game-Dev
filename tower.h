@@ -226,7 +226,7 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
     Tower model = towerModelRectangle(newTower);
     bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW &&model.y + model.h <= screenH;
 
-    if (insideScreen && towerCount < maxTowerLimit && gold >= drakeCost || weekndCost && !towerTouchesPath(map, newTower) && overlapsAnyTower(newTower, towers, towerCount) == false) {
+    if (insideScreen && towerCount < maxTowerLimit && gold >= towerCost && !towerTouchesPath(map, newTower) && overlapsAnyTower(newTower, towers, towerCount) == false) {
     towers[towerCount++] = newTower;
     gold -= towerCost;
     }
@@ -245,7 +245,7 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
         spriteW = drakeBmpW;
         spriteH = drakeBmpH;
         range = towerRange;
-    } else {
+    } else if (weekndSelected) {
         spriteBmp = weekndBmp;
         spriteW = weekndBmpW;
         spriteH = weekndBmpH;
@@ -281,14 +281,16 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     ALLEGRO_COLOR tint;
     if (canPlaceDrake) {
         tint = al_map_rgba(0, 180, 0, 150);
-    } else {
+    } 
+    else {
         tint = al_map_rgba(180, 0, 0, 150);
     }
     al_draw_tinted_scaled_bitmap(spriteBmp, tint, 0, 0, spriteW, spriteH, preview.x, preview.y, preview.w, preview.h, 0);
 
      if (canPlaceWeeknd) {
         tint = al_map_rgba(0, 180, 0, 150);
-    } else {
+    } 
+    else {
         tint = al_map_rgba(180, 0, 0, 150);
     }
     al_draw_tinted_scaled_bitmap(spriteBmp, tint, 0, 0, spriteW, spriteH, preview.x, preview.y, preview.w, preview.h, 0);
