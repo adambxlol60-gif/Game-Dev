@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
                 weekndSelected = !weekndSelected;
                 if (weekndSelected) drakeSelected = false;
             } else {
-                handleMouseClick(event, towers, towerCount, image, drakeBmp, drakeBmpW, drakeBmpH, gold, drakeSelected, weekndSelected, drakeSelected ? drakeCost : weekndCost);
+                handleMouseClick(event, towers, towerCount, image, drakeBmp, drakeBmpW, drakeBmpH, weekndBmpW, weekndBmpH, gold, drakeSelected, weekndSelected, drakeSelected ? drakeCost : weekndCost);
             }
         }
 
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
             towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected);
-            drawHud(font, gold, towerCount, drakeSelected ? drakeCost : weekndCost);
+            drawHud(font, gold, towerCount, drakeSelected, weekndSelected);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
             al_flip_display();

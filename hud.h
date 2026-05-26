@@ -24,13 +24,19 @@ const int weekndBtnH = 40;
 const int weekndBtnX = drakeBtnX + drakeBtnW + 10;
 const int weekndBtnY = (hudHeight - weekndBtnH) / 2;
 
-//Draws the hud at the top of the screen, it shows the player how much gold they have and how many towers they have placed out of the tower limit
-inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, int towerCost) {
+//Draws the hud bar with gold and tower count. Only shows the price hint when a tower button is selected
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected) {
     al_draw_filled_rectangle(0, 0, screenW, hudHeight, al_map_rgba(0, 0, 0, 200));
     al_draw_line(0, hudHeight, screenW, hudHeight, al_map_rgb(80, 80, 80), 1);
 
     char goldBuf[64], towerBuf[64];
-    snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Tower = %d)", gold, towerCost);
+    if (drakeSelected) {
+        snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Drake = %d)", gold, drakeCost);
+    } else if (weekndSelected) {
+        snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Weeknd = %d)", gold, weekndCost);
+    } else {
+        snprintf(goldBuf, sizeof(goldBuf), "Gold: %d", gold);
+    }
     snprintf(towerBuf, sizeof(towerBuf), "Towers: %d / %d", towerCount, maxTowerLimit);
 
     al_draw_text(font, al_map_rgb(255, 215, 0), screenW / 2, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, goldBuf);
