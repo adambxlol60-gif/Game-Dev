@@ -12,9 +12,9 @@ int main(int argc, char *argv[]) {
     ALLEGRO_DISPLAY *display = createDisplay();
     if (!display) return -1;
 
-    //bitmaps for the map, tower, and slime
-    ALLEGRO_BITMAP *image = nullptr, *towerBmp = nullptr, *slimeBmp = nullptr;
-    if (!Images(display, image, towerBmp, slimeBmp)) {
+    //bitmaps for the map, tower, slime, weeknd and microphone projectile
+    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr;
+    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp)) {
         al_destroy_display(display);
         return -1;
     }
@@ -33,8 +33,12 @@ int main(int argc, char *argv[]) {
     // game state variables
     int towerCount = 0;
     int gold = 500; // starting amount of gold
-    int towerBmpW = al_get_bitmap_width(towerBmp);
-    int towerBmpH = al_get_bitmap_height(towerBmp);
+    bool drakeSelected = false;
+    bool weekndSelected = false;
+    int drakeBmpW = al_get_bitmap_width(drakeBmp);
+    int drakeBmpH = al_get_bitmap_height(drakeBmp);
+    int weekndBmpW = al_get_bitmap_width(weekndBmp);
+    int weekndBmpH = al_get_bitmap_height(weekndBmp);
 
     // arrays for slimes and bullets, and variables for wave manaagement
     Slime slimes[maxSlimes];
@@ -64,7 +68,15 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            handleMouseClick(event, towers, towerCount, image, towerBmp, towerBmpW, towerBmpH, gold);
+            if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
+                drakeSelected = !drakeSelected;
+                if (drakeSelected) weekndSelected = false;
+            } else if (event.mouse.button == 1 && weekndButtonPressed(event.mouse.x, event.mouse.y)) {
+                weekndSelected = !weekndSelected;
+                if (weekndSelected) drakeSelected = false;
+            } else {
+                handleMouseClick(event, towers, towerCount, image, drakeBmp, drakeBmpW, drakeBmpH, gold, drakeSelected, weekndSelected);
+            }
         }
 
         //updates the saved mouse position every time the cursor moves
@@ -104,26 +116,35 @@ int main(int argc, char *argv[]) {
 
             //for loop to update the enemies, towers, and bullets, then draw them on the screen
             for (int i = 0; i < slimeCount; i++) updateSlime(slimes[i]);
-            updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount);
+            updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBmp);
             updateBullets(bullets, &bulletCount, slimes, slimeCount, &gold);
 
             // draws everthing
             al_draw_bitmap(image, 0, 0, 0);
             for (int i = 0; i < towerCount; i++) {
-                al_draw_scaled_bitmap(towerBmp, 0, 0, towerBmpW, towerBmpH,
+                ALLEGRO_BITMAP* sprite;
+                int sw, sh;
+                if (towers[i].type == TOWER_WEEKND) {
+                    sprite = weekndBmp; sw = weekndBmpW; sh = weekndBmpH;
+                } else {
+                    sprite = drakeBmp;  sw = drakeBmpW;  sh = drakeBmpH;
+                }
+                al_draw_scaled_bitmap(sprite, 0, 0, sw, sh,
                     towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
             }
             for (int i = 0; i < slimeCount; i++) drawSlime(slimes[i]);
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
-            towerPlacement(towerBmp, towerBmpW, towerBmpH, mouseX, mouseY, image, towers, towerCount, gold);
+            towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected);
             drawHud(font, gold, towerCount);
+            placeDrakeButton(font, drakeSelected);
+            placeWeekndButton(font, weekndSelected);
             al_flip_display();
         }
     }
 
     // cleans up the program resources at the end of the program
     al_destroy_font(font);
-    deleteAllegro(timer, event_queue, slimeBmp, towerBmp, image, display);
+    deleteAllegro(timer, event_queue, slimeBmp, drakeBmp, weekndBmp, microphoneBmp, image, display);
     return 0;
 }
