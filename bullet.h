@@ -61,7 +61,7 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
             i++;
     }
 }
-//this draws bullets - if a bullet has a sprite it draws the scaled sprite, otherwise the default yellow circle
+//this draws bullets as either a yellow circle or the microphone sprite if its a weeknd 
 inline void drawBullets(const Bullet bullets[], int bulletCount) {
     for (int i = 0; i < bulletCount; i++) {
         if (!bullets[i].alive) continue;
