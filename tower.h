@@ -296,4 +296,26 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     al_draw_tinted_scaled_bitmap(spriteBmp, tint, 0, 0, spriteW, spriteH, preview.x, preview.y, preview.w, preview.h, 0);
 }
 
+//highlightTower redraws the selected tower with a grey transparent tint over the actual sprite shape
+inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH) {
+    if (selectedTowerIndex < 0) return;
+    Tower& selectedTower = towers[selectedTowerIndex];
+
+    ALLEGRO_BITMAP* towerSprite;
+    int spriteWidth;
+    int spriteHeight;
+    if (selectedTower.type == TOWER_WEEKND) {
+        towerSprite  = weekndBmp;
+        spriteWidth  = weekndBmpW;
+        spriteHeight = weekndBmpH;
+    } else {
+        towerSprite  = drakeBmp;
+        spriteWidth  = drakeBmpW;
+        spriteHeight = drakeBmpH;
+    }
+
+    ALLEGRO_COLOR grey = al_map_rgba(160, 160, 160, 200);
+    al_draw_tinted_scaled_bitmap(towerSprite, grey, 0, 0, spriteWidth, spriteHeight, selectedTower.x, selectedTower.y, selectedTower.w, selectedTower.h, 0);
+}
+
 #endif

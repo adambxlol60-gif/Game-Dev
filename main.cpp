@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
     int playerHealth = 20; // player's health
     bool drakeSelected = false;
     bool weekndSelected = false;
+    int selectedTowerIndex = -1; // -1 means no tower is currently selected
     int drakeBmpW = al_get_bitmap_width(drakeBmp);
     int drakeBmpH = al_get_bitmap_height(drakeBmp);
     int weekndBmpW = al_get_bitmap_width(weekndBmp);
@@ -72,11 +73,25 @@ int main(int argc, char *argv[]) {
             if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
                 drakeSelected = !drakeSelected;
                 if (drakeSelected) weekndSelected = false;
+                selectedTowerIndex = -1;
             } else if (event.mouse.button == 1 && weekndButtonPressed(event.mouse.x, event.mouse.y)) {
                 weekndSelected = !weekndSelected;
                 if (weekndSelected) drakeSelected = false;
-            } else {
-                handleMouseClick(event, towers, towerCount, image, drakeBmp, drakeBmpW, drakeBmpH, weekndBmpW, weekndBmpH, gold, drakeSelected, weekndSelected, drakeSelected ? drakeCost : weekndCost);
+                selectedTowerIndex = -1;
+            } else if (event.mouse.button == 1) {
+                int clicked = selectTower(event.mouse.x, event.mouse.y, towers, towerCount);
+                if (clicked >= 0) {
+                    if (clicked == selectedTowerIndex) {
+                        selectedTowerIndex = -1;
+                    } else {
+                        selectedTowerIndex = clicked;
+                        drakeSelected = false;
+                        weekndSelected = false;
+                    }
+                } else {
+                    selectedTowerIndex = -1;
+                    handleMouseClick(event, towers, towerCount, image, drakeBmp, drakeBmpW, drakeBmpH, weekndBmpW, weekndBmpH, gold, drakeSelected, weekndSelected, drakeSelected ? drakeCost : weekndCost);
+                }
             }
         }
 
@@ -133,9 +148,9 @@ int main(int argc, char *argv[]) {
                 } else {
                     sprite = drakeBmp;  sw = drakeBmpW;  sh = drakeBmpH;
                 }
-                al_draw_scaled_bitmap(sprite, 0, 0, sw, sh,
-                    towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
+                al_draw_scaled_bitmap(sprite, 0, 0, sw, sh, towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
             }
+            highlightTower(towers, selectedTowerIndex, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH);
             for (int i = 0; i < slimeCount; i++) drawSlime(slimes[i]);
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top

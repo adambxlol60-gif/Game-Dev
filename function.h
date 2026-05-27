@@ -99,6 +99,16 @@ inline void deleteAllegro(ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* queue, ALLE
     al_destroy_bitmap(map);
     al_destroy_display(display);
 }
+//Scans the mouse to see if it is next to the tower then 
+inline int selectTower(int mouseX, int mouseY, Tower towers[], int towerCount) {
+    for (int i = 0; i < towerCount; i++) {
+        Tower model = towerModelRectangle(towers[i]);
+        if (mouseX >= model.x && mouseX <= model.x + model.w && mouseY >= model.y && mouseY <= model.y + model.h) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 
 #endif
