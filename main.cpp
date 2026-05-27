@@ -13,8 +13,8 @@ int main(int argc, char *argv[]) {
     if (!display) return -1;
 
     //bitmaps for the map, tower, slime, weeknd and microphone projectile
-    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr;
-    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp)) {
+    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr, *heartBmp = nullptr;
+    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp, heartBmp)) {
         al_destroy_display(display);
         return -1;
     }
@@ -118,7 +118,14 @@ int main(int argc, char *argv[]) {
             //for loop to update the enemies, towers, and bullets, then draw them on the screen
             for (int i = 0; i < slimeCount; i++) {
                 updateSlime(slimes[i]);
-                if (slimes[i].escaped) { playerHealth--; slimes[i].escaped = false; }
+                if (slimes[i].escaped) {
+                    playerHealth--;
+                    slimes[i].escaped = false;
+                    if (playerHealth <=0) {
+                        // game over b/c health is 0
+                        running = false;
+                    }
+                }
             }
             updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBmp);
             updateBullets(bullets, &bulletCount, slimes, slimeCount, &gold);
@@ -140,7 +147,7 @@ int main(int argc, char *argv[]) {
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
             towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected);
-            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth);
+            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
             al_flip_display();
