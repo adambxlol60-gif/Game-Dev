@@ -56,14 +56,14 @@ inline ALLEGRO_DISPLAY* createDisplay() {
 }
 //list of every image file the game needs at startup
 //to add a new image just put one new line in here, nothing else to change
-inline const char* imageNames[] = {"Images/BetaMap.png", "Images/DrakeTower.png", "Images/Slime.png", "Images/Weeknd.png", "Images/microphone.png", "Images/blueSlime.png","Images/blueCamoSlime.png","Images/greenCamoSlime.png","Images/metalSlime.png", "Images/purpleSlime.png",  "Images/purpleCamoSlime.png", "Images/rainbowSlime.png",  "Images/rainbowCamoSlime.png",  "Images/redSlime.png", "Images/redCamoSlime.png", "Images/yellowSlime.png", "Images/yellowCamoSlime.png",};
+inline const char* imageNames[] = {"Images/BetaMap.png", "Images/DrakeTower.png", "Images/Slime.png", "Images/Weeknd.png", "Images/microphone.png", "Images/blueSlime.png","Images/blueCamoSlime.png","Images/greenCamoSlime.png","Images/metalSlime.png", "Images/purpleSlime.png",  "Images/purpleCamoSlime.png", "Images/rainbowSlime.png",  "Images/rainbowCamoSlime.png",  "Images/redSlime.png", "Images/redCamoSlime.png", "Images/yellowSlime.png", "Images/yellowCamoSlime.png", "Images/heart.png",};
 inline const int imageCount = (int)(sizeof(imageNames) / sizeof(imageNames[0]));
 
 inline ALLEGRO_BITMAP* bitmaps[imageCount] = {0};
 
 //Checks each image if it runs, if it runs it saves it to a bitmap array if it doesnt error
 //have to keep drakeBmp, slimeBmp and map as separate variables because they are used in many different places and it would be a pain to change all of them
-inline bool Images(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& drakeBmp, ALLEGRO_BITMAP*& slimeBmp, ALLEGRO_BITMAP*& weekndBmp, ALLEGRO_BITMAP*& microphoneBmp) {
+inline bool Images(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& drakeBmp, ALLEGRO_BITMAP*& slimeBmp, ALLEGRO_BITMAP*& weekndBmp, ALLEGRO_BITMAP*& microphoneBmp, ALLEGRO_BITMAP*& heartBmp) {
     for (int i = 0; i < imageCount; i++) {
         bitmaps[i] = al_load_bitmap(imageNames[i]);
         if (!bitmaps[i]) {
@@ -72,11 +72,12 @@ inline bool Images(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMA
             return false;
         }
     }
-    map           = bitmaps[0];
-    drakeBmp      = bitmaps[1];
-    slimeBmp      = bitmaps[2];
-    weekndBmp     = bitmaps[3];
+    map = bitmaps[0];
+    drakeBmp = bitmaps[1];
+    slimeBmp = bitmaps[2];
+    weekndBmp = bitmaps[3];
     microphoneBmp = bitmaps[4];
+    heartBmp = bitmaps[17]; 
     return true;
 }
 //setups a event queue for the display, mouse, and timer.

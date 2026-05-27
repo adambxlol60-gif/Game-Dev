@@ -25,12 +25,37 @@ const int weekndBtnH = 40;
 const int weekndBtnX = drakeBtnX + drakeBtnW + 10;
 const int weekndBtnY = (hudHeight - weekndBtnH) / 2;
 
-//Draws the hud bar with gold, tower count, and player health. Only shows the price hint when a tower button is selected
-inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, int playerHealth) {
+//Draws the hud bar with gold, tower count, and player health. Only shows the price hint when a stower button is selected
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp) {
     al_draw_filled_rectangle(0, 0, screenW, hudHeight, al_map_rgba(0, 0, 0, 200));
     al_draw_line(0, hudHeight, screenW, hudHeight, al_map_rgb(80, 80, 80), 1);
 
-    char goldBuf[64], towerBuf[64], healthBuf[32];
+    //health bar
+    const int maxHealth = 20; //must match your starting health
+    const int barX = 740; //left edge of the bar
+    const int barY = 25; // top edge of the bar
+    const int barW = 160; //total width of bar
+    const int barH = 20; //height of bar
+
+    float ratio = (float)playerHealth / maxHealth;  // 0.0 to 1.0
+    if (ratio < 0) ratio = 0;
+
+    //choose color based on how high the players health is
+    ALLEGRO_COLOR barColor;
+    if (ratio > 0.5f) barColor = al_map_rgb(50, 200, 50); // this is for green
+    else if (ratio > 0.25f) barColor = al_map_rgb(255, 200, 0); //this is for yellow
+    else barColor = al_map_rgb(220, 40, 40); //this is for red
+
+    al_draw_filled_rectangle(barX, barY, barX + barW, barY + barH, al_map_rgb(60, 20, 20)); // background of the bar when empty
+    al_draw_filled_rectangle(barX, barY, barX + (int)(barW * ratio), barY + barH, barColor); // filled portion of the bar
+    al_draw_rectangle(barX, barY, barX + barW, barY + barH, al_map_rgb(0, 0, 0), 2); // border of the bar
+
+    // heart next to bar
+    int heartSize = 36;
+    al_draw_scaled_bitmap(heartBmp, 0, 0, al_get_bitmap_width(heartBmp), al_get_bitmap_height(heartBmp), barX - heartSize - 5, barY - 8, heartSize, heartSize, 0);
+    
+
+    char goldBuf[64], towerBuf[64];
     if (drakeSelected) {
         snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Drake = %d)", gold, drakeCost);
     } else if (weekndSelected) {
@@ -40,11 +65,8 @@ inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSele
     }
     snprintf(towerBuf, sizeof(towerBuf), "Towers: %d / %d", towerCount, maxTowerLimit);
 
-    snprintf(healthBuf, sizeof(healthBuf), "Health: %d", playerHealth);
-
     al_draw_text(font, al_map_rgb(255, 215, 0), screenW / 2, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, goldBuf);
     al_draw_text(font, al_map_rgb(100, 200, 255), screenW - 20, hudHeight / 2 - 4, ALLEGRO_ALIGN_RIGHT, towerBuf);
-    al_draw_text(font, al_map_rgb(255, 80, 80), 750, hudHeight / 2 - 4, ALLEGRO_ALIGN_LEFT, healthBuf);
 }
 
 //drawDrakeButton draws the Drake selection button on the hud with a black outline and a green fill when selected
