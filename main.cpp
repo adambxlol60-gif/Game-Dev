@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     // game state variables
     int towerCount = 0;
     int gold = 500; // starting amount of gold
+    int playerHealth = 20; // player's health
     bool drakeSelected = false;
     bool weekndSelected = false;
     int drakeBmpW = al_get_bitmap_width(drakeBmp);
@@ -115,7 +116,10 @@ int main(int argc, char *argv[]) {
             }
 
             //for loop to update the enemies, towers, and bullets, then draw them on the screen
-            for (int i = 0; i < slimeCount; i++) updateSlime(slimes[i]);
+            for (int i = 0; i < slimeCount; i++) {
+                updateSlime(slimes[i]);
+                if (slimes[i].escaped) { playerHealth--; slimes[i].escaped = false; }
+            }
             updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBmp);
             updateBullets(bullets, &bulletCount, slimes, slimeCount, &gold);
 
@@ -136,7 +140,7 @@ int main(int argc, char *argv[]) {
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
             towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected);
-            drawHud(font, gold, towerCount, drakeSelected, weekndSelected);
+            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
             al_flip_display();

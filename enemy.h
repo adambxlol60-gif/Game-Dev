@@ -15,6 +15,7 @@ struct Slime {
     float speed;
     int target;
     bool done;
+    bool escaped;
     int hp;
     int maxHp;
 };

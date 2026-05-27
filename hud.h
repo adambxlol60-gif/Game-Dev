@@ -12,6 +12,7 @@ const int drakeCost = 200;
 const int weekndCost = 400;
 const int maxTowerLimit = 10;
 const int goldPerKill = 5;
+const int health = 20;
 
 const int hudHeight = 70;
 const int drakeBtnW = 120;
@@ -24,12 +25,12 @@ const int weekndBtnH = 40;
 const int weekndBtnX = drakeBtnX + drakeBtnW + 10;
 const int weekndBtnY = (hudHeight - weekndBtnH) / 2;
 
-//Draws the hud bar with gold and tower count. Only shows the price hint when a tower button is selected
-inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected) {
+//Draws the hud bar with gold, tower count, and player health. Only shows the price hint when a tower button is selected
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, int playerHealth) {
     al_draw_filled_rectangle(0, 0, screenW, hudHeight, al_map_rgba(0, 0, 0, 200));
     al_draw_line(0, hudHeight, screenW, hudHeight, al_map_rgb(80, 80, 80), 1);
 
-    char goldBuf[64], towerBuf[64];
+    char goldBuf[64], towerBuf[64], healthBuf[32];
     if (drakeSelected) {
         snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Drake = %d)", gold, drakeCost);
     } else if (weekndSelected) {
@@ -39,8 +40,11 @@ inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSele
     }
     snprintf(towerBuf, sizeof(towerBuf), "Towers: %d / %d", towerCount, maxTowerLimit);
 
+    snprintf(healthBuf, sizeof(healthBuf), "Health: %d", playerHealth);
+
     al_draw_text(font, al_map_rgb(255, 215, 0), screenW / 2, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, goldBuf);
     al_draw_text(font, al_map_rgb(100, 200, 255), screenW - 20, hudHeight / 2 - 4, ALLEGRO_ALIGN_RIGHT, towerBuf);
+    al_draw_text(font, al_map_rgb(255, 80, 80), 750, hudHeight / 2 - 4, ALLEGRO_ALIGN_LEFT, healthBuf);
 }
 
 //drawDrakeButton draws the Drake selection button on the hud with a black outline and a green fill when selected
