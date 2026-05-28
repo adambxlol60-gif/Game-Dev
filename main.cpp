@@ -179,6 +179,8 @@ int main(int argc, char *argv[]) {
             drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
+            drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, towers, selectedTowerIndex);
+            placeNextWaveButton(font, betweenWaves, currentWave, waveCount);
             al_flip_display();
         }
     }
