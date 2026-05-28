@@ -24,6 +24,10 @@ const int weekndBtnW = 120;
 const int weekndBtnH = 40;
 const int weekndBtnX = drakeBtnX + drakeBtnW + 10;
 const int weekndBtnY = (hudHeight - weekndBtnH) / 2;
+const int nextWaveBtnW = 120;
+const int nextWaveBtnH = 40;
+const int nextWaveBtnX = 580;
+const int nextWaveBtnY = screenH - nextWaveBtnH - 40;
 
 //Draws the hud bar with gold, tower count, and player health. Only shows the price hint when a stower button is selected
 inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp) {
@@ -83,6 +87,20 @@ inline void placeWeekndButton(ALLEGRO_FONT* font, bool selected) {
     al_draw_text(font, al_map_rgb(255, 255, 255), weekndBtnX + weekndBtnW / 2, weekndBtnY + weekndBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, "Weeknd");
 }
 
+
+inline void placeNextWaveButton(ALLEGRO_FONT* font, bool betweenWaves, int currentWave, int waveCount) {
+    if (!betweenWaves) return;
+    bool allDone = (currentWave >= waveCount);
+    ALLEGRO_COLOR fill = allDone ? al_map_rgb(80, 80, 80) : al_map_rgb(128, 128, 128);
+    al_draw_filled_rectangle(nextWaveBtnX, nextWaveBtnY, nextWaveBtnX + nextWaveBtnW, nextWaveBtnY + nextWaveBtnH, fill);
+    al_draw_rectangle(nextWaveBtnX, nextWaveBtnY, nextWaveBtnX + nextWaveBtnW, nextWaveBtnY + nextWaveBtnH, al_map_rgb(0, 0, 0), 2);
+    const char* label = allDone ? "All Waves are Done" : "Start Wave";
+    al_draw_text(font, al_map_rgb(255, 255, 255), nextWaveBtnX + nextWaveBtnW / 2, nextWaveBtnY + nextWaveBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, label);
+}
+
+inline bool nextWaveButtonPressed(int mouseX, int mouseY) {
+    return mouseX >= nextWaveBtnX && mouseX <= nextWaveBtnX + nextWaveBtnW && mouseY >= nextWaveBtnY && mouseY <= nextWaveBtnY + nextWaveBtnH;
+}
 //drakeButtonHit returns true if the given mouse coordinates land inside the Drake button area
 inline bool drakeButtonPressed(int mouseX, int mouseY) {
     return mouseX >= drakeBtnX && mouseX <= drakeBtnX + drakeBtnW && mouseY >= drakeBtnY && mouseY <= drakeBtnY + drakeBtnH;

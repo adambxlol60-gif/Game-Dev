@@ -56,10 +56,8 @@ int main(int argc, char *argv[]) {
 
     int currentWave = 0;
     int spawnIndex = 0;
-    int frameCount = 0;
     int nextSpawnIn = 0;
     bool betweenWaves = true;
-    const int waveDelay = 300; // delay in frames between waves
     
 
     al_start_timer(timer);
@@ -74,7 +72,17 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
+            if (event.mouse.button == 1 && betweenWaves && nextWaveButtonPressed(event.mouse.x, event.mouse.y)) {
+                if (currentWave < waveCount) {
+                    betweenWaves = false;
+                    spawnIndex = 0;
+                    nextSpawnIn = 0;
+                }
+            }
+            
+            
+            
+            else if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
                 drakeSelected = !drakeSelected;
                 if (drakeSelected) weekndSelected = false;
                 selectedTowerIndex = -1;
@@ -106,16 +114,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
-            frameCount++;
-
-            if (betweenWaves) {
-                if (frameCount >= waveDelay && currentWave < waveCount) {
-                    spawnIndex = 0;
-                    nextSpawnIn = 0;
-                    betweenWaves = false;
-                    frameCount = 0;
-                }
-            } else {
+            if (!betweenWaves) {
                 if (spawnIndex < allWaves[currentWave].spawnCount) {
                     if (nextSpawnIn <= 0) {
                         Spawn& s = allWaves[currentWave].spawns[spawnIndex];
@@ -133,7 +132,6 @@ int main(int argc, char *argv[]) {
                     if (allDone) {
                         currentWave++;
                         betweenWaves = true;
-                        frameCount = 0;
                         slimeCount = 0;
                     }
                 }
@@ -174,6 +172,7 @@ int main(int argc, char *argv[]) {
             drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
+            placeNextWaveButton(font, betweenWaves, currentWave, waveCount);
             al_flip_display();
         }
     }
