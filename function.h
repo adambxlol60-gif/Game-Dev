@@ -17,6 +17,7 @@ const int screenH = 960;
 #include "bullet.h"
 #include "hud.h"
 #include "tower.h"
+#include "panel.h"
 
 //simple allegro initialization function, they also check if the mouse, image addon are initialized
 inline bool initAllegro() {

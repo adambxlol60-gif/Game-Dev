@@ -78,6 +78,13 @@ int main(int argc, char *argv[]) {
                 weekndSelected = !weekndSelected;
                 if (weekndSelected) drakeSelected = false;
                 selectedTowerIndex = -1;
+            } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && sellButtonPressed(event.mouse.x, event.mouse.y)) {
+                gold += refundFor(towers[selectedTowerIndex].type);
+                towers[selectedTowerIndex] = towers[--towerCount];
+                towerStates[selectedTowerIndex] = towerStates[towerCount];
+                selectedTowerIndex = -1;
+            } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && clickInsidePanel(event.mouse.x, event.mouse.y)) {
+                // click landed on the panel area but not on the sell button - do nothing
             } else if (event.mouse.button == 1) {
                 int clicked = selectTower(event.mouse.x, event.mouse.y, towers, towerCount);
                 if (clicked >= 0) {
@@ -165,6 +172,7 @@ int main(int argc, char *argv[]) {
             drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
+            drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, towers, selectedTowerIndex);
             al_flip_display();
         }
     }

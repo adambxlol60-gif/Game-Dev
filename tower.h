@@ -54,6 +54,15 @@ inline float rangeOf(int t) {
     if (t == TOWER_WEEKND) return weekndRange;
     return towerRange;
 }
+
+const int drakeDamage = 1;
+const int weekndDamage = 2;
+
+//damageOf returns how much damage a bullet from this tower type deals
+inline int damageOf(int t) {
+    if (t == TOWER_WEEKND) return weekndDamage;
+    return drakeDamage;
+}
 //Saves information about the tower's cooldown and whether a bullet is alive or not
 struct TowerState {
     int cooldown = 0;
@@ -131,7 +140,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         bullet.x = centerX; bullet.y = centerY;
         bullet.vx = (dx/len) * bulletSpeed;
         bullet.vy = (dy/len) * bulletSpeed;
-        bullet.damage = 1;
+        bullet.damage = damageOf(towers[i].type);
         bullet.alive = true;
         if (towers[i].type == TOWER_WEEKND) {
             bullet.sprite = microphoneBmp;
@@ -277,7 +286,7 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     float centerY = model.y + model.h * 0.5f;
     al_draw_circle(centerX, centerY, range, al_map_rgba(120, 120, 120, 180), 2);
 
-    //alpha below 255 makes the sprite see through, the rgb values tint it green or red
+    //alpha below 255 makes the sprite see through
     ALLEGRO_COLOR tint;
     if (canPlaceDrake) {
         tint = al_map_rgba(0, 180, 0, 150);
