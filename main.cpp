@@ -2,6 +2,7 @@
 
 #include <allegro5/allegro.h>
 #include "function.h"
+#include "waveload.h"
 
 //int main function to run the game
 int main(int argc, char *argv[]) {
@@ -48,15 +49,16 @@ int main(int argc, char *argv[]) {
     Bullet bullets[maxBullets];
     int bulletCount = 0;
     bool running = true;
-    //tracks where the mouse is so we can draw the tower preview at the cursor
     int mouseX = 0, mouseY = 0;
+    //tracks where the mouse is so we can draw the tower preview at the cursor
+    Wave allWaves[maxWaves] = {};
+    int waveCount = loadWaves("waves.txt", allWaves, maxWaves);
+
     int currentWave = 0;
-    int enemiesInWave = 0;
-    int enemiesSpawned = 0;
-    int frameCount = 0;
-    const int spawnInterval = 60;
-    const int waveDelay = 300;
+    int spawnIndex = 0;
+    int nextSpawnIn = 0;
     bool betweenWaves = true;
+    
 
     al_start_timer(timer);
 
@@ -70,7 +72,17 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
+            if (event.mouse.button == 1 && betweenWaves && nextWaveButtonPressed(event.mouse.x, event.mouse.y)) {
+                if (currentWave < waveCount) {
+                    betweenWaves = false;
+                    spawnIndex = 0;
+                    nextSpawnIn = 0;
+                }
+            }
+            
+            
+            
+            else if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
                 drakeSelected = !drakeSelected;
                 if (drakeSelected) weekndSelected = false;
                 selectedTowerIndex = -1;
@@ -109,29 +121,24 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
-            frameCount++;
-
-            if (betweenWaves) {
-                if (frameCount >= waveDelay) {
-                    currentWave++;
-                    enemiesInWave = 5 + (currentWave - 1) * 2;
-                    enemiesSpawned = 0;
-                    betweenWaves = false;
-                    frameCount = 0;
-                }
-            } else {
-                if (enemiesSpawned < enemiesInWave && frameCount >= spawnInterval) {
-                    if (slimeCount < maxSlimes) slimes[slimeCount++] = initSlime(slimeBmp);
-                    enemiesSpawned++;
-                    frameCount = 0;
-                }
-                if (enemiesSpawned >= enemiesInWave) {
+            if (!betweenWaves) {
+                if (spawnIndex < allWaves[currentWave].spawnCount) {
+                    if (nextSpawnIn <= 0) {
+                        Spawn& s = allWaves[currentWave].spawns[spawnIndex];
+                        if (slimeCount < maxSlimes)
+                            slimes[slimeCount++] = initSlime(s.bitmap, s.hp, s.speed);
+                        nextSpawnIn = s.spawnInterval;
+                        spawnIndex++;
+                    } else {
+                        nextSpawnIn--;
+                    }
+                } else {
                     bool allDone = true;
                     for (int i = 0; i < slimeCount; i++)
                         if (!slimes[i].done) { allDone = false; break; }
                     if (allDone) {
+                        currentWave++;
                         betweenWaves = true;
-                        frameCount = 0;
                         slimeCount = 0;
                     }
                 }
@@ -172,7 +179,6 @@ int main(int argc, char *argv[]) {
             drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
-            drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, towers, selectedTowerIndex);
             al_flip_display();
         }
     }

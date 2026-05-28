@@ -40,19 +40,19 @@ void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap) {
 }
 
 // slime structere and function definitions
-Slime initSlime(ALLEGRO_BITMAP* bitmap) {
+Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed) {
     Slime s;
     s.bitmap = bitmap;
     s.x = pathX[0];
     s.y = pathY[0];
     s.vx = 0;
     s.vy = 0;
-    s.speed = 1.5f;
+    s.speed = speed;
     s.target = 1;
     s.done = false;
     s.escaped = false;
-    s.hp = 3;
-    s.maxHp = 3;
+    s.hp = hp;
+    s.maxHp = hp;
     return s;
 }
 

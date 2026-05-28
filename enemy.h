@@ -21,7 +21,7 @@ struct Slime {
 };
 
 // slime path points
-Slime initSlime(ALLEGRO_BITMAP* bitmap);
+Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed); // initializes a slime with the bitmap which is given);
 void updateSlime(Slime& s); // moves the slime along the path
 void drawSlime(const Slime& s); // draws the slime at the correct position
 void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap); // loads the path points from a bitmap where the path is draw in a specific color
