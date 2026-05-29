@@ -1,5 +1,3 @@
-//created by Noah Basaria and Adam Jurewicz
-
 #ifndef PANEL_H
 #define PANEL_H
 
@@ -32,12 +30,12 @@ inline int refundFor(int type) {
     return (int)(drakeCost * 0.7f);
 }
 
-//clickInsidePanel returns true if the mouse is inside the side panel area
+//clickInsidePanel is here so that if you click the panel it wont click the tower behind the panel
 inline bool clickInsidePanel(int mouseX, int mouseY) {
     return mouseX >= panelX && mouseX <= panelX + panelW && mouseY >= panelY && mouseY <= panelY + panelH;
 }
 
-//sellButtonPressed returns true if the mouse is on the sell button inside the panel
+//sellButtonPressed sells the tower
 inline bool sellButtonPressed(int mouseX, int mouseY) {
     return mouseX >= sellBtnX && mouseX <= sellBtnX + sellBtnW && mouseY >= sellBtnY && mouseY <= sellBtnY + sellBtnH;
 }
@@ -67,7 +65,7 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
         portraitSrcH = drakeBmpH;
         characterName = "Drake";
     }
-    //Drake's PNG has lots of empty padding so we crop it to just the character. Weeknd's PNG already fills its image
+    //
     int cropX, cropY, cropW, cropH;
     if (selectedTower.type == TOWER_DRAKE) {
         cropX = (int)(portraitSrcW * modelXFrac);
@@ -81,12 +79,12 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
         cropH = portraitSrcH;
     }
 
-    //fit the cropped area inside the portrait box while keeping aspect ratio so neither sprite stretches
+    //fit the cropped area inside the portrait box while keeping aspect ratio so neither sprite stretches or gets cut off
     float scaleX = (float)portraitW / cropW;
     float scaleY = (float)portraitH / cropH;
-    float fitScale = scaleX < scaleY ? scaleX : scaleY;
-    int drawW = (int)(cropW * fitScale);
-    int drawH = (int)(cropH * fitScale);
+    float finalScale = scaleX < scaleY ? scaleX : scaleY;
+    int drawW = (int)(cropW * finalScale);
+    int drawH = (int)(cropH * finalScale);
     int drawX = portraitX + (portraitW - drawW) / 2;
     int drawY = portraitY + (portraitH - drawH) / 2;
     al_draw_scaled_bitmap(portraitSprite, cropX, cropY, cropW, cropH, drawX, drawY, drawW, drawH, 0);
@@ -101,11 +99,11 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     snprintf(statsBuf, sizeof(statsBuf), "Range:  %d", (int)rangeOf(selectedTower.type));
     al_draw_text(font, al_map_rgb(255, 255, 255), panelX + 15, portraitY + portraitH + 40, ALLEGRO_ALIGN_LEFT, statsBuf);
 
-    //character description - write your own text in the empty string below
+    //character description
     const char* description = "";
     al_draw_text(font, al_map_rgb(200, 200, 200), panelX + 15, portraitY + portraitH + 58, ALLEGRO_ALIGN_LEFT, description);
 
-    //sell button with refund amount baked into the label
+    //sell button with refund amount 70% of original cost
     al_draw_filled_rectangle(sellBtnX, sellBtnY, sellBtnX + sellBtnW, sellBtnY + sellBtnH, al_map_rgb(210, 50, 50));
     al_draw_rectangle(sellBtnX, sellBtnY, sellBtnX + sellBtnW, sellBtnY + sellBtnH, al_map_rgb(0, 0, 0), 2);
     char sellBuf[32];

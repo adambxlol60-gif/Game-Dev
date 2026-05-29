@@ -12,15 +12,16 @@ const int maxBullets = 500;
 // bullet speed (kept here with the rest of the bullet data)
 const float bulletSpeed = 14.0f;
 
-//varaible for the bullet, saves stuff like velocity, damage, whether it's alive, and optional sprite (nullptr = yellow circle)
+//varaible for the bullet, saves stuff like velocity, damage, pierce count, whether it's alive, and optional sprite (nullptr = yellow circle)
 struct Bullet {
     float x, y;
     float vx, vy;
     int damage;
+    int pierce;
     bool alive;
     ALLEGRO_BITMAP* sprite = nullptr;
 };
-
+//calcuate distance between two points squared
 inline float dist2(float ax, float ay, float bx, float by) {
     float dx = ax - bx, dy = ay - by;
     return dx*dx + dy*dy;
@@ -45,8 +46,14 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
                 if (slimes[j].hp <= 0) {
                     slimes[j].done = true;
                     *gold += goldPerKill;
-                } //adds gold to the player when they kill a slime had to add a * so that we could modify the gold variable that was declared in main
-                bullet.alive = false;
+                }
+                //if the bullet still has pierce charges it stays alive and uses one charge, otherwise it dies on this hit
+                if (bullet.pierce > 0) {
+                    bullet.pierce -= 1;
+                } 
+                else {
+                    bullet.alive = false;
+                }
                 break;
             }
         }
@@ -54,7 +61,7 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
     //So this code here is a way to keep our bullets array clean from dead bullets
     //at first after running a long time my bullets would stop appearing, the reason was because my array was full
     //at first I did a simple moving the array down one every time a bullet died
-    //this worked fine untill I added more drakes to the game, our game started lagging and running poorly 
+    //this worked fine untill I added more drakes to the game, our game started lagging and running poorly
     //this is because moving the array down is extremely inefficent when yoou have hundreds of bullets
     //this version is much more efficent because it doesnt move the whole array down but just put new bullet in the dead bullets place
     for (int i = 0; i < *bulletCount; ) {
@@ -81,5 +88,4 @@ inline void drawBullets(const Bullet bullets[], int bulletCount) {
         }
     }
 }
-
 #endif
