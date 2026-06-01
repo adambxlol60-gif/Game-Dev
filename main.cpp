@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
             towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected);
-            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp);
+            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp, currentWave, waveCount);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
             drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, towers, selectedTowerIndex);

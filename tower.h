@@ -56,7 +56,7 @@ inline float rangeOf(int towerType) {
 }
 
 const int drakeDamage = 1;
-const int weekndDamage = 2;
+const int weekndDamage = 1;
 const int drakePierce = 0;
 const int weekndPierce = 1;
 const int drakeIce = 1;
