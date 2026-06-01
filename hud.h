@@ -69,11 +69,11 @@ inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSele
     }
     snprintf(towerBuf, sizeof(towerBuf), "Towers: %d / %d", towerCount, maxTowerLimit);
 
-    al_draw_text(font, al_map_rgb(255, 215, 0), screenW / 2, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, goldBuf);
+    al_draw_text(font, al_map_rgb(255, 215, 0), screenW / 2.5, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, goldBuf);
     al_draw_text(font, al_map_rgb(100, 200, 255), screenW - 20, hudHeight / 2 - 4, ALLEGRO_ALIGN_RIGHT, towerBuf);
     char waveBuf[64];
     snprintf(waveBuf, sizeof(waveBuf), "Wave: %d / %d", currentWave + 1, waveCount);
-    al_draw_text(font, al_map_rgb(255, 255, 255), barX + 220, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, waveBuf);
+    al_draw_text(font, al_map_rgb(255, 255, 255), barX + 280, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, waveBuf);
 }
 
 //drawDrakeButton draws the Drake selection button on the hud with a black outline and a green fill when selected
