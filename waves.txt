@@ -1,9 +1,9 @@
 # wave type count hp speed spawnInterval
-1 slime 5 3 1.5 60
-1 redSlime 2 4 2.0 45
-2 slime 6 3 1.5 50
-2 blueSlime 3 5 1.8 45
-2 metalSlime 1 10 1.0 90
-3 slime 8 3 1.5 40
-3 greenCamolime 4 6 2.0 40
-3 metalSlime 2 10 1.0 80
+1 slime 7 3 1.5 60
+1 redSlime 5 4 2.0 45
+2 slime 6 2 1.5 50
+2 blueSlime 5 5 1.8 45
+2 metalSlime 2 10 1.0 90
+3 slime 10 3 1.5 40
+3 greenCamolime 7 6 2.0 40
+3 metalSlime 5 10 1.0 80

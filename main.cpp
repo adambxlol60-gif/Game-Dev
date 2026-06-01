@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
     // game state variables
     int towerCount = 0;
-    int gold = 500; // starting amount of gold
+    int gold = 1000; // starting amount of gold
     int playerHealth = 20; // player's health
     bool drakeSelected = false;
     bool weekndSelected = false;
@@ -137,6 +137,7 @@ int main(int argc, char *argv[]) {
                     for (int i = 0; i < slimeCount; i++)
                         if (!slimes[i].done) { allDone = false; break; }
                     if (allDone) {
+                        gold += 100 + (currentWave * 25);
                         currentWave++;
                         betweenWaves = true;
                         slimeCount = 0;
