@@ -51,6 +51,7 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed) {
     s.target = 1;
     s.done = false;
     s.escaped = false;
+    s.isIced = false;
     s.hp = hp;
     s.maxHp = hp;
     return s;

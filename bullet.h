@@ -13,13 +13,18 @@ const int maxBullets = 500;
 const float bulletSpeed = 14.0f;
 
 //varaible for the bullet, saves stuff like velocity, damage, pierce count, whether it's alive, and optional sprite (nullptr = yellow circle)
+const int maxHitsPerBullet = 8;
 struct Bullet {
     float x, y;
     float vx, vy;
     int damage;
     int pierce;
     bool alive;
+    int ice;
     ALLEGRO_BITMAP* sprite = nullptr;
+    //tracks which slimes this bullet already hit so pierce moves on to NEW enemies instead of hitting the same one every frame
+    int hitSlimes[maxHitsPerBullet];
+    int hitCount = 0;
 };
 //calcuate distance between two points squared
 inline float dist2(float ax, float ay, float bx, float by) {
@@ -27,35 +32,59 @@ inline float dist2(float ax, float ay, float bx, float by) {
     return dx*dx + dy*dy;
 }
 
+//returns true if this bullet has already damaged slime index j on a previous frame
+inline bool bulletAlreadyHit(const Bullet& bullet, int j) {
+    for (int k = 0; k < bullet.hitCount; k++) {
+        if (bullet.hitSlimes[k] == j) return true;
+    }
+    return false;
+}
+
+
 //this function updates the bullets position and then checks for a collision with the slimes.
 //It also deletes all the off screen bullets
 inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], int slimeCount, int* gold) {
-    for (int i = 0; i < *bulletCount; i++) { //this simply loops through every bullet and updates its position based on the velocity
-        Bullet& bullet = bullets[i]; //reference to the bullet so we can use dot syntax and still edit the real bullet, not a copy
+    for (int i = 0; i < *bulletCount; i++) {
+        Bullet& bullet = bullets[i]; //reference so we edit the real bullet, not a copy
         if (!bullet.alive) continue;
-        bullet.x += bullet.vx; //moves the bullet
+
+        //move the bullet by its velocity
+        bullet.x += bullet.vx;
         bullet.y += bullet.vy;
-        if (bullet.x < 0 || bullet.y < 0 || bullet.x > screenW || bullet.y > screenH) { //if the bullet goes off screen we destroy it
+
+        //off screen = dead
+        if (bullet.x < 0 || bullet.y < 0 || bullet.x > screenW || bullet.y > screenH) {
             bullet.alive = false;
             continue;
-        } //this part is responsible for checking if the bullet hits the slime. a hit is registered if the distance squared between the bullet and slime is less than 20 pixels squared
+        }
+
+        //check every slime for a hit, comparing distance squared to skip a slow sqrt
         for (int j = 0; j < slimeCount; j++) {
             if (slimes[j].done) continue;
-            if (dist2(bullet.x, bullet.y, slimes[j].x, slimes[j].y) < 20.0f * 20.0f) {
-                slimes[j].hp -= bullet.damage;
-                if (slimes[j].hp <= 0) {
-                    slimes[j].done = true;
-                    *gold += goldPerKill;
-                }
-                //if the bullet still has pierce charges it stays alive and uses one charge, otherwise it dies on this hit
-                if (bullet.pierce > 0) {
-                    bullet.pierce -= 1;
-                } 
-                else {
-                    bullet.alive = false;
-                }
-                break;
+            if (bulletAlreadyHit(bullet, j)) continue;
+            if (dist2(bullet.x, bullet.y, slimes[j].x, slimes[j].y) >= 20.0f * 20.0f) continue;
+
+            //hit confirmed - apply damage and award gold if it died
+            slimes[j].hp -= bullet.damage;
+            if (slimes[j].hp <= 0) {
+                slimes[j].done = true;  
+                *gold += goldPerKill;
             }
+            //ice bullet slows the slime, but only once per slime ever (no stacking from other bullets)
+            if (bullet.ice > 0 && !slimes[j].isIced) {
+                slimes[j].speed *= 0.5f;
+                slimes[j].isIced = true;
+            }
+
+            //remember this slime so pierce moves on to a NEW enemy next frame
+            if (bullet.hitCount < maxHitsPerBullet) {
+                bullet.hitSlimes[bullet.hitCount++] = j;
+            }
+
+            //use a pierce charge, or die on this hit
+            if (bullet.pierce > 0) bullet.pierce -= 1;
+            else bullet.alive = false;
+            break; 
         }
     }
     //So this code here is a way to keep our bullets array clean from dead bullets

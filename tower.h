@@ -21,8 +21,8 @@ const float modelWFrac = 0.26f;
 const float modelHFrac = 0.48f;
 
 //tower type ids - kept as plain ints so we can branch on them with if/else
-const int TOWER_DRAKE = 0;
-const int TOWER_WEEKND = 1;
+const int towerDrake = 0;
+const int towerWeeknd = 1;
 
 //saves tower position, size, fire timer, and which type it is
 struct Tower {
@@ -50,8 +50,8 @@ const float weekndRange = 350.0f;
 const int   towerCooldown = 30;
 
 //rangeOf returns the firing range for a given tower type
-inline float rangeOf(int t) {
-    if (t == TOWER_WEEKND) return weekndRange;
+inline float rangeOf(int towerType) {
+    if (towerType == towerWeeknd) return weekndRange;
     return towerRange;
 }
 
@@ -59,17 +59,23 @@ const int drakeDamage = 1;
 const int weekndDamage = 2;
 const int drakePierce = 0;
 const int weekndPierce = 1;
+const int drakeIce = 1;
+const int weekndIce = 0;
 
 //damageOf returns how much damage a bullet from this tower type deals
-inline int damageOf(int t) {
-    if (t == TOWER_WEEKND) return weekndDamage;
+inline int damageOf(int towerType) {
+    if (towerType == towerWeeknd) return weekndDamage;
     return drakeDamage;
 }
 
 //pierceOf returns how many extra slimes a bullet from this tower type can hit before dying
-inline int pierceOf(int t) {
-    if (t == TOWER_WEEKND) return weekndPierce;
+inline int pierceOf(int towerType) {
+    if (towerType == towerWeeknd) return weekndPierce;
     return drakePierce;
+}
+inline int iceOf(int towerType) {
+    if (towerType == towerWeeknd) return weekndIce;
+    return drakeIce;
 }
 //Saves information about the tower's cooldown and whether a bullet is alive or not
 struct TowerState {
@@ -99,7 +105,7 @@ inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range
 //Probably the most complex function in the game right now. It makes the bullets shoot but it also predicts where the slime will be when the bullet reaches it.
 //It does this by solving the equation |P + V*t| = bulletSpeed * t, where P is the vector from the tower to the slime, V is the velocity of the slime, and t is the time it takes for the bullet to reach the slime. This gives us a quadratic equation in t, which we can solve using the quadratic formula. We then choose the positive solution that gives us the earliest intercept time.
 //I was able to find this formula which helped tremedously as before the bullet would miss the slimes a lot
-inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount, ALLEGRO_BITMAP* microphoneBmp) {
+inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount, ALLEGRO_BITMAP* microphoneBmp, ALLEGRO_BITMAP* drakeMicBmp) {
     for (int i = 0; i < towerCount; i++) { //this part checks for the cooldown and uses the previous function to find a target slime for the tower
         if (states[i].cooldown > 0) { states[i].cooldown--; continue; }
         float range = rangeOf(towers[i].type);
@@ -143,7 +149,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         float dy = aimY - centerY;
         float len = sqrtf(dx*dx + dy*dy); //pyothegorean theorem to find the length of the vector, thanks Pythagoras
         if (len < 0.001f) len = 1.0f; //safety check that prevents dividing by zero
-
+            // struct for bullets, gives it properties like speed, damage, pierce, if its alive ex. Also does hit boxchecking
         Bullet bullet;
         bullet.x = centerX; bullet.y = centerY;
         bullet.vx = (dx/len) * bulletSpeed;
@@ -151,11 +157,10 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         bullet.damage = damageOf(towers[i].type);
         bullet.pierce = pierceOf(towers[i].type);
         bullet.alive = true;
-        if (towers[i].type == TOWER_WEEKND) {
-            bullet.sprite = microphoneBmp;
-        } else {
-            bullet.sprite = nullptr;
-        }
+        bullet.ice = iceOf(towers[i].type);
+        //each tower fires its own microphone sprite
+        if (towers[i].type == towerWeeknd) bullet.sprite = microphoneBmp;
+        else                               bullet.sprite = drakeMicBmp;
         if (*bulletCount < maxBullets) bullets[(*bulletCount)++] = bullet;
 
         states[i].cooldown = towerCooldown;

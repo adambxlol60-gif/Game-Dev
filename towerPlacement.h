@@ -28,9 +28,9 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
     newTower.w = towerW;
     newTower.h = towerH;
     if (drakeSelected) {
-        newTower.type = TOWER_DRAKE;
+        newTower.type = towerDrake;
     } else {
-        newTower.type = TOWER_WEEKND;
+        newTower.type = towerWeeknd;
     }
 
     Tower model = towerModelRectangle(newTower);
@@ -111,7 +111,7 @@ inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMA
     ALLEGRO_BITMAP* towerSprite;
     int spriteWidth;
     int spriteHeight;
-    if (selectedTower.type == TOWER_WEEKND) {
+    if (selectedTower.type == towerWeeknd) {
         towerSprite  = weekndBmp;
         spriteWidth  = weekndBmpW;
         spriteHeight = weekndBmpH;
