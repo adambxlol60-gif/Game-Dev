@@ -8,7 +8,7 @@
 #include "hud.h"
 #include "tower.h"
 
-//panel layout - sits on the left side under the hud
+//panel layout sits on the left side under the hud
 const int panelX = 30;
 const int panelY = hudHeight + 5;
 const int panelW = 245;
@@ -26,11 +26,12 @@ const int sellBtnH = 45;
 
 //refundFor returns the gold given back when selling a tower of the given type (70% of cost)
 inline int refundFor(int type) {
-    if (type == TOWER_WEEKND) return (int)(weekndCost * 0.7f);
+    if (type == towerWeeknd) return (int)(weekndCost * 0.7f);
     return (int)(drakeCost * 0.7f);
 }
 
 //clickInsidePanel is here so that if you click the panel it wont click the tower behind the panel
+
 inline bool clickInsidePanel(int mouseX, int mouseY) {
     return mouseX >= panelX && mouseX <= panelX + panelW && mouseY >= panelY && mouseY <= panelY + panelH;
 }
@@ -54,7 +55,7 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     int portraitSrcW;
     int portraitSrcH;
     const char* characterName;
-    if (selectedTower.type == TOWER_WEEKND) {
+    if (selectedTower.type == towerWeeknd) {
         portraitSprite = weekndBmp;
         portraitSrcW = weekndBmpW;
         portraitSrcH = weekndBmpH;
@@ -67,7 +68,7 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     }
     //
     int cropX, cropY, cropW, cropH;
-    if (selectedTower.type == TOWER_DRAKE) {
+    if (selectedTower.type == towerDrake) {
         cropX = (int)(portraitSrcW * modelXFrac);
         cropY = (int)(portraitSrcH * modelYFrac);
         cropW = (int)(portraitSrcW * modelWFrac);
@@ -100,7 +101,13 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     al_draw_text(font, al_map_rgb(255, 255, 255), panelX + 15, portraitY + portraitH + 40, ALLEGRO_ALIGN_LEFT, statsBuf);
 
     //character description
-    const char* description = "";
+   const char* description;
+    if (selectedTower.type == towerWeeknd) {
+        description = "The famous Canadian singer joins the battle to save Canada from the evil monsters";
+    } 
+    if (selectedTower.type == towerDrake) {
+        description = "After dropping ICEMAN drake is ready to save Canada like he did hip-hop";
+    }
     al_draw_text(font, al_map_rgb(200, 200, 200), panelX + 15, portraitY + portraitH + 58, ALLEGRO_ALIGN_LEFT, description);
 
     //sell button with refund amount 70% of original cost

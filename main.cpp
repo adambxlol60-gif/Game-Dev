@@ -1,5 +1,3 @@
-//created by Noah Basaria and Adam Jurewicz
-
 #include <allegro5/allegro.h>
 #include "function.h"
 #include "waveload.h"
@@ -14,8 +12,8 @@ int main(int argc, char *argv[]) {
     if (!display) return -1;
 
     //bitmaps for the map, tower, slime, weeknd and microphone projectile
-    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr, *heartBmp = nullptr;
-    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp, heartBmp)) {
+    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr, *heartBmp = nullptr, *drakeMicBmp = nullptr;
+    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp, heartBmp, drakeMicBmp)) {
         al_destroy_display(display);
         return -1;
     }
@@ -151,12 +149,12 @@ int main(int argc, char *argv[]) {
                     playerHealth--;
                     slimes[i].escaped = false;
                     if (playerHealth <=0) {
-                        // game over b/c health is 0
+                        // game over
                         running = false;
                     }
                 }
             }
-            updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBmp);
+            updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBmp, drakeMicBmp);
             updateBullets(bullets, &bulletCount, slimes, slimeCount, &gold);
 
             // draws everthing
@@ -164,7 +162,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < towerCount; i++) {
                 ALLEGRO_BITMAP* sprite;
                 int sw, sh;
-                if (towers[i].type == TOWER_WEEKND) {
+                if (towers[i].type == towerWeeknd) {
                     sprite = weekndBmp; sw = weekndBmpW; sh = weekndBmpH;
                 } else {
                     sprite = drakeBmp;  sw = drakeBmpW;  sh = drakeBmpH;

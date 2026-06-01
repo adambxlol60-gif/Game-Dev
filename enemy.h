@@ -16,6 +16,7 @@ struct Slime {
     int target;
     bool done;
     bool escaped;
+    bool isIced = false;
     int hp;
     int maxHp;
 };
