@@ -6,9 +6,9 @@
 #include "function.h"
 
 // maximum number of waves the game can have
-const int maxWaves = 50;
+const int maxWaves = 100;
 // maximum number of individual enemy spawns allowed in a single wave
-const int maxSpawnsPerWave = 100;
+const int maxSpawnsPerWave = 200;
 
 // Spawn holds the data for one single enemy that will be spawned
 struct Spawn {
