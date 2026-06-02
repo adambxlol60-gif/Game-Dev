@@ -223,8 +223,13 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < slimeCount; i++) drawSlime(slimes[i]);
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
+<<<<<<< HEAD
             towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected, elonSelected, bankSelected);
             drawHud(font, gold, towerCount, drakeSelected, weekndSelected, elonSelected, bankSelected, playerHealth, heartBmp);
+=======
+            towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected);
+            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, playerHealth, heartBmp, currentWave, waveCount);
+>>>>>>> 2656b8122b545b953457f6e42b7a1397a7efd6b2
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
             placeElonButton(font, elonSelected);

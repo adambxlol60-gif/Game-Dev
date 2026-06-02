@@ -40,7 +40,11 @@ const int nextWaveBtnX = 580;
 const int nextWaveBtnY = screenH - nextWaveBtnH - 40;
 
 //Draws the hud bar with gold, tower count, and player health. Only shows the price hint when a stower button is selected
+<<<<<<< HEAD
 inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, bool elonSelected, bool bankSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp) {
+=======
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp, int currentWave, int waveCount) {
+>>>>>>> 2656b8122b545b953457f6e42b7a1397a7efd6b2
     al_draw_filled_rectangle(0, 0, screenW, hudHeight, al_map_rgba(0, 0, 0, 200));
     al_draw_line(0, hudHeight, screenW, hudHeight, al_map_rgb(80, 80, 80), 1);
 
@@ -83,8 +87,11 @@ inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSele
     }
     snprintf(towerBuf, sizeof(towerBuf), "Towers: %d / %d", towerCount, maxTowerLimit);
 
-    al_draw_text(font, al_map_rgb(255, 215, 0), screenW / 2, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, goldBuf);
+    al_draw_text(font, al_map_rgb(255, 215, 0), screenW / 2.5, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, goldBuf);
     al_draw_text(font, al_map_rgb(100, 200, 255), screenW - 20, hudHeight / 2 - 4, ALLEGRO_ALIGN_RIGHT, towerBuf);
+    char waveBuf[64];
+    snprintf(waveBuf, sizeof(waveBuf), "Wave: %d / %d", currentWave + 1, waveCount);
+    al_draw_text(font, al_map_rgb(255, 255, 255), barX + 280, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, waveBuf);
 }
 
 //drawDrakeButton draws the Drake selection button on the hud with a black outline and a green fill when selected
