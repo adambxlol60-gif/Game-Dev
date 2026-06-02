@@ -7,19 +7,28 @@
 #include "hud.h"
 
 //checks if each variable is checked befroe placing the tower, if all checks are passed the tower is placed and gold is subtracted
-inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, int weekndBmpW, int weekndBmpH, int &gold, bool& drakeSelected, bool& weekndSelected, int towerCost) {
+inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, int weekndBmpW, int weekndBmpH, int elonBmpW, int elonBmpH, int bankBmpW, int bankBmpH, int &gold, bool& drakeSelected, bool& weekndSelected, bool& elonSelected, bool& bankSelected, int towerCost) {
     if (event.mouse.button != 1) return;
-    if (!drakeSelected && !weekndSelected) return;
+    if (!drakeSelected && !weekndSelected && !elonSelected && !bankSelected) return;
 
-    //here you can see the code for the ghost tower and range circle
+    //bank cap - silently refuse the click if we already have 3
+    if (bankSelected && countBanks(towers, towerCount) >= maxBanks) return;
+
+    //pick the footprint dimensions from whichever tower is selected
     float towerW;
     float towerH;
     if (drakeSelected) {
         towerW = drakeBmpW * towerScale;
         towerH = drakeBmpH * towerScale;
-    } else {
+    } else if (weekndSelected) {
         towerW = weekndBmpW * weekndScale;
         towerH = weekndBmpH * weekndScale;
+    } else if (elonSelected) {
+        towerW = elonBmpW * elonScale;
+        towerH = elonBmpH * elonScale;
+    } else {
+        towerW = bankBmpW * bankScale;
+        towerH = bankBmpH * bankScale;
     }
     //code for placing the tower, it creates a new tower based on the mouse position and the selected tower type, then it checks if the tower can be placed and if it can it adds it to the towers array and subtracts gold
     Tower newTower;
@@ -27,11 +36,10 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
     newTower.y = event.mouse.y - towerH / 2;
     newTower.w = towerW;
     newTower.h = towerH;
-    if (drakeSelected) {
-        newTower.type = towerDrake;
-    } else {
-        newTower.type = towerWeeknd;
-    }
+    if      (drakeSelected)  newTower.type = towerDrake;
+    else if (weekndSelected) newTower.type = towerWeeknd;
+    else if (elonSelected)   newTower.type = towerElon;
+    else                     newTower.type = towerBank;
 
     Tower model = towerModelRectangle(newTower);
     bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW &&model.y + model.h <= screenH;
@@ -43,8 +51,8 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
 }
 
 //code for hover ghost tower, it picks the drake or weeknd sprite based on which button is selected and shows a green or red tint plus the tower range circle
-inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, int mouseX, int mouseY, ALLEGRO_BITMAP* map, Tower towers[], int towerCount, int gold, bool drakeSelected, bool weekndSelected) {
-    if (!drakeSelected && !weekndSelected) return;
+inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, ALLEGRO_BITMAP* elonBmp, int elonBmpW, int elonBmpH, ALLEGRO_BITMAP* bankBmp, int bankBmpW, int bankBmpH, int mouseX, int mouseY, ALLEGRO_BITMAP* map, Tower towers[], int towerCount, int gold, bool drakeSelected, bool weekndSelected, bool elonSelected, bool bankSelected) {
+    if (!drakeSelected && !weekndSelected && !elonSelected && !bankSelected) return;
 
     ALLEGRO_BITMAP* spriteBmp;
     int spriteW;
@@ -55,11 +63,21 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
         spriteW = drakeBmpW;
         spriteH = drakeBmpH;
         range = towerRange;
-    } else {
+    } else if (weekndSelected) {
         spriteBmp = weekndBmp;
         spriteW = weekndBmpW;
         spriteH = weekndBmpH;
         range = weekndRange;
+    } else if (elonSelected) {
+        spriteBmp = elonBmp;
+        spriteW = elonBmpW;
+        spriteH = elonBmpH;
+        range = elonRange;
+    } else {
+        spriteBmp = bankBmp;
+        spriteW = bankBmpW;
+        spriteH = bankBmpH;
+        range = 0.0f;
     }
 
     //ghost footprint uses the matching sprite's actual dimensions
@@ -68,9 +86,15 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     if (drakeSelected) {
         towerW = drakeBmpW * towerScale;
         towerH = drakeBmpH * towerScale;
-    } else {
+    } else if (weekndSelected) {
         towerW = weekndBmpW * weekndScale;
         towerH = weekndBmpH * weekndScale;
+    } else if (elonSelected) {
+        towerW = elonBmpW * elonScale;
+        towerH = elonBmpH * elonScale;
+    } else {
+        towerW = bankBmpW * bankScale;
+        towerH = bankBmpH * bankScale;
     }
     Tower preview;
     preview.x = mouseX - towerW / 2;
@@ -82,13 +106,14 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW && model.y + model.h <= screenH;
 
     int cost;
-    if (drakeSelected) {
-        cost = drakeCost;
-    } else {
-        cost = weekndCost;
-    }
+    if      (drakeSelected)  cost = drakeCost;
+    else if (weekndSelected) cost = weekndCost;
+    else if (elonSelected)   cost = elonCost;
+    else                     cost = bankCost;
     //this canPlace variable is used to determine the color of the ghost tower and whether the player can place the tower or not, it checks all the same conditions as the handleMouseClick function
     bool canPlace = insideScreen && towerCount < maxTowerLimit && gold >= cost && !towerTouchesPath(map, preview) && !overlapsAnyTower(preview, towers, towerCount);
+    //extra restriction - banks are capped at maxBanks regardless of total tower limit
+    if (bankSelected && countBanks(towers, towerCount) >= maxBanks) canPlace = false;
     float centerX = model.x + model.w * 0.5f;
     float centerY = model.y + model.h * 0.5f;
     al_draw_circle(centerX, centerY, range, al_map_rgba(120, 120, 120, 180), 2);
@@ -104,7 +129,7 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
 }
 
 //highlightTower redraws the selected tower with a grey transparent tint over the actual sprite shape
-inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH) {
+inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, ALLEGRO_BITMAP* elonBmp, int elonBmpW, int elonBmpH, ALLEGRO_BITMAP* bankBmp, int bankBmpW, int bankBmpH, ALLEGRO_BITMAP* icemanBmp, int icemanBmpW, int icemanBmpH) {
     if (selectedTowerIndex < 0) return;
     Tower& selectedTower = towers[selectedTowerIndex];
 
@@ -115,6 +140,18 @@ inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMA
         towerSprite  = weekndBmp;
         spriteWidth  = weekndBmpW;
         spriteHeight = weekndBmpH;
+    } else if (selectedTower.type == towerElon) {
+        towerSprite  = elonBmp;
+        spriteWidth  = elonBmpW;
+        spriteHeight = elonBmpH;
+    } else if (selectedTower.type == towerBank) {
+        towerSprite  = bankBmp;
+        spriteWidth  = bankBmpW;
+        spriteHeight = bankBmpH;
+    } else if (selectedTower.type == towerIceman) {
+        towerSprite  = icemanBmp;
+        spriteWidth  = icemanBmpW;
+        spriteHeight = icemanBmpH;
     } else {
         towerSprite  = drakeBmp;
         spriteWidth  = drakeBmpW;

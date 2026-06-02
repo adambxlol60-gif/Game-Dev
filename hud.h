@@ -10,6 +10,8 @@
 
 const int drakeCost = 200;
 const int weekndCost = 400;
+const int elonCost = 1000;
+const int bankCost = 1000;
 const int maxTowerLimit = 10;
 const int goldPerKill = 5;
 const int health = 20;
@@ -24,13 +26,21 @@ const int weekndBtnW = 120;
 const int weekndBtnH = 40;
 const int weekndBtnX = drakeBtnX + drakeBtnW + 10;
 const int weekndBtnY = (hudHeight - weekndBtnH) / 2;
+const int elonBtnW = 120;
+const int elonBtnH = 40;
+const int elonBtnX = weekndBtnX + weekndBtnW + 10;
+const int elonBtnY = (hudHeight - elonBtnH) / 2;
+const int bankBtnW = 120;
+const int bankBtnH = 40;
+const int bankBtnX = elonBtnX + elonBtnW + 10;
+const int bankBtnY = (hudHeight - bankBtnH) / 2;
 const int nextWaveBtnW = 120;
 const int nextWaveBtnH = 40;
 const int nextWaveBtnX = 580;
 const int nextWaveBtnY = screenH - nextWaveBtnH - 40;
 
 //Draws the hud bar with gold, tower count, and player health. Only shows the price hint when a stower button is selected
-inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp) {
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, bool elonSelected, bool bankSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp) {
     al_draw_filled_rectangle(0, 0, screenW, hudHeight, al_map_rgba(0, 0, 0, 200));
     al_draw_line(0, hudHeight, screenW, hudHeight, al_map_rgb(80, 80, 80), 1);
 
@@ -64,6 +74,10 @@ inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSele
         snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Drake = %d)", gold, drakeCost);
     } else if (weekndSelected) {
         snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Weeknd = %d)", gold, weekndCost);
+    } else if (elonSelected) {
+        snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Elon = %d)", gold, elonCost);
+    } else if (bankSelected) {
+        snprintf(goldBuf, sizeof(goldBuf), "Gold: %d (Bank = %d)", gold, bankCost);
     } else {
         snprintf(goldBuf, sizeof(goldBuf), "Gold: %d", gold);
     }
@@ -107,6 +121,24 @@ inline bool drakeButtonPressed(int mouseX, int mouseY) {
 }
 inline bool weekndButtonPressed(int mouseX, int mouseY) {
     return mouseX >= weekndBtnX && mouseX <= weekndBtnX + weekndBtnW && mouseY >= weekndBtnY && mouseY <= weekndBtnY + weekndBtnH;
+}
+inline void placeElonButton(ALLEGRO_FONT* font, bool selected) {
+    ALLEGRO_COLOR fill = selected ? al_map_rgb(60, 140, 60) : al_map_rgb(60, 60, 60);
+    al_draw_filled_rectangle(elonBtnX, elonBtnY, elonBtnX + elonBtnW, elonBtnY + elonBtnH, fill);
+    al_draw_rectangle(elonBtnX, elonBtnY, elonBtnX + elonBtnW, elonBtnY + elonBtnH, al_map_rgb(0, 0, 0), 2);
+    al_draw_text(font, al_map_rgb(255, 255, 255), elonBtnX + elonBtnW / 2, elonBtnY + elonBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, "Elon");
+}
+inline bool elonButtonPressed(int mouseX, int mouseY) {
+    return mouseX >= elonBtnX && mouseX <= elonBtnX + elonBtnW && mouseY >= elonBtnY && mouseY <= elonBtnY + elonBtnH;
+}
+inline void placeBankButton(ALLEGRO_FONT* font, bool selected) {
+    ALLEGRO_COLOR fill = selected ? al_map_rgb(60, 140, 60) : al_map_rgb(60, 60, 60);
+    al_draw_filled_rectangle(bankBtnX, bankBtnY, bankBtnX + bankBtnW, bankBtnY + bankBtnH, fill);
+    al_draw_rectangle(bankBtnX, bankBtnY, bankBtnX + bankBtnW, bankBtnY + bankBtnH, al_map_rgb(0, 0, 0), 2);
+    al_draw_text(font, al_map_rgb(255, 255, 255), bankBtnX + bankBtnW / 2, bankBtnY + bankBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, "Bank");
+}
+inline bool bankButtonPressed(int mouseX, int mouseY) {
+    return mouseX >= bankBtnX && mouseX <= bankBtnX + bankBtnW && mouseY >= bankBtnY && mouseY <= bankBtnY + bankBtnH;
 }
 
 #endif

@@ -14,6 +14,9 @@
 const int maxTowers = 100;
 const float towerScale = 0.2f;
 const float weekndScale = 0.11f;
+const float elonScale = 0.17f;
+const float bankScale = 0.35f;
+const float icemanScale = 0.25f;
 
 const float modelXFrac = 0.37f;
 const float modelYFrac = 0.26f;
@@ -23,12 +26,20 @@ const float modelHFrac = 0.48f;
 //tower type ids - kept as plain ints so we can branch on them with if/else
 const int towerDrake = 0;
 const int towerWeeknd = 1;
+const int towerElon = 2;
+const int towerBank = 3;
+const int towerIceman = 4;   //drake's upgraded form - same role, better stats, different sprite
+const int maxBanks = 3;      //hard cap on how many banks can exist at once
+
+//drake -> iceman upgrade cost. Spending this gold flips the tower's type from towerDrake to towerIceman
+const int drakeUpgradeCost = 400;
 
 //saves tower position, size, fire timer, and which type it is
 struct Tower {
     float x, y, w, h;
     int fireTimer;
     int type;
+    int damageUpgradeLevel = 0;   //+1 damage per level. Cost ramps up. Banks ignore this.
 };
 //puts a small rectange in the middle of the tower to combat tower overlap and path collision issues
 //the math is to make the rectangle smaller and centered within the tower's bounding box
@@ -47,40 +58,67 @@ inline Tower towerModelRectangle(Tower t) {
 // Makes it super easy to adjust the towers in the future without changing much code.
 const float towerRange = 200.0f;
 const float weekndRange = 350.0f;
+const float elonRange   = 250.0f;
+const float icemanRange = 260.0f;   //slightly longer than drake
 const int   towerCooldown = 30;
 
 //rangeOf returns the firing range for a given tower type
 inline float rangeOf(int towerType) {
     if (towerType == towerWeeknd) return weekndRange;
+    if (towerType == towerElon)   return elonRange;
+    if (towerType == towerBank)   return 0.0f;
+    if (towerType == towerIceman) return icemanRange;
     return towerRange;
 }
 
 const int drakeDamage = 1;
 const int weekndDamage = 2;
+const int elonDamage = 1;
+const int icemanDamage = 2;   //+1 over drake
 const int drakePierce = 0;
 const int weekndPierce = 1;
-const int drakeIce = 1;
+const int elonPierce = 0;
+const int icemanPierce = 0;
+const int drakeIce = 0;   //base drake no longer freezes - upgrade to iceman to get freeze
 const int weekndIce = 0;
+const int elonIce = 0;
+const int icemanIce = 1;      //iceman freezes
 
 //damageOf returns how much damage a bullet from this tower type deals
 inline int damageOf(int towerType) {
     if (towerType == towerWeeknd) return weekndDamage;
+    if (towerType == towerElon)   return elonDamage;
+    if (towerType == towerBank)   return 0;
+    if (towerType == towerIceman) return icemanDamage;
     return drakeDamage;
 }
 
 //pierceOf returns how many extra slimes a bullet from this tower type can hit before dying
 inline int pierceOf(int towerType) {
     if (towerType == towerWeeknd) return weekndPierce;
+    if (towerType == towerElon)   return elonPierce;
+    if (towerType == towerBank)   return 0;
+    if (towerType == towerIceman) return icemanPierce;
     return drakePierce;
 }
 inline int iceOf(int towerType) {
     if (towerType == towerWeeknd) return weekndIce;
+    if (towerType == towerElon)   return elonIce;
+    if (towerType == towerBank)   return 0;
+    if (towerType == towerIceman) return icemanIce;
     return drakeIce;
 }
 //Saves information about the tower's cooldown and whether a bullet is alive or not
 struct TowerState {
     int cooldown = 0;
 };
+
+//counts how many banks currently exist so the placement code can enforce the 3-bank cap
+inline int countBanks(Tower towers[], int towerCount) {
+    int n = 0;
+    for (int i = 0; i < towerCount; i++) if (towers[i].type == towerBank) n++;
+    return n;
+}
 
 //So this is a pretty complex function but it is very crucial:
 //it first gets the tower's body center (cx, cy) from its model rectangle
@@ -105,8 +143,9 @@ inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range
 //Probably the most complex function in the game right now. It makes the bullets shoot but it also predicts where the slime will be when the bullet reaches it.
 //It does this by solving the equation |P + V*t| = bulletSpeed * t, where P is the vector from the tower to the slime, V is the velocity of the slime, and t is the time it takes for the bullet to reach the slime. This gives us a quadratic equation in t, which we can solve using the quadratic formula. We then choose the positive solution that gives us the earliest intercept time.
 //I was able to find this formula which helped tremedously as before the bullet would miss the slimes a lot
-inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount, ALLEGRO_BITMAP* microphoneBmp, ALLEGRO_BITMAP* drakeMicBmp) {
+inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount, ALLEGRO_BITMAP* microphoneBmp, ALLEGRO_BITMAP* drakeMicBmp, ALLEGRO_BITMAP* rocketBmp) {
     for (int i = 0; i < towerCount; i++) { //this part checks for the cooldown and uses the previous function to find a target slime for the tower
+        if (towers[i].type == towerBank) continue; //banks dont shoot
         if (states[i].cooldown > 0) { states[i].cooldown--; continue; }
         float range = rangeOf(towers[i].type);
         int idx = findTarget(towers[i], slimes, slimeCount, range);
@@ -154,13 +193,14 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         bullet.x = centerX; bullet.y = centerY;
         bullet.vx = (dx/len) * bulletSpeed;
         bullet.vy = (dy/len) * bulletSpeed;
-        bullet.damage = damageOf(towers[i].type);
+        bullet.damage = damageOf(towers[i].type) + towers[i].damageUpgradeLevel;
         bullet.pierce = pierceOf(towers[i].type);
         bullet.alive = true;
         bullet.ice = iceOf(towers[i].type);
-        //each tower fires its own microphone sprite
-        if (towers[i].type == towerWeeknd) bullet.sprite = microphoneBmp;
-        else                               bullet.sprite = drakeMicBmp;
+        //each tower fires its own bullet sprite (drake + iceman share the drake mic)
+        if      (towers[i].type == towerWeeknd) bullet.sprite = microphoneBmp;
+        else if (towers[i].type == towerElon) { bullet.sprite = rocketBmp; bullet.spriteScale = 0.35f; }
+        else                                    bullet.sprite = drakeMicBmp;
         if (*bulletCount < maxBullets) bullets[(*bulletCount)++] = bullet;
 
         states[i].cooldown = towerCooldown;

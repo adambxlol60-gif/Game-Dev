@@ -21,6 +21,7 @@ struct Bullet {
     int pierce;
     bool alive;
     int ice;
+    float spriteScale = 0.18f;   //how big the sprite draws; rockets override this
     ALLEGRO_BITMAP* sprite = nullptr;
     //tracks which slimes this bullet already hit so pierce moves on to NEW enemies instead of hitting the same one every frame
     int hitSlimes[maxHitsPerBullet];
@@ -107,7 +108,7 @@ inline void drawBullets(const Bullet bullets[], int bulletCount) {
         if (bullets[i].sprite) {
             int sw = al_get_bitmap_width(bullets[i].sprite);
             int sh = al_get_bitmap_height(bullets[i].sprite);
-            float scale = 0.18f;
+            float scale = bullets[i].spriteScale;
             al_draw_scaled_bitmap(bullets[i].sprite, 0, 0, sw, sh,
                 bullets[i].x - (sw * scale) / 2,
                 bullets[i].y - (sh * scale) / 2,
