@@ -72,13 +72,9 @@ inline float rangeOf(int towerType) {
 }
 
 const int drakeDamage = 1;
-<<<<<<< HEAD
 const int weekndDamage = 2;
 const int elonDamage = 1;
 const int icemanDamage = 2;   //+1 over drake
-=======
-const int weekndDamage = 1;
->>>>>>> 2656b8122b545b953457f6e42b7a1397a7efd6b2
 const int drakePierce = 0;
 const int weekndPierce = 1;
 const int elonPierce = 0;

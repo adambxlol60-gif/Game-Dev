@@ -40,11 +40,7 @@ const int nextWaveBtnX = 580;
 const int nextWaveBtnY = screenH - nextWaveBtnH - 40;
 
 //Draws the hud bar with gold, tower count, and player health. Only shows the price hint when a stower button is selected
-<<<<<<< HEAD
-inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, bool elonSelected, bool bankSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp) {
-=======
-inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp, int currentWave, int waveCount) {
->>>>>>> 2656b8122b545b953457f6e42b7a1397a7efd6b2
+inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSelected, bool weekndSelected, bool elonSelected, bool bankSelected, int playerHealth, ALLEGRO_BITMAP* heartBmp, int currentWave, int waveCount) {
     al_draw_filled_rectangle(0, 0, screenW, hudHeight, al_map_rgba(0, 0, 0, 200));
     al_draw_line(0, hudHeight, screenW, hudHeight, al_map_rgb(80, 80, 80), 1);
 
