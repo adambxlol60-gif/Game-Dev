@@ -83,6 +83,11 @@ const int drakeIce = 0;   //base drake no longer freezes - upgrade to iceman to 
 const int weekndIce = 0;
 const int elonIce = 0;
 const int icemanIce = 1;      //iceman freezes
+const int drakeVision = 0;
+const int weekndVision = 1;
+const int elonVision = 0;
+const int elonUpgVision = 1;
+const int icemanVision = 0;
 
 //damageOf returns how much damage a bullet from this tower type deals
 inline int damageOf(int towerType) {
@@ -108,6 +113,12 @@ inline int iceOf(int towerType) {
     if (towerType == towerIceman) return icemanIce;
     return drakeIce;
 }
+
+inline int visionOf(int towerType, int upgradeLevel) {
+    if (towerType == towerWeeknd) return weekndVision;
+    if (towerType == towerElon && upgradeLevel >= 1) return elonUpgVision;
+    return drakeVision;
+}
 //Saves information about the tower's cooldown and whether a bullet is alive or not
 struct TowerState {
     int cooldown = 0;
@@ -125,7 +136,7 @@ inline int countBanks(Tower towers[], int towerCount) {
 //then it sets r2 = range squared (squared so we skip a slow sqrt in the loop)
 //best = -1 means no target found yet; bestD starts at r2 so any candidate must be within range to beat it
 //it loops through every slime, skips dead ones, and tracks the closest in-range slime, returning its index (or -1 if none qualify)
-inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range) {
+inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range, int vision) {
     Tower model = towerModelRectangle(t);
     float centerX = model.x + model.w * 0.5f;
     float centerY = model.y + model.h * 0.5f;
@@ -134,6 +145,7 @@ inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range
     float bestD = r2;
     for (int i = 0; i < slimeCount; i++) {
         if (slimes[i].done) continue;
+        if (slimes[i].camo && vision == 0) continue;
         float distance = dist2(centerX, centerY, slimes[i].x, slimes[i].y); //used dist2 instead of sqrt to make the code run faster 
         if (distance <= bestD) { 
             bestD = distance; best = i; }
@@ -148,7 +160,8 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         if (towers[i].type == towerBank) continue; //banks dont shoot
         if (states[i].cooldown > 0) { states[i].cooldown--; continue; }
         float range = rangeOf(towers[i].type);
-        int idx = findTarget(towers[i], slimes, slimeCount, range);
+        int vision = visionOf(towers[i].type, towers[i].damageUpgradeLevel);
+        int idx = findTarget(towers[i], slimes, slimeCount, range, vision);
         if (idx < 0) continue;
         //finds towers center
         Tower model = towerModelRectangle(towers[i]);
@@ -197,6 +210,8 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         bullet.pierce = pierceOf(towers[i].type);
         bullet.alive = true;
         bullet.ice = iceOf(towers[i].type);
+        bullet.vision = vision;
+        bullet.armorPiercing = (towers[i].type == towerElon);
         //each tower fires its own bullet sprite (drake + iceman share the drake mic)
         if      (towers[i].type == towerWeeknd) bullet.sprite = microphoneBmp;
         else if (towers[i].type == towerElon) { bullet.sprite = rocketBmp; bullet.spriteScale = 0.35f; }

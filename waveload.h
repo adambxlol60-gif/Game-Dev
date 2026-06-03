@@ -18,6 +18,29 @@ struct Spawn {
     int spawnInterval; // time in miliseconds when the enemy spawns
 };
 
+inline bool isCamoSpawn(const Spawn& s) {
+    return s.bitmap == bitmaps[6]  || //blueCamoSlime
+           s.bitmap == bitmaps[7]  || //greenCamoSlime
+           s.bitmap == bitmaps[10] || //purpleCamoSlime
+           s.bitmap == bitmaps[12] || //rainbowCamoSlime
+           s.bitmap == bitmaps[14] || //redCamoSlime
+           s.bitmap == bitmaps[16];   //yellowCamoSlime
+}
+
+inline void splitDataFor(const Spawn& s, int& count, int& hp, float& speed, ALLEGRO_BITMAP*& bmp) {
+    if (s.bitmap == bitmaps[13]) {
+        count = 2; hp = s.hp/2; speed = s.speed*1.2f; bmp = bitmaps[9]; return;
+    }
+    if (s.bitmap == bitmaps[9]) {
+        count = 2; hp = s.hp/2; speed = s.speed*1.3f; bmp = bitmaps[2]; return;
+    }
+    count = 0;
+}
+
+inline bool isMetalSpawn(const Spawn& s) {
+    return s.bitmap == bitmaps[8]; // metalslime
+}
+
 // Wave holds all the spawns for one full wave
 struct Wave {
     Spawn spawns[maxSpawnsPerWave];

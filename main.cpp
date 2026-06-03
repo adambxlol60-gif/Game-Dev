@@ -164,8 +164,20 @@ int main(int argc, char *argv[]) {
                 if (spawnIndex < allWaves[currentWave].spawnCount) {
                     if (nextSpawnIn <= 0) {
                         Spawn& s = allWaves[currentWave].spawns[spawnIndex];
-                        if (slimeCount < maxSlimes)
-                            slimes[slimeCount++] = initSlime(s.bitmap, s.hp, s.speed);
+                        if (slimeCount < maxSlimes) {
+                            Slime newSlime = initSlime(s.bitmap, s.hp, s.speed);
+                            if (isCamoSpawn(s)) newSlime.camo = true;
+                            if (isMetalSpawn(s)) newSlime.metal = true;
+                            int sc; int shp; float sspd; ALLEGRO_BITMAP* sbmp;
+                            splitDataFor(s, sc, shp, sspd, sbmp);
+                            if (sc > 0) {
+                                newSlime.splitCount  = sc;
+                                newSlime.splitHp     = shp;
+                                newSlime.splitSpeed  = sspd;
+                                newSlime.splitBitmap = sbmp;
+                            }
+                            slimes[slimeCount++] = newSlime;
+                        }
                         nextSpawnIn = s.spawnInterval;
                         spawnIndex++;
                     } else {
@@ -201,7 +213,23 @@ int main(int argc, char *argv[]) {
             }
             updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBmp, drakeMicBmp, rocketBmp);
             updateBullets(bullets, &bulletCount, slimes, slimeCount, &gold);
-
+            for (int i = 0; i < slimeCount; i++) {
+                if (!slimes[i].pendingSplit) continue;
+                slimes[i].pendingSplit = false;
+                for (int c = 0; c < slimes[i].splitCount && slimeCount < maxSlimes; c++) {
+                    Slime child = initSlime(slimes[i].splitBitmap, slimes[i].splitHp, slimes[i].splitSpeed);
+                    child.x      = slimes[i].x;
+                    child.y      = slimes[i].y;
+                    child.target = slimes[i].target;
+                    if (child.bitmap == bitmaps[9]) {
+                        child.splitCount = 2;
+                        child.splitHp = child.hp/2;
+                        child.splitSpeed = child.speed*1.3f;
+                        child.splitBitmap = bitmaps[2];
+                    }
+                    slimes[slimeCount++] = child;
+                }
+            }
             // draws everthing
             al_draw_bitmap(image, 0, 0, 0);
             for (int i = 0; i < towerCount; i++) {

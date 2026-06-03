@@ -17,13 +17,19 @@ struct Slime {
     bool done;
     bool escaped;
     bool isIced = false;
+    bool camo = false;
+    bool metal = false;
+    bool pendingSplit        = false;
+    int  splitCount         = 0;
+    int  splitHp            = 0;
+    float splitSpeed        = 0.0f;
+    ALLEGRO_BITMAP* splitBitmap = nullptr;
     int hp;
     int maxHp;
 };
 
 // slime path points
-Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed); // initializes a slime with the bitmap which is given);
-void updateSlime(Slime& s); // moves the slime along the path
-void drawSlime(const Slime& s); // draws the slime at the correct position
-void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap); // loads the path points from a bitmap where the path is draw in a specific color
-
+Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed);
+void updateSlime(Slime& s);
+void drawSlime(const Slime& s);
+void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap);
