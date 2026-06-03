@@ -57,16 +57,16 @@ inline ALLEGRO_DISPLAY* createDisplay() {
     return display;
 }
 //list of every image file the game needs at startup
-inline const char* imageNames[] = {"Images/BetaMap.png", "Images/DrakeTower.png", "Images/Slime.png", "Images/Weeknd.png", "Images/microphone.png", "Images/blueSlime.png","Images/blueCamoSlime.png","Images/greenCamoSlime.png","Images/metalSlime.png", "Images/purpleSlime.png",  "Images/purpleCamoSlime.png", "Images/rainbowSlime.png",  "Images/rainbowCamoSlime.png",  "Images/redSlime.png", "Images/redCamoSlime.png", "Images/yellowSlime.png", "Images/yellowCamoSlime.png", "Images/heart.png", "Images/drakeMic.png", "Images/ElonMusk.png", "Images/DrakeIceman.png", "Images/SpaceXRocket.png", "Images/Bank.png"};
+inline const char* imageNames[] = {"Images/BetaMap.png", "Images/DrakeTower.png", "Images/Slime.png", "Images/Weeknd.png", "Images/microphone.png", "Images/blueSlime.png","Images/blueCamoSlime.png","Images/greenCamoSlime.png","Images/metalSlime.png", "Images/purpleSlime.png",  "Images/purpleCamoSlime.png", "Images/rainbowSlime.png",  "Images/rainbowCamoSlime.png",  "Images/redSlime.png", "Images/redCamoSlime.png", "Images/yellowSlime.png", "Images/yellowCamoSlime.png", "Images/heart.png", "Images/drakeMic.png", "Images/ElonMusk.png", "Images/DrakeIceman.png", "Images/SpaceXRocket.png", "Images/Bank.png", "Images/Starboy.png", "Images/ElomMuskUpgrade.png"};
 inline const int imageCount = (int)(sizeof(imageNames) / sizeof(imageNames[0]));
 
 inline ALLEGRO_BITMAP* bitmaps[imageCount] = {0};
 
 //Checks each image if it runs, if it runs it saves it to a bitmap array if it doesnt error
 //have to keep drakeBmp, slimeBmp and map as separate variables because they are used in many different places and it would be a pain to change all of them
-inline bool Images(ALapLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& drakeBmp, ALLEGRO_BITMAP*& slimeBmp, ALLEGRO_BITMAP*& weekndBmp, ALLEGRO_BITMAP*& microphoneBmp, ALLEGRO_BITMAP*& heartBmp, ALLEGRO_BITMAP*& drakeMicBmp, ALLEGRO_BITMAP*& elonBmp, ALLEGRO_BITMAP*& rocketBmp, ALLEGRO_BITMAP*& bankBmp, ALLEGRO_BITMAP*& icemanBmp) {
+inline bool Images(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& drakeBmp, ALLEGRO_BITMAP*& slimeBmp, ALLEGRO_BITMAP*& weekndBmp, ALLEGRO_BITMAP*& microphoneBmp, ALLEGRO_BITMAP*& heartBmp, ALLEGRO_BITMAP*& drakeMicBmp, ALLEGRO_BITMAP*& elonBmp, ALLEGRO_BITMAP*& rocketBmp, ALLEGRO_BITMAP*& bankBmp, ALLEGRO_BITMAP*& icemanBmp, ALLEGRO_BITMAP*& starboyBmp, ALLEGRO_BITMAP*& teslaBmp) {
     for (int i = 0; i < imageCount; i++) {
-        bitmaps[i] = al_load_bitm(imageNames[i]);
+        bitmaps[i] = al_load_bitmap(imageNames[i]);
         if (!bitmaps[i]) {
             al_show_native_message_box(display, "Error", "Error", imageNames[i], nullptr, ALLEGRO_MESSAGEBOX_ERROR);
             for (int j = 0; j < i; j++) al_destroy_bitmap(bitmaps[j]);
@@ -84,6 +84,8 @@ inline bool Images(ALapLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BIT
     rocketBmp = bitmaps[21];
     bankBmp = bitmaps[22];
     icemanBmp = bitmaps[20];
+    starboyBmp = bitmaps[23];
+    teslaBmp = bitmaps[24];
     return true;
 }
 //setups a event queue for the display, mouse, and timer.

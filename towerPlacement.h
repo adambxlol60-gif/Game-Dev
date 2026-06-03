@@ -129,7 +129,7 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
 }
 
 //highlightTower redraws the selected tower with a grey transparent tint over the actual sprite shape
-inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, ALLEGRO_BITMAP* elonBmp, int elonBmpW, int elonBmpH, ALLEGRO_BITMAP* bankBmp, int bankBmpW, int bankBmpH, ALLEGRO_BITMAP* icemanBmp, int icemanBmpW, int icemanBmpH) {
+inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, ALLEGRO_BITMAP* elonBmp, int elonBmpW, int elonBmpH, ALLEGRO_BITMAP* bankBmp, int bankBmpW, int bankBmpH, ALLEGRO_BITMAP* icemanBmp, int icemanBmpW, int icemanBmpH, ALLEGRO_BITMAP* starboyBmp, int starboyBmpW, int starboyBmpH, ALLEGRO_BITMAP* teslaBmp, int teslaBmpW, int teslaBmpH) {
     if (selectedTowerIndex < 0) return;
     Tower& selectedTower = towers[selectedTowerIndex];
 
@@ -152,6 +152,14 @@ inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMA
         towerSprite  = icemanBmp;
         spriteWidth  = icemanBmpW;
         spriteHeight = icemanBmpH;
+    } else if (selectedTower.type == towerStarboy) {
+        towerSprite  = starboyBmp;
+        spriteWidth  = starboyBmpW;
+        spriteHeight = starboyBmpH;
+    } else if (selectedTower.type == towerTeslaMan) {
+        towerSprite  = teslaBmp;
+        spriteWidth  = teslaBmpW;
+        spriteHeight = teslaBmpH;
     } else {
         towerSprite  = drakeBmp;
         spriteWidth  = drakeBmpW;

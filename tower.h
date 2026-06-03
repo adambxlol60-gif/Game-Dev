@@ -12,11 +12,14 @@
 
 //also adds tower limit and cost variable
 const int maxTowers = 100;
-const float towerScale = 0.2f;
-const float weekndScale = 0.11f;
-const float elonScale = 0.17f;
-const float bankScale = 0.35f;
-const float icemanScale = 0.25f;
+//scales tuned for the new pixel-art sources: Drake/Weeknd 128px, Elon/Iceman 256x144, Bank 512px
+const float towerScale = 1.85f;
+const float weekndScale = 1.05f;
+const float elonScale = 0.85f;
+const float bankScale = 0.34f;
+const float icemanScale = 1.25f;
+const float starboyScale = 1.05f;   //same as weeknd
+const float teslaScale = 1.0f;      //ElomMuskUpgrade.png is 128px square
 
 const float modelXFrac = 0.37f;
 const float modelYFrac = 0.26f;
@@ -28,11 +31,15 @@ const int towerDrake = 0;
 const int towerWeeknd = 1;
 const int towerElon = 2;
 const int towerBank = 3;
-const int towerIceman = 4;   //drake's upgraded form - same role, better stats, different sprite
-const int maxBanks = 3;      //hard cap on how many banks can exist at once
+const int towerIceman = 4;    //drake's upgraded form - same role, better stats, different sprite
+const int towerStarboy = 5;   //weeknd's upgraded form - currently same stats as weeknd, just a different sprite
+const int towerTeslaMan = 6;  //elon's upgraded form - currently same stats as elon, just a different sprite
+const int maxBanks = 3;       //hard cap on how many banks can exist at once
 
-//drake -> iceman upgrade cost. Spending this gold flips the tower's type from towerDrake to towerIceman
+//upgrade costs - spending this gold flips the tower into its upgraded form
 const int drakeUpgradeCost = 400;
+const int weekndUpgradeCost = 400;
+const int elonUpgradeCost = 2500;   //expensive, but tesla man is the strongest tower in the game
 
 //saves tower position, size, fire timer, and which type it is
 struct Tower {
@@ -64,10 +71,12 @@ const int   towerCooldown = 30;
 
 //rangeOf returns the firing range for a given tower type
 inline float rangeOf(int towerType) {
-    if (towerType == towerWeeknd) return weekndRange;
-    if (towerType == towerElon)   return elonRange;
-    if (towerType == towerBank)   return 0.0f;
-    if (towerType == towerIceman) return icemanRange;
+    if (towerType == towerWeeknd)  return weekndRange;
+    if (towerType == towerElon)    return elonRange;
+    if (towerType == towerBank)    return 0.0f;
+    if (towerType == towerIceman)  return icemanRange;
+    if (towerType == towerStarboy) return weekndRange;   //same as weeknd for now
+    if (towerType == towerTeslaMan) return elonRange;    //same as elon for now
     return towerRange;
 }
 
@@ -84,28 +93,62 @@ const int weekndIce = 0;
 const int elonIce = 0;
 const int icemanIce = 1;      //iceman freezes
 
+//explosive blast radius (pixels) per tower. 0 = no explosion
+const int weekndExplosive  = 50;    //small
+const int starboyExplosive = 75;    //small-medium
+const int elonExplosive    = 110;   //big
+const int teslaExplosive   = 150;   //biggest
+//explosive damage dealt to every other slime caught in the blast
+const int weekndExplosiveDamage  = 1;
+const int starboyExplosiveDamage = 5;
+const int elonExplosiveDamage    = 2;
+const int teslaExplosiveDamage   = 5;
+
+//explosiveOf returns the blast radius for a tower type (0 = no explosion)
+inline int explosiveOf(int towerType) {
+    if (towerType == towerWeeknd)   return weekndExplosive;
+    if (towerType == towerStarboy)  return starboyExplosive;
+    if (towerType == towerElon)     return elonExplosive;
+    if (towerType == towerTeslaMan) return teslaExplosive;
+    return 0;
+}
+//explosiveDamageOf returns the blast damage for a tower type
+inline int explosiveDamageOf(int towerType) {
+    if (towerType == towerWeeknd)   return weekndExplosiveDamage;
+    if (towerType == towerStarboy)  return starboyExplosiveDamage;
+    if (towerType == towerElon)     return elonExplosiveDamage;
+    if (towerType == towerTeslaMan) return teslaExplosiveDamage;
+    return 0;
+}
+
 //damageOf returns how much damage a bullet from this tower type deals
 inline int damageOf(int towerType) {
-    if (towerType == towerWeeknd) return weekndDamage;
-    if (towerType == towerElon)   return elonDamage;
-    if (towerType == towerBank)   return 0;
-    if (towerType == towerIceman) return icemanDamage;
+    if (towerType == towerWeeknd)  return weekndDamage;
+    if (towerType == towerElon)    return elonDamage;
+    if (towerType == towerBank)    return 0;
+    if (towerType == towerIceman)  return icemanDamage;
+    if (towerType == towerStarboy) return weekndDamage;   //same as weeknd for now
+    if (towerType == towerTeslaMan) return elonDamage;    //same as elon for now
     return drakeDamage;
 }
 
 //pierceOf returns how many extra slimes a bullet from this tower type can hit before dying
 inline int pierceOf(int towerType) {
-    if (towerType == towerWeeknd) return weekndPierce;
-    if (towerType == towerElon)   return elonPierce;
-    if (towerType == towerBank)   return 0;
-    if (towerType == towerIceman) return icemanPierce;
+    if (towerType == towerWeeknd)  return weekndPierce;
+    if (towerType == towerElon)    return elonPierce;
+    if (towerType == towerBank)    return 0;
+    if (towerType == towerIceman)  return icemanPierce;
+    if (towerType == towerStarboy) return weekndPierce;   //same as weeknd for now
+    if (towerType == towerTeslaMan) return elonPierce;    //same as elon for now
     return drakePierce;
 }
 inline int iceOf(int towerType) {
-    if (towerType == towerWeeknd) return weekndIce;
-    if (towerType == towerElon)   return elonIce;
-    if (towerType == towerBank)   return 0;
-    if (towerType == towerIceman) return icemanIce;
+    if (towerType == towerWeeknd)  return weekndIce;
+    if (towerType == towerElon)    return elonIce;
+    if (towerType == towerBank)    return 0;
+    if (towerType == towerIceman)  return icemanIce;
+    if (towerType == towerStarboy) return weekndIce;   //same as weeknd for now
+    if (towerType == towerTeslaMan) return elonIce;    //same as elon for now
     return drakeIce;
 }
 //Saves information about the tower's cooldown and whether a bullet is alive or not
@@ -122,21 +165,21 @@ inline int countBanks(Tower towers[], int towerCount) {
 
 //So this is a pretty complex function but it is very crucial:
 //it first gets the tower's body center (cx, cy) from its model rectangle
-//then it sets r2 = range squared (squared so we skip a slow sqrt in the loop)
-//best = -1 means no target found yet; bestD starts at r2 so any candidate must be within range to beat it
+//then it sets radius2 = range squared (squared so we skip a slow sqrt in the loop)
+//best = -1 means no target found yet; bestD starts at radius2 so any candidate must be within range to beat it
 //it loops through every slime, skips dead ones, and tracks the closest in-range slime, returning its index (or -1 if none qualify)
 inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range) {
     Tower model = towerModelRectangle(t);
     float centerX = model.x + model.w * 0.5f;
     float centerY = model.y + model.h * 0.5f;
-    float r2 = range * range;
+    float radius2 = range * range;
     int best = -1;
-    float bestD = r2;
+    float bestD = radius2;
     for (int i = 0; i < slimeCount; i++) {
         if (slimes[i].done) continue;
-        float distance = dist2(centerX, centerY, slimes[i].x, slimes[i].y); //used dist2 instead of sqrt to make the code run faster 
-        if (distance <= bestD) { 
-            bestD = distance; best = i; }
+        float slimeDistance = distance(centerX, centerY, slimes[i].x, slimes[i].y); //used distance() instead of sqrt to make the code run faster
+        if (slimeDistance <= bestD) {
+            bestD = slimeDistance; best = i; }
     }
     return best;
 }
@@ -197,11 +240,28 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         bullet.pierce = pierceOf(towers[i].type);
         bullet.alive = true;
         bullet.ice = iceOf(towers[i].type);
+        bullet.explosive = explosiveOf(towers[i].type);
+        bullet.explosiveDamage = explosiveDamageOf(towers[i].type);
         //each tower fires its own bullet sprite (drake + iceman share the drake mic)
-        if      (towers[i].type == towerWeeknd) bullet.sprite = microphoneBmp;
-        else if (towers[i].type == towerElon) { bullet.sprite = rocketBmp; bullet.spriteScale = 0.35f; }
-        else                                    bullet.sprite = drakeMicBmp;
-        if (*bulletCount < maxBullets) bullets[(*bulletCount)++] = bullet;
+        //spriteScale differs per sprite because the source PNGs are very different sizes (microphone is 1280px, the others ~128px)
+        if (towers[i].type == towerWeeknd) { 
+            bullet.sprite = microphoneBmp; 
+            bullet.spriteScale = 0.22f; 
+        }
+        else if (towers[i].type == towerStarboy) { 
+            bullet.sprite = microphoneBmp;
+            bullet.spriteScale = 0.22f; 
+        }
+        else if (towers[i].type == towerElon || towers[i].type == towerTeslaMan) {
+            bullet.sprite = rocketBmp;
+            bullet.spriteScale = 0.3f;
+        }
+        else
+        { bullet.sprite = drakeMicBmp;   bullet.spriteScale = 0.18f; 
+        }
+        if (*bulletCount < maxBullets) {
+            bullets[(*bulletCount)++] = bullet;
+        }
 
         states[i].cooldown = towerCooldown;
     }
