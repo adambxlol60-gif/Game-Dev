@@ -21,8 +21,9 @@ struct Bullet {
     int pierce;
     bool alive;
     int ice;
-    int vision = 0;
-    bool armorPiercing = false;
+    int explosive = 0;         //blast radius in pixels (0 = no explosion)
+    int explosiveDamage = 0;   //damage dealt to slimes caught in the blast
+    bool armorPiercing = false; //if true, can damage metal slimes; if false, passes through them
     float spriteScale = 0.18f;   //how big the sprite draws; rockets override this
     ALLEGRO_BITMAP* sprite = nullptr;
     //tracks which slimes this bullet already hit so pierce moves on to NEW enemies instead of hitting the same one every frame
@@ -30,9 +31,9 @@ struct Bullet {
     int hitCount = 0;
 };
 //calcuate distance between two points squared
-inline float dist2(float ax, float ay, float bx, float by) {
-    float dx = ax - bx, dy = ay - by;
-    return dx*dx + dy*dy;
+inline float distance(float ax, float ay, float bx, float by) {
+    float deltaX = ax - bx, deltaY = ay - by;
+    return deltaX*deltaX + deltaY*deltaY;
 }
 
 //returns true if this bullet has already damaged slime index j on a previous frame
@@ -65,9 +66,8 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
         for (int j = 0; j < slimeCount; j++) {
             if (slimes[j].done) continue;
             if (bulletAlreadyHit(bullet, j)) continue;
-            if (slimes[j].camo && bullet.vision == 0) continue;
             if (slimes[j].metal && !bullet.armorPiercing) continue;
-            if (dist2(bullet.x, bullet.y, slimes[j].x, slimes[j].y) >= 20.0f * 20.0f) continue;
+            if (distance(bullet.x, bullet.y, slimes[j].x, slimes[j].y) >= 20.0f * 20.0f) continue;
 
             //hit confirmed - apply damage and award gold if it died
             slimes[j].hp -= bullet.damage;
@@ -81,6 +81,22 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
             if (bullet.ice > 0 && !slimes[j].isIced) {
                 slimes[j].speed *= 0.5f;
                 slimes[j].isIced = true;
+            }
+
+            //explosive bullet - every OTHER slime inside the blast radius takes explosiveDamage
+            if (bullet.explosive > 0) {
+                float radius2 = (float)bullet.explosive * bullet.explosive;
+                for (int k = 0; k < slimeCount; k++) {
+                    if (k == j) continue;            //skip the direct hit, already damaged above
+                    if (slimes[k].done) continue;
+                    if (distance(bullet.x, bullet.y, slimes[k].x, slimes[k].y) <= radius2) {
+                        slimes[k].hp -= bullet.explosiveDamage;
+                        if (slimes[k].hp <= 0) {
+                            slimes[k].done = true;
+                            *gold += goldPerKill;
+                        }
+                    }
+                }
             }
 
             //remember this slime so pierce moves on to a NEW enemy next frame

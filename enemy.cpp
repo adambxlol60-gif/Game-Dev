@@ -94,7 +94,7 @@ void drawSlime(const Slime& s) {
     if (s.done) return;
     int w = al_get_bitmap_width(s.bitmap);
     int h = al_get_bitmap_height(s.bitmap);
-    const float scale = 0.1f;
+    const float scale = 1.2f;
     al_draw_scaled_bitmap(s.bitmap, 0, 0, w, h, s.x - (w * scale) / 2, s.y - (h * scale) / 2, w * scale, h * scale, 0);
 
     //dimensions for the health bar

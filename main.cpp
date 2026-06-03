@@ -12,8 +12,8 @@ int main(int argc, char *argv[]) {
     if (!display) return -1;
 
     //bitmaps for the map, tower, slime, weeknd and microphone projectile
-    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr, *heartBmp = nullptr, *drakeMicBmp = nullptr, *elonBmp = nullptr, *rocketBmp = nullptr, *bankBmp = nullptr, *icemanBmp = nullptr;
-    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp, heartBmp, drakeMicBmp, elonBmp, rocketBmp, bankBmp, icemanBmp)) {
+    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr, *heartBmp = nullptr, *drakeMicBmp = nullptr, *elonBmp = nullptr, *rocketBmp = nullptr, *bankBmp = nullptr, *icemanBmp = nullptr, *starboyBmp = nullptr, *teslaBmp = nullptr;
+    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp, heartBmp, drakeMicBmp, elonBmp, rocketBmp, bankBmp, icemanBmp, starboyBmp, teslaBmp)) {
         al_destroy_display(display);
         return -1;
     }
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     // game state variables
     int towerCount = 0;
-    int gold = 1000; // starting amount of gold
+    int gold = 10000; // starting amount of gold
     int playerHealth = 20; // player's health
     bool drakeSelected = false;
     bool weekndSelected = false;
@@ -48,6 +48,10 @@ int main(int argc, char *argv[]) {
     int bankBmpH = al_get_bitmap_height(bankBmp);
     int icemanBmpW = al_get_bitmap_width(icemanBmp);
     int icemanBmpH = al_get_bitmap_height(icemanBmp);
+    int starboyBmpW = al_get_bitmap_width(starboyBmp);
+    int starboyBmpH = al_get_bitmap_height(starboyBmp);
+    int teslaBmpW = al_get_bitmap_width(teslaBmp);
+    int teslaBmpH = al_get_bitmap_height(teslaBmp);
 
     // arrays for slimes and bullets, and variables for wave manaagement
     // static: these are too large for Allegro's secondary thread stack on macOS
@@ -111,7 +115,7 @@ int main(int argc, char *argv[]) {
                 towerStates[selectedTowerIndex] = towerStates[towerCount];
                 selectedTowerIndex = -1;
             } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && upgrade1ButtonPressed(event.mouse.x, event.mouse.y)) {
-                //upgrade 1 - drake into iceman
+                //upgrade 1 - drake into iceman, or weeknd into starboy. Recenter with the new footprint so it isnt squished
                 Tower& tower = towers[selectedTowerIndex];
                 if (tower.type == towerDrake && gold >= drakeUpgradeCost) {
                     gold -= drakeUpgradeCost;
@@ -120,6 +124,24 @@ int main(int argc, char *argv[]) {
                     tower.type = towerIceman;
                     tower.w = icemanBmpW * icemanScale;
                     tower.h = icemanBmpH * icemanScale;
+                    tower.x = cx - tower.w / 2;
+                    tower.y = cy - tower.h / 2;
+                } else if (tower.type == towerWeeknd && gold >= weekndUpgradeCost) {
+                    gold -= weekndUpgradeCost;
+                    float cx = tower.x + tower.w / 2;
+                    float cy = tower.y + tower.h / 2;
+                    tower.type = towerStarboy;
+                    tower.w = starboyBmpW * starboyScale;
+                    tower.h = starboyBmpH * starboyScale;
+                    tower.x = cx - tower.w / 2;
+                    tower.y = cy - tower.h / 2;
+                } else if (tower.type == towerElon && gold >= elonUpgradeCost) {
+                    gold -= elonUpgradeCost;
+                    float cx = tower.x + tower.w / 2;
+                    float cy = tower.y + tower.h / 2;
+                    tower.type = towerTeslaMan;
+                    tower.w = teslaBmpW * teslaScale;
+                    tower.h = teslaBmpH * teslaScale;
                     tower.x = cx - tower.w / 2;
                     tower.y = cy - tower.h / 2;
                 }
@@ -243,12 +265,16 @@ int main(int argc, char *argv[]) {
                     sprite = bankBmp;   sw = bankBmpW;   sh = bankBmpH;
                 } else if (towers[i].type == towerIceman) {
                     sprite = icemanBmp; sw = icemanBmpW; sh = icemanBmpH;
+                } else if (towers[i].type == towerStarboy) {
+                    sprite = starboyBmp; sw = starboyBmpW; sh = starboyBmpH;
+                } else if (towers[i].type == towerTeslaMan) {
+                    sprite = teslaBmp; sw = teslaBmpW; sh = teslaBmpH;
                 } else {
                     sprite = drakeBmp;  sw = drakeBmpW;  sh = drakeBmpH;
                 }
                 al_draw_scaled_bitmap(sprite, 0, 0, sw, sh, towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
             }
-            highlightTower(towers, selectedTowerIndex, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, icemanBmp, icemanBmpW, icemanBmpH);
+            highlightTower(towers, selectedTowerIndex, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, icemanBmp, icemanBmpW, icemanBmpH, starboyBmp, starboyBmpW, starboyBmpH, teslaBmp, teslaBmpW, teslaBmpH);
             for (int i = 0; i < slimeCount; i++) drawSlime(slimes[i]);
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
@@ -258,7 +284,7 @@ int main(int argc, char *argv[]) {
             placeWeekndButton(font, weekndSelected);
             placeElonButton(font, elonSelected);
             placeBankButton(font, bankSelected);
-            drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, icemanBmp, icemanBmpW, icemanBmpH, towers, selectedTowerIndex);
+            drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, icemanBmp, icemanBmpW, icemanBmpH, starboyBmp, starboyBmpW, starboyBmpH, teslaBmp, teslaBmpW, teslaBmpH, towers, selectedTowerIndex);
             placeNextWaveButton(font, betweenWaves, currentWave, waveCount);
             al_flip_display();
         }
