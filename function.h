@@ -7,6 +7,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include "enemy.h"
 
@@ -64,9 +65,9 @@ inline ALLEGRO_BITMAP* bitmaps[imageCount] = {0};
 
 //Checks each image if it runs, if it runs it saves it to a bitmap array if it doesnt error
 //have to keep drakeBmp, slimeBmp and map as separate variables because they are used in many different places and it would be a pain to change all of them
-inline bool Images(ALapLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& drakeBmp, ALLEGRO_BITMAP*& slimeBmp, ALLEGRO_BITMAP*& weekndBmp, ALLEGRO_BITMAP*& microphoneBmp, ALLEGRO_BITMAP*& heartBmp, ALLEGRO_BITMAP*& drakeMicBmp, ALLEGRO_BITMAP*& elonBmp, ALLEGRO_BITMAP*& rocketBmp, ALLEGRO_BITMAP*& bankBmp, ALLEGRO_BITMAP*& icemanBmp) {
+inline bool Images(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& drakeBmp, ALLEGRO_BITMAP*& slimeBmp, ALLEGRO_BITMAP*& weekndBmp, ALLEGRO_BITMAP*& microphoneBmp, ALLEGRO_BITMAP*& heartBmp, ALLEGRO_BITMAP*& drakeMicBmp, ALLEGRO_BITMAP*& elonBmp, ALLEGRO_BITMAP*& rocketBmp, ALLEGRO_BITMAP*& bankBmp, ALLEGRO_BITMAP*& icemanBmp) {
     for (int i = 0; i < imageCount; i++) {
-        bitmaps[i] = al_load_bitm(imageNames[i]);
+        bitmaps[i] = al_load_bitmap(imageNames[i]);
         if (!bitmaps[i]) {
             al_show_native_message_box(display, "Error", "Error", imageNames[i], nullptr, ALLEGRO_MESSAGEBOX_ERROR);
             for (int j = 0; j < i; j++) al_destroy_bitmap(bitmaps[j]);
