@@ -54,14 +54,15 @@ int main(int argc, char *argv[]) {
     int teslaBmpH = al_get_bitmap_height(teslaBmp);
 
     // arrays for slimes and bullets, and variables for wave manaagement
-    Slime slimes[maxSlimes];
+    // static: these are too large for Allegro's secondary thread stack on macOS
+    static Slime slimes[maxSlimes];
     int slimeCount = 0;
-    Bullet bullets[maxBullets];
+    static Bullet bullets[maxBullets];
     int bulletCount = 0;
     bool running = true;
     int mouseX = 0, mouseY = 0;
     //tracks where the mouse is so we can draw the tower preview at the cursor
-    Wave allWaves[maxWaves] = {};
+    static Wave allWaves[maxWaves];
     int waveCount = loadWaves("waves.txt", allWaves, maxWaves);
 
     int currentWave = 0;
