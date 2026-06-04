@@ -21,8 +21,8 @@ struct Bullet {
     int pierce;
     bool alive;
     int ice;
-    int explosive = 0;           //blast radius; 0 = non-explosive
-    int explosiveDamage = 0;     //damage dealt within blast radius
+    int explosive = 0;         //blast radius in pixels. 0 = no explosion
+    int explosiveDamage = 0;   //damage dealt to every OTHER slime inside the blast radius
     float spriteScale = 0.18f;   //how big the sprite draws; rockets override this
     ALLEGRO_BITMAP* sprite = nullptr;
     //tracks which slimes this bullet already hit so pierce moves on to NEW enemies instead of hitting the same one every frame
@@ -65,6 +65,7 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
         for (int j = 0; j < slimeCount; j++) {
             if (slimes[j].done) continue;
             if (bulletAlreadyHit(bullet, j)) continue;
+            if (slimes[j].metal && !bullet.armorPiercing) continue;
             if (distance(bullet.x, bullet.y, slimes[j].x, slimes[j].y) >= 20.0f * 20.0f) continue;
 
             //hit confirmed apply damage and award gold if it died
@@ -73,6 +74,8 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
             if (slimes[j].hp <= 0) {
                 slimes[j].done = true;
                 *gold += goldPerKill;
+                if (slimes[j].splitCount > 0)
+                slimes[j].pendingSplit = true;
             }
             //ice bullet slows the slime, but only once per slime ever (no stacking from other bullets)
             if (bullet.ice > 0 && !slimes[j].isIced) {
