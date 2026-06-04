@@ -60,6 +60,7 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed) {
 //void updateSlime function to move the slime along the path points
 void updateSlime(Slime& s) {
     if (s.done) return;
+    if (s.hitDamageTimer > 0) s.hitDamageTimer--;   //count down the red flash, same pattern as tower cooldown
 
     float targetX = pathX[s.target];
     float targetY = pathY[s.target];
@@ -88,7 +89,14 @@ void drawSlime(const Slime& s) {
     int w = al_get_bitmap_width(s.bitmap);
     int h = al_get_bitmap_height(s.bitmap);
     const float scale = 1.2f;
-    al_draw_scaled_bitmap(s.bitmap, 0, 0, w, h, s.x - (w * scale) / 2, s.y - (h * scale) / 2, w * scale, h * scale, 0);
+    float drawX = s.x - (w * scale) / 2;
+    float drawY = s.y - (h * scale) / 2;
+    if (s.hitDamageTimer > 0) {
+        //recently hit - tint it red
+        al_draw_tinted_scaled_bitmap(s.bitmap, al_map_rgb(255, 80, 80), 0, 0, w, h, drawX, drawY, w * scale, h * scale, 0);
+    } else {
+        al_draw_scaled_bitmap(s.bitmap, 0, 0, w, h, drawX, drawY, w * scale, h * scale, 0);
+    }
 
     //dimensions for the health bar
     float barWidth = 20.0f; // width of bar

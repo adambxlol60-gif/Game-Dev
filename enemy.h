@@ -17,6 +17,7 @@ struct Slime {
     bool done;
     bool escaped;
     bool isIced = false;
+    int hitDamageTimer = 0;   //frames left to draw the slime red after being hit (counts down like a tower cooldown)
     int hp;
     int maxHp;
 };
