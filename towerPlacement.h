@@ -1,6 +1,5 @@
 #ifndef TOWER_PLACEMENT_H
 #define TOWER_PLACEMENT_H
-
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include "tower.h"
@@ -36,10 +35,10 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
     newTower.y = event.mouse.y - towerH / 2;
     newTower.w = towerW;
     newTower.h = towerH;
-    if      (drakeSelected)  newTower.type = towerDrake;
+    if (drakeSelected) newTower.type = towerDrake;
     else if (weekndSelected) newTower.type = towerWeeknd;
-    else if (elonSelected)   newTower.type = towerElon;
-    else                     newTower.type = towerBank;
+    else if (elonSelected) newTower.type = towerElon;
+    else newTower.type = towerBank;
 
     Tower model = towerModelRectangle(newTower);
     bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW &&model.y + model.h <= screenH;
@@ -106,10 +105,10 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW && model.y + model.h <= screenH;
 
     int cost;
-    if      (drakeSelected)  cost = drakeCost;
+    if (drakeSelected) cost = drakeCost;
     else if (weekndSelected) cost = weekndCost;
-    else if (elonSelected)   cost = elonCost;
-    else                     cost = bankCost;
+    else if (elonSelected) cost = elonCost;
+    else cost = bankCost;
     //this canPlace variable is used to determine the color of the ghost tower and whether the player can place the tower or not, it checks all the same conditions as the handleMouseClick function
     bool canPlace = insideScreen && towerCount < maxTowerLimit && gold >= cost && !towerTouchesPath(map, preview) && !overlapsAnyTower(preview, towers, towerCount);
     //extra restriction - banks are capped at maxBanks regardless of total tower limit

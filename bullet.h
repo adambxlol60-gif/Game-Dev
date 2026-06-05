@@ -1,14 +1,14 @@
 //created by Noah Basaria and Adam Jurewicz
-
-
 #ifndef BULLET_H
 #define BULLET_H
-
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include "enemy.h"
 #include "hud.h"
+
+//maximum amount of bullet the screen can have at once
 const int maxBullets = 500;
+
 // bullet speed (kept here with the rest of the bullet data)
 const float bulletSpeed = 14.0f;
 
@@ -21,10 +21,11 @@ struct Bullet {
     int pierce;
     bool alive;
     int ice;
+    bool armorPiercing = false; //if true, bullet can hit metal slimes
     int explosive = 0;         //blast radius in pixels. 0 = no explosion
     int explosiveDamage = 0;   //damage dealt to every OTHER slime inside the blast radius
     float spriteScale = 0.18f;   //how big the sprite draws; rockets override this
-    ALLEGRO_BITMAP* sprite = nullptr;
+    ALLEGRO_BITMAP* sprite = nullptr; //declares a variable to hold the sprite, if it's a special bullet model like the weeknd microphone
     //tracks which slimes this bullet already hit so pierce moves on to NEW enemies instead of hitting the same one every frame
     int hitSlimes[maxHitsPerBullet];
     int hitCount = 0;

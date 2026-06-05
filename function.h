@@ -2,7 +2,6 @@
 
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
-
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
@@ -10,16 +9,17 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include "enemy.h"
-
-//screen size 4:3 ratio
-const int screenW = 1280;
-const int screenH = 960;
-
 #include "bullet.h"
 #include "hud.h"
 #include "tower.h"
 #include "towerPlacement.h"
 #include "panel.h"
+
+//screen size 4:3 ratio
+const int screenW = 1280;
+const int screenH = 960;
+
+
 
 //simple allegro initialization function, they also check if the mouse, image addon are initialized
 inline bool initAllegro() {
