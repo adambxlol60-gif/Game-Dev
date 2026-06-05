@@ -9,10 +9,10 @@
 #include <cstdio>
 
 const int drakeCost = 200;
-const int weekndCost = 400;
+const int weekndCost = 500;
 const int elonCost = 1000;
 const int bankCost = 1000;
-const int maxTowerLimit = 10;
+const int maxTowerLimit = 20;
 const int goldPerKill = 5;
 const int health = 20;
 

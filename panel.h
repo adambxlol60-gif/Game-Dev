@@ -124,7 +124,8 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     float scaleX = (float)portraitW / cropW;
     float scaleY = (float)portraitH / cropH;
     float finalScale = scaleX < scaleY ? scaleX : scaleY;
-    //the new pixel-art PNGs fill their canvas, so the plain fit-to-box scale already fills the portrait nicely
+    //drake and iceman art sits small inside its canvas, so zoom their portraits up a bit
+    if (selectedTower.type == towerDrake || selectedTower.type == towerIceman) finalScale *= 1.5f;
     int drawW = (int)(cropW * finalScale);
     int drawH = (int)(cropH * finalScale);
     int drawX = portraitX + (portraitW - drawW) / 2;

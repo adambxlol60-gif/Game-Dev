@@ -58,7 +58,7 @@ inline ALLEGRO_DISPLAY* createDisplay() {
     return display;
 }
 //list of every image file the game needs at startup
-inline const char* imageNames[] = {"Images/BetaMap.png", "Images/DrakeTower.png", "Images/Slime.png", "Images/Weeknd.png", "Images/microphone.png", "Images/blueSlime.png","Images/blueCamoSlime.png","Images/greenCamoSlime.png","Images/metalSlime.png", "Images/purpleSlime.png",  "Images/purpleCamoSlime.png", "Images/rainbowSlime.png",  "Images/rainbowCamoSlime.png",  "Images/redSlime.png", "Images/redCamoSlime.png", "Images/yellowSlime.png", "Images/yellowCamoSlime.png", "Images/heart.png", "Images/drakeMic.png", "Images/ElonMusk.png", "Images/DrakeIceman.png", "Images/SpaceXRocket.png", "Images/Bank.png", "Images/Starboy.png", "Images/ElomMuskUpgrade.png"};
+inline const char* imageNames[] = {"Images/BetaMap.png", "Images/DrakeTower.png", "Images/Slime.png", "Images/Weeknd.png", "Images/microphone.png", "Images/blueSlime.png","Images/blueCamoSlime.png","Images/greenCamoSlime.png","Images/metalSlime.png", "Images/purpleSlime.png",  "Images/purpleCamoSlime.png", "Images/rainbowSlime.png",  "Images/rainbowCamoSlime.png",  "Images/redSlime.png", "Images/redCamoSlime.png", "Images/yellowSlime.png", "Images/yellowCamoSlime.png", "Images/heart.png", "Images/drakeMic.png", "Images/ElonMusk.png", "Images/DrakeIceman.png", "Images/SpaceXRocket.png", "Images/Bank.png", "Images/Starboy.png", "Images/ElomMuskUpgrade.png", "Images/titleScreen.png", "Images/playButton.png", "Images/gameOverScreen.png", "Images/WinScreen.png", "Images/retryButton.png", "Images/menuButton.png", "Images/slimeKing.png"};
 inline const int imageCount = (int)(sizeof(imageNames) / sizeof(imageNames[0]));
 
 inline ALLEGRO_BITMAP* bitmaps[imageCount] = {0};

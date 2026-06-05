@@ -28,6 +28,9 @@ inline bool isCamoSpawn(const Spawn& s) {
 }
 
 inline void splitDataFor(const Spawn& s, int& count, int& hp, float& speed, ALLEGRO_BITMAP*& bmp) {
+    if (s.bitmap == bitmaps[31]) {            //kingSlime boss - bursts into a swarm of red slimes on death
+        count = 10; hp = 100; speed = s.speed*2.0f; bmp = bitmaps[13]; return;
+    }
     if (s.bitmap == bitmaps[13]) {
         count = 2; hp = s.hp/2; speed = s.speed*1.2f; bmp = bitmaps[9]; return;
     }
@@ -62,6 +65,7 @@ inline ALLEGRO_BITMAP* getBitmapByName(const char* name) {
     if (strcmp(name, "redCamoSlime") == 0) return bitmaps[14];
     if (strcmp(name, "yellowSlime") == 0) return bitmaps[15];
     if (strcmp(name, "yellowCamoSlime") == 0) return bitmaps[16];
+    if (strcmp(name, "kingSlime") == 0) return bitmaps[31];
     return bitmaps[2]; // default to basic slime if name not found
 }
 

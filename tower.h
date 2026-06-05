@@ -37,8 +37,8 @@ const int towerTeslaMan = 6;  //elon's upgraded form - currently same stats as e
 const int maxBanks = 3;       //hard cap on how many banks can exist at once
 
 //upgrade costs - spending this gold flips the tower into its upgraded form
-const int drakeUpgradeCost = 400;
-const int weekndUpgradeCost = 400;
+const int drakeUpgradeCost = 500;
+const int weekndUpgradeCost = 800;
 const int elonUpgradeCost = 2500;   //expensive, but tesla man is the strongest tower in the game
 
 //saves tower position, size, fire timer, and which type it is
@@ -68,6 +68,13 @@ const float weekndRange = 350.0f;
 const float elonRange   = 250.0f;
 const float icemanRange = 260.0f;   //slightly longer than drake
 const int   towerCooldown = 30;
+//per-tower fire cooldown in frames. lower = shoots faster
+const int drakeCooldown   = 30;   //normal
+const int icemanCooldown  = 30;   //same as drake
+const int weekndCooldown  = 25;   //a bit faster than drake
+const int starboyCooldown = 20;   //a bit faster than weeknd
+const int elonCooldown    = 30;   //normal
+const int teslaCooldown   = 15;   //really fast, faster than starboy
 
 //rangeOf returns the firing range for a given tower type
 inline float rangeOf(int towerType) {
@@ -81,9 +88,11 @@ inline float rangeOf(int towerType) {
 }
 
 const int drakeDamage = 1;
-const int weekndDamage = 2;
-const int elonDamage = 1;
+const int weekndDamage = 1;
+const int elonDamage = 4;
 const int icemanDamage = 2;   //+1 over drake
+const int starboyDamage = 2;  //a bit more than weeknd
+const int teslaDamage = 5;
 const int drakePierce = 0;
 const int weekndPierce = 1;
 const int elonPierce = 0;
@@ -99,15 +108,15 @@ const int elonUpgVision = 1;
 const int icemanVision = 0;
 
 //explosive blast radius (pixels) per tower. 0 = no explosion
-const int weekndExplosive  = 50;    //small
-const int starboyExplosive = 75;    //small-medium
+const int weekndExplosive  = 0;     //weeknd has no blast, just pierce
+const int starboyExplosive = 55;    //small blast added on top of starboy's pierce
 const int elonExplosive    = 110;   //big
 const int teslaExplosive   = 150;   //biggest
 //explosive damage dealt to every other slime caught in the blast
-const int weekndExplosiveDamage  = 1;
-const int starboyExplosiveDamage = 5;
-const int elonExplosiveDamage    = 2;
-const int teslaExplosiveDamage   = 5;
+const int weekndExplosiveDamage  = 0;
+const int starboyExplosiveDamage = 1;
+const int elonExplosiveDamage    = 1;
+const int teslaExplosiveDamage   = 2;
 
 //explosiveOf returns the blast radius for a tower type (0 = no explosion)
 inline int explosiveOf(int towerType) {
@@ -132,8 +141,8 @@ inline int damageOf(int towerType) {
     if (towerType == towerElon)    return elonDamage;
     if (towerType == towerBank)    return 0;
     if (towerType == towerIceman)  return icemanDamage;
-    if (towerType == towerStarboy) return weekndDamage;   //same as weeknd for now
-    if (towerType == towerTeslaMan) return elonDamage;    //same as elon for now
+    if (towerType == towerStarboy) return starboyDamage;
+    if (towerType == towerTeslaMan) return teslaDamage;
     return drakeDamage;
 }
 
@@ -158,9 +167,20 @@ inline int iceOf(int towerType) {
 }
 
 inline int visionOf(int towerType, int upgradeLevel) {
-    if (towerType == towerWeeknd) return weekndVision;
+    if (towerType == towerWeeknd)   return weekndVision;
+    if (towerType == towerStarboy)  return weekndVision;   //starboy keeps weeknd's camo vision
+    if (towerType == towerTeslaMan) return elonUpgVision;  //tesla (upgraded elon) can see camo
     if (towerType == towerElon && upgradeLevel >= 1) return elonUpgVision;
     return drakeVision;
+}
+//cooldownOf returns how many frames a tower waits between shots (lower = faster)
+inline int cooldownOf(int towerType) {
+    if (towerType == towerWeeknd)   return weekndCooldown;
+    if (towerType == towerElon)     return elonCooldown;
+    if (towerType == towerIceman)   return icemanCooldown;
+    if (towerType == towerStarboy)  return starboyCooldown;
+    if (towerType == towerTeslaMan) return teslaCooldown;
+    return drakeCooldown;   //drake (bank never fires)
 }
 //Saves information about the tower's cooldown and whether a bullet is alive or not
 struct TowerState {
@@ -253,7 +273,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         bullet.pierce = pierceOf(towers[i].type);
         bullet.alive = true;
         bullet.ice = iceOf(towers[i].type);
-        bullet.armorPiercing = (towers[i].type == towerElon || towers[i].type == towerTeslaMan);
+        bullet.armorPiercing = (towers[i].type == towerElon || towers[i].type == towerTeslaMan || towers[i].type == towerStarboy);
         bullet.explosive = explosiveOf(towers[i].type);
         bullet.explosiveDamage = explosiveDamageOf(towers[i].type);
         //each tower fires its own bullet sprite (drake + iceman share the drake mic)
@@ -277,7 +297,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
             bullets[(*bulletCount)++] = bullet;
         }
 
-        states[i].cooldown = towerCooldown;
+        states[i].cooldown = cooldownOf(towers[i].type);
     }
 }
 //this onPath code for placing a tower

@@ -23,7 +23,8 @@ struct Bullet {
     int ice;
     int explosive = 0;         //blast radius in pixels. 0 = no explosion
     int explosiveDamage = 0;   //damage dealt to every OTHER slime inside the blast radius
-    float spriteScale = 0.18f;   //how big the sprite draws; rockets override this
+    bool armorPiercing = false; //true for Elon/Tesla bullets so they can hit metal slimes
+    float spriteScale = 0.18f;   //how much to scale the sprite down when drawing, default is 0.18 so the microphone sprite is about the same size 
     ALLEGRO_BITMAP* sprite = nullptr;
     //tracks which slimes this bullet already hit so pierce moves on to NEW enemies instead of hitting the same one every frame
     int hitSlimes[maxHitsPerBullet];
@@ -65,15 +66,20 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
         for (int j = 0; j < slimeCount; j++) {
             if (slimes[j].done) continue;
             if (bulletAlreadyHit(bullet, j)) continue;
-            if (slimes[j].metal && !bullet.armorPiercing) continue;
             if (distance(bullet.x, bullet.y, slimes[j].x, slimes[j].y) >= 20.0f * 20.0f) continue;
+
+            //bullet touched a metal slime but cant pierce armor - bullet dies, no damage
+            if (slimes[j].metal && !bullet.armorPiercing) {
+                bullet.alive = false;
+                break;
+            }
 
             //hit confirmed apply damage and award gold if it died
             slimes[j].hp -= bullet.damage;
             slimes[j].hitDamageTimer = 6;   //flash red for 6 frames
             if (slimes[j].hp <= 0) {
                 slimes[j].done = true;
-                *gold += goldPerKill;
+                *gold += slimes[j].maxHp;   //1 hp = 1 gold
                 if (slimes[j].splitCount > 0)
                 slimes[j].pendingSplit = true;
             }
@@ -94,7 +100,7 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
                         slimes[k].hitDamageTimer = 6;   //flash red for 6 frames
                         if (slimes[k].hp <= 0) {
                             slimes[k].done = true;
-                            *gold += goldPerKill;
+                            *gold += slimes[k].maxHp;   //1 hp = 1 gold
                         }
                     }
                 }

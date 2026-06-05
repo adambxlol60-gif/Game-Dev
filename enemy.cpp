@@ -95,7 +95,8 @@ void drawSlime(const Slime& s) {
     if (s.done) return;
     int w = al_get_bitmap_width(s.bitmap);
     int h = al_get_bitmap_height(s.bitmap);
-    const float scale = 1.2f;
+    //king PNG is 512px (others ~64px), so it needs a much smaller scale to look like a boss instead of filling the screen
+    const float scale = s.isKing ? 0.32f : 1.2f;
     float drawX = s.x - (w * scale) / 2;
     float drawY = s.y - (h * scale) / 2;
     if (s.hitDamageTimer > 0) {

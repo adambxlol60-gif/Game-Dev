@@ -22,6 +22,9 @@ int main(int argc, char *argv[]) {
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     eventQueue(event_queue, display, timer);
+    //keyboard for the m test hotkey (jump to wave 50)
+    al_install_keyboard();
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
     loadPathFromMap(image); // loads the slime path from the map bitmap
 
@@ -31,7 +34,7 @@ int main(int argc, char *argv[]) {
 
     // game state variables
     int towerCount = 0;
-    int gold = 10000; // starting amount of gold
+    int gold = 500; // starting amount of gold
     int playerHealth = 20; // player's health
     bool drakeSelected = false;
     bool weekndSelected = false;
@@ -69,7 +72,45 @@ int main(int argc, char *argv[]) {
     int spawnIndex = 0;
     int nextSpawnIn = 0;
     bool betweenWaves = true;
-    
+
+    int gameMenu = 1;   // 1 = menu, 0 = game, 2 = win, 3 = game over
+    //play button: image drawn scaled + centered; click area scaled to match
+    const float playScale = 0.6f;
+    const int playDrawW = (int)(screenW * playScale);
+    const int playDrawH = (int)(screenH * playScale);
+    const int playDrawX = (screenW - playDrawW) / 2;
+    const int playDrawY = (screenH - playDrawH) / 2;
+    const int playLeft   = (int)(640 + (345 - 640) * playScale);
+    const int playRight  = (int)(640 + (935 - 640) * playScale);
+    const int playTop    = (int)(480 + (384 - 480) * playScale);
+    const int playBottom = (int)(480 + (557 - 480) * playScale);
+
+    //retry (top) + menu (bottom) buttons on the win/gameover screens. draw regions big; click areas split so they dont overlap
+    const int retryLeft = 265, retryRight = 1015;
+    const int retryDrawTop = 240, retryDrawBottom = 800;
+    const int menuLeft  = 265, menuRight = 1015;
+    const int menuDrawTop = 440, menuDrawBottom = 1000;
+    const int btnClickSplit = 620;
+    const int retryClickTop = 240, retryClickBottom = btnClickSplit;
+    const int menuClickTop  = btnClickSplit, menuClickBottom = 1000;
+
+    //resetGame puts every gameplay variable back to its starting value so Retry/Menu start fresh
+    auto resetGame = [&]() {
+        towerCount = 0;
+        slimeCount = 0;
+        bulletCount = 0;
+        gold = 500;
+        playerHealth = 20;
+        currentWave = 0;
+        spawnIndex = 0;
+        nextSpawnIn = 0;
+        betweenWaves = true;
+        selectedTowerIndex = -1;
+        drakeSelected = false;
+        weekndSelected = false;
+        elonSelected = false;
+        bankSelected = false;
+    };
 
     al_start_timer(timer);
 
@@ -82,8 +123,35 @@ int main(int argc, char *argv[]) {
             running = false;
         }
 
+        //test hotkey: m jumps straight to wave 50 and starts it
+        if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == ALLEGRO_KEY_M) {
+                gameMenu = 0;
+                currentWave = 49;
+                slimeCount = 0;
+                betweenWaves = false;
+                spawnIndex = 0;
+                nextSpawnIn = 0;
+            }
+        }
+
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-            if (event.mouse.button == 1 && betweenWaves && nextWaveButtonPressed(event.mouse.x, event.mouse.y)) {
+            if (gameMenu == 1) {
+                if (event.mouse.button == 1 && event.mouse.x >= playLeft && event.mouse.x <= playRight && event.mouse.y >= playTop && event.mouse.y <= playBottom) {
+                    gameMenu = 0;
+                }
+            }
+            else if (gameMenu == 2 || gameMenu == 3) {
+                if (event.mouse.button == 1 && event.mouse.x >= retryLeft && event.mouse.x <= retryRight && event.mouse.y >= retryClickTop && event.mouse.y <= retryClickBottom) {
+                    resetGame();
+                    gameMenu = 0;
+                }
+                else if (event.mouse.button == 1 && event.mouse.x >= menuLeft && event.mouse.x <= menuRight && event.mouse.y >= menuClickTop && event.mouse.y <= menuClickBottom) {
+                    resetGame();
+                    gameMenu = 1;
+                }
+            }
+            else if (event.mouse.button == 1 && betweenWaves && nextWaveButtonPressed(event.mouse.x, event.mouse.y)) {
                 if (currentWave < waveCount) {
                     betweenWaves = false;
                     spawnIndex = 0;
@@ -182,6 +250,19 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
+            if (gameMenu == 1) {
+                al_draw_scaled_bitmap(bitmaps[25], 0, 0, al_get_bitmap_width(bitmaps[25]), al_get_bitmap_height(bitmaps[25]), 0, 0, screenW, screenH, 0);
+                al_draw_scaled_bitmap(bitmaps[26], 0, 0, al_get_bitmap_width(bitmaps[26]), al_get_bitmap_height(bitmaps[26]), playDrawX, playDrawY, playDrawW, playDrawH, 0);
+                al_flip_display();
+            }
+            else if (gameMenu == 3 || gameMenu == 2) {
+                ALLEGRO_BITMAP* backdrop = (gameMenu == 3) ? bitmaps[27] : bitmaps[28];
+                al_draw_scaled_bitmap(backdrop, 0, 0, al_get_bitmap_width(backdrop), al_get_bitmap_height(backdrop), 0, 0, screenW, screenH, 0);
+                al_draw_scaled_bitmap(bitmaps[29], 0, 0, al_get_bitmap_width(bitmaps[29]), al_get_bitmap_height(bitmaps[29]), retryLeft, retryDrawTop, retryRight - retryLeft, retryDrawBottom - retryDrawTop, 0);
+                al_draw_scaled_bitmap(bitmaps[30], 0, 0, al_get_bitmap_width(bitmaps[30]), al_get_bitmap_height(bitmaps[30]), menuLeft, menuDrawTop, menuRight - menuLeft, menuDrawBottom - menuDrawTop, 0);
+                al_flip_display();
+            }
+            else {
             if (!betweenWaves) {
                 if (spawnIndex < allWaves[currentWave].spawnCount) {
                     if (nextSpawnIn <= 0) {
@@ -210,13 +291,14 @@ int main(int argc, char *argv[]) {
                     for (int i = 0; i < slimeCount; i++)
                         if (!slimes[i].done) { allDone = false; break; }
                     if (allDone) {
-                        gold += 100 + (currentWave * 25);
+                        gold += 100 + (currentWave * 5);
                         //every bank pays out 250 gold at the end of the wave
                         int bankMoney = countBanks(towers, towerCount);
                         gold += 250 * bankMoney;
                         currentWave++;
                         betweenWaves = true;
                         slimeCount = 0;
+                        if (currentWave >= waveCount) gameMenu = 2;   //all waves cleared - win screen
                     }
                 }
             }
@@ -225,11 +307,11 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < slimeCount; i++) {
                 updateSlime(slimes[i]);
                 if (slimes[i].escaped) {
+                    if (slimes[i].isKing) gameMenu = 3;   //king reaching the end is an instant loss
                     playerHealth--;
                     slimes[i].escaped = false;
                     if (playerHealth <=0) {
-                        // game over
-                        running = false;
+                        gameMenu = 3;   // game over screen
                     }
                 }
             }
@@ -240,8 +322,8 @@ int main(int argc, char *argv[]) {
                 slimes[i].pendingSplit = false;
                 for (int c = 0; c < slimes[i].splitCount && slimeCount < maxSlimes; c++) {
                     Slime child = initSlime(slimes[i].splitBitmap, slimes[i].splitHp, slimes[i].splitSpeed);
-                    child.x      = slimes[i].x;
-                    child.y      = slimes[i].y;
+                    child.x = slimes[i].x;
+                    child.y = slimes[i].y;
                     child.target = slimes[i].target;
                     if (child.bitmap == bitmaps[9]) {
                         child.splitCount = 2;
@@ -258,19 +340,32 @@ int main(int argc, char *argv[]) {
                 ALLEGRO_BITMAP* sprite;
                 int sw, sh;
                 if (towers[i].type == towerWeeknd) {
-                    sprite = weekndBmp; sw = weekndBmpW; sh = weekndBmpH;
+                    sprite = weekndBmp; 
+                    sw = weekndBmpW; 
+                    sh = weekndBmpH;
                 } else if (towers[i].type == towerElon) {
-                    sprite = elonBmp;   sw = elonBmpW;   sh = elonBmpH;
+                    sprite = elonBmp; 
+                    sw = elonBmpW;   
+                    sh = elonBmpH;
                 } else if (towers[i].type == towerBank) {
-                    sprite = bankBmp;   sw = bankBmpW;   sh = bankBmpH;
+                    sprite = bankBmp;   
+                    sw = bankBmpW;   sh = bankBmpH;
                 } else if (towers[i].type == towerIceman) {
-                    sprite = icemanBmp; sw = icemanBmpW; sh = icemanBmpH;
+                    sprite = icemanBmp; 
+                    sw = icemanBmpW; 
+                    sh = icemanBmpH;
                 } else if (towers[i].type == towerStarboy) {
-                    sprite = starboyBmp; sw = starboyBmpW; sh = starboyBmpH;
+                    sprite = starboyBmp; 
+                    sw = starboyBmpW; 
+                    sh = starboyBmpH;
                 } else if (towers[i].type == towerTeslaMan) {
-                    sprite = teslaBmp; sw = teslaBmpW; sh = teslaBmpH;
+                    sprite = teslaBmp;
+                     sw = teslaBmpW; 
+                     sh = teslaBmpH;
                 } else {
-                    sprite = drakeBmp;  sw = drakeBmpW;  sh = drakeBmpH;
+                    sprite = drakeBmp;  
+                    sw = drakeBmpW;  
+                    sh = drakeBmpH;
                 }
                 al_draw_scaled_bitmap(sprite, 0, 0, sw, sh, towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
             }
@@ -287,6 +382,7 @@ int main(int argc, char *argv[]) {
             drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, icemanBmp, icemanBmpW, icemanBmpH, starboyBmp, starboyBmpW, starboyBmpH, teslaBmp, teslaBmpW, teslaBmpH, towers, selectedTowerIndex);
             placeNextWaveButton(font, betweenWaves, currentWave, waveCount);
             al_flip_display();
+            }
         }
     }
 

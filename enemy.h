@@ -20,6 +20,7 @@ struct Slime {
     int hitDamageTimer = 0;   //frames left to draw the slime red after being hit (counts down like a tower cooldown)
     bool camo = false;
     bool metal = false;
+    bool isKing = false;   //the boss draws bigger but uses a smaller scale since its PNG is 512px
     bool pendingSplit        = false;
     int  splitCount         = 0;
     int  splitHp            = 0;
