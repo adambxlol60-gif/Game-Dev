@@ -165,8 +165,8 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
         al_draw_rectangle(upgrade1BtnX, upgrade1BtnY, upgrade1BtnX + upgrade1BtnW, upgrade1BtnY + upgrade1BtnH, al_map_rgb(0, 0, 0), 2);
         al_draw_text(font, al_map_rgb(255, 255, 255), upgrade1BtnX + upgrade1BtnW / 2, upgrade1BtnY + upgrade1BtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, upg1Label);
 
-        //upgrade 2 - +1 damage per click, cost starts at 400 and goes up by 100 each level
-        int upg2Cost = 400 + 100 * selectedTower.damageUpgradeLevel;
+        //upgrade 2 - +1 damage AND faster firing, cost starts at 300 and goes up by 100 each level
+        int upg2Cost = 300 + 100 * selectedTower.damageUpgradeLevel;
         char upg2Label[32];
         snprintf(upg2Label, sizeof(upg2Label), "+1 Damage (%d)", upg2Cost);
         al_draw_filled_rectangle(upgrade2BtnX, upgrade2BtnY, upgrade2BtnX + upgrade2BtnW, upgrade2BtnY + upgrade2BtnH, al_map_rgb(160, 100, 60));

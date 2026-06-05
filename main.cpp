@@ -214,9 +214,9 @@ int main(int argc, char *argv[]) {
                     tower.y = cy - tower.h / 2;
                 }
             } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && upgrade2ButtonPressed(event.mouse.x, event.mouse.y)) {
-                //upgrade 2 - +1 damage per click. Cost ramps: 400, 500, 600...
+                //upgrade 2 - +1 damage AND slightly faster firing per click. Cost ramps: 300, 400, 500...
                 Tower& tower = towers[selectedTowerIndex];
-                int cost = 400 + 100 * tower.damageUpgradeLevel;
+                int cost = 300 + 100 * tower.damageUpgradeLevel;
                 if (gold >= cost) {
                     gold -= cost;
                     tower.damageUpgradeLevel += 1;

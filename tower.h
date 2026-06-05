@@ -64,7 +64,8 @@ inline Tower towerModelRectangle(Tower t) {
 //This is for the bullet speed, tower range (field of view) and cooldow time between shots.
 // Makes it super easy to adjust the towers in the future without changing much code.
 const float towerRange = 200.0f;
-const float weekndRange = 350.0f;
+const float weekndRange = 300.0f;
+const float starboyRange = 380.0f;
 const float elonRange   = 250.0f;
 const float icemanRange = 260.0f;   //slightly longer than drake
 const int   towerCooldown = 30;
@@ -82,7 +83,7 @@ inline float rangeOf(int towerType) {
     if (towerType == towerElon)    return elonRange;
     if (towerType == towerBank)    return 0.0f;
     if (towerType == towerIceman)  return icemanRange;
-    if (towerType == towerStarboy) return weekndRange;   //same as weeknd for now
+    if (towerType == towerStarboy) return starboyRange;   //weeknd's old longer range
     if (towerType == towerTeslaMan) return elonRange;    //same as elon for now
     return towerRange;
 }
@@ -297,7 +298,10 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
             bullets[(*bulletCount)++] = bullet;
         }
 
-        states[i].cooldown = cooldownOf(towers[i].type);
+        //each damage upgrade also speeds up firing slightly (2 frames faster per level, floored so it never gets silly)
+        int cd = cooldownOf(towers[i].type) - 2 * towers[i].damageUpgradeLevel;
+        if (cd < 6) cd = 6;
+        states[i].cooldown = cd;
     }
 }
 //this onPath code for placing a tower
