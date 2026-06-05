@@ -8,6 +8,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <cstdio>
 
+//declaration of all constants and functions related to hud display
 const int drakeCost = 200;
 const int weekndCost = 500;
 const int elonCost = 1000;

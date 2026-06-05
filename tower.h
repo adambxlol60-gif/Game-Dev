@@ -2,7 +2,6 @@
 
 #ifndef TOWER_H
 #define TOWER_H
-
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <math.h>

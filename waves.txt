@@ -1,8 +1,3 @@
-# wave type count hp speed spawnInterval
-# Bloon mapping: Red=slime Blue=blueSlime Green=greenCamoSlime Yellow=yellowSlime
-# Pink=purpleSlime Black/White/Zebra=metalSlime Rainbow=rainbowSlime
-# Ceramic=redSlime(hp15) MOAB=redSlime(hp50) BFB=redSlime(hp150) ZOMG=redSlime(hp400) BAD=redSlime(hp1000+)
-
 1 slime 20 2 1.5 30
 2 slime 35 2 1.5 30
 3 slime 25 2 1.5 30
