@@ -46,11 +46,16 @@ inline bool initAllegro() {
     return true;
 }
 //creates the display the game runs in
+//we used creelman tutorials for ALLEGRO_DISPLAY and al_create_display
+//inline tells the compiler to copy the function code directly where it is
+//we used it here because there are smalled functions called frequently
+//Reference: inline functions in C++ - GeeksforGeeks: https://www.geeksforgeeks.org/cpp/inline-functions-cpp/
+
 inline ALLEGRO_DISPLAY* createDisplay() {
     ALLEGRO_DISPLAY* display = al_create_display(screenW, screenH);
     if (!display) {
         al_show_native_message_box(nullptr, "Error", "Error",
-            "Dispaly couldnt load", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
+            "Display couldnt load", nullptr, ALLEGRO_MESSAGEBOX_ERROR);
         return nullptr;
     }
     al_set_window_title(display, "Tower Defense");
@@ -60,12 +65,24 @@ inline ALLEGRO_DISPLAY* createDisplay() {
 }
 //list of every image file the game needs at startup
 inline const char* imageNames[] = {"Images/BetaMap.png", "Images/DrakeTower.png", "Images/Slime.png", "Images/Weeknd.png", "Images/microphone.png", "Images/blueSlime.png","Images/blueCamoSlime.png","Images/greenCamoSlime.png","Images/metalSlime.png", "Images/purpleSlime.png",  "Images/purpleCamoSlime.png", "Images/rainbowSlime.png",  "Images/rainbowCamoSlime.png",  "Images/redSlime.png", "Images/redCamoSlime.png", "Images/yellowSlime.png", "Images/yellowCamoSlime.png", "Images/heart.png", "Images/drakeMic.png", "Images/ElonMusk.png", "Images/DrakeIceman.png", "Images/SpaceXRocket.png", "Images/Bank.png", "Images/Starboy.png", "Images/ElomMuskUpgrade.png", "Images/titleScreen.png", "Images/playButton.png", "Images/gameOverScreen.png", "Images/WinScreen.png", "Images/retryButton.png", "Images/menuButton.png", "Images/slimeKing.png"};
+
+// I used sizeof to figure out how many images are in the array
+//Reference: C++ Get the Size of an Array - W3schools: https://www.w3schools.com/cpp/cpp_arrays_size.asp
 inline const int imageCount = (int)(sizeof(imageNames) / sizeof(imageNames[0]));
+
+
+//We used an array to hold a pointer to each loaded image, starts as all zeros
+// We made it so that each slot in the arraw doesn't actually store the image itself, but stores a pointer to where the images is in our memory
+// setting it to {0} makes it so that all the pointers starts as null so that nothing is pointed at useless memory before the images are loaded
+//Reference: C++ Array of Pointers - TutorialsPoint: https://www.tutorialspoint.com/cplusplus/cpp_array_of_pointers.htm
 
 inline ALLEGRO_BITMAP* bitmaps[imageCount] = {0};
 
-//Checks each image if it runs, if it runs it saves it to a bitmap array if it doesnt error
-//have to keep drakeBmp, slimeBmp and map as separate variables because they are used in many different places and it would be a pain to change all of them
+
+//we used ALLEGRO_BITMAP*& so the function can change what the pointer points to, outside the function
+// normally if you pass a pointer into a function and change it, the change won't stick after the functions program ends
+//adding the & fixes that, so when Images() runs, allthe parameters will get propery updated
+//reference: Pointers and References full guide - NTU: https://www3.ntu.edu.sg/home/ehchua/programming/cpp/cp4_PointerReference.html
 inline bool Images(ALLEGRO_DISPLAY* display, ALLEGRO_BITMAP*& map, ALLEGRO_BITMAP*& drakeBmp, ALLEGRO_BITMAP*& slimeBmp, ALLEGRO_BITMAP*& weekndBmp, ALLEGRO_BITMAP*& microphoneBmp, ALLEGRO_BITMAP*& heartBmp, ALLEGRO_BITMAP*& drakeMicBmp, ALLEGRO_BITMAP*& elonBmp, ALLEGRO_BITMAP*& rocketBmp, ALLEGRO_BITMAP*& bankBmp, ALLEGRO_BITMAP*& icemanBmp, ALLEGRO_BITMAP*& starboyBmp, ALLEGRO_BITMAP*& teslaBmp) {
     for (int i = 0; i < imageCount; i++) {
         bitmaps[i] = al_load_bitmap(imageNames[i]);
