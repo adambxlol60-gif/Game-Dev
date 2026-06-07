@@ -10,38 +10,41 @@
 #include "hud.h"
 
 //also adds tower limit and cost variable
+//this const maxTowers is there to prevent the player from placing more then 100 towers, there is already a 20 tower limit but this is an extra safety measure
 const int maxTowers = 100;
-//scales tuned for the new pixel-art sources: Drake/Weeknd 128px, Elon/Iceman 256x144, Bank 512px
+//this scale is super important for making the game look good and cohessive, since the towers sprites are in different pixel ratios we need this scale to make them all the same size in game.
 const float towerScale = 1.85f;
 const float weekndScale = 1.05f;
 const float elonScale = 0.85f;
 const float bankScale = 0.34f;
 const float icemanScale = 1.25f;
-const float starboyScale = 1.05f;   //same as weeknd
-const float teslaScale = 1.0f;      //ElomMuskUpgrade.png is 128px square
+const float starboyScale = 1.05f;
+const float teslaScale = 1.0f;
 
+//these values are to make a smaller rectangle in the middle of the tower to make overlapping more forgiving and to combat path collision issues. rectangle is smaller then the tower
 const float modelXFrac = 0.37f;
 const float modelYFrac = 0.26f;
 const float modelWFrac = 0.26f;
 const float modelHFrac = 0.48f;
 
-//tower type ids - kept as plain ints so we can branch on them with if/else
+// tower ids. We use these to keep track of which tower is which type without it being messy.
 const int towerDrake = 0;
 const int towerWeeknd = 1;
 const int towerElon = 2;
 const int towerBank = 3;
-const int towerIceman = 4;    //drake's upgraded form - same role, better stats, different sprite
-const int towerStarboy = 5;   //weeknd's upgraded form - currently same stats as weeknd, just a different sprite
-const int towerTeslaMan = 6;  //elon's upgraded form - currently same stats as elon, just a different sprite
-const int maxBanks = 3;       //hard cap on how many banks can exist at once
+const int towerIceman = 4;    //drake's upgraded form  Iceman its a different tower with better stats and freezing
+const int towerStarboy = 5;   //weeknd's upgraded form more explosive damage, faster shooting and longer range. new sprite
+const int towerTeslaMan = 6;  //elon's upgraded form, he is super strong but very expensive he is suppose to be a tower you save up for and get a massive power spike with.
+const int maxBanks = 3;       //limits the amount of banks so there wouldnt be ascenario where the  banks instantly pay for themselves and the player has infinite money
+const int maxDamageUpgradeLevel = 5;
 
-//upgrade costs - spending this gold flips the tower into its upgraded form
+//upgrade costs, these are the costs to replace the towers with a new the better towers. 
 const int drakeUpgradeCost = 500;
 const int weekndUpgradeCost = 800;
-const int elonUpgradeCost = 2500;   //expensive, but tesla man is the strongest tower in the game
+const int elonUpgradeCost = 2500;   //
 
-//saves tower position, size, fire timer, and which type it is
-struct Tower {
+//this is the struct for the towers, save fireTimer ()
+struct Tower { 
     float x, y, w, h;
     int fireTimer;
     int type;

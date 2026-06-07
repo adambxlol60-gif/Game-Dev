@@ -1,5 +1,3 @@
-//created by Noah Basaria and Adam Jurewicz
-
 #pragma once
 #include <allegro5/allegro.h>
 
@@ -21,10 +19,10 @@ struct Slime {
     bool camo = false;
     bool metal = false;
     bool isKing = false;   //the boss draws bigger but uses a smaller scale since its PNG is 512px
-    bool pendingSplit        = false;
-    int  splitCount         = 0;
-    int  splitHp            = 0;
-    float splitSpeed        = 0.0f;
+    bool pendingSplit = false;
+    int  splitCount = 0;
+    int  splitHp = 0;
+    float splitSpeed = 0.0f;
     ALLEGRO_BITMAP* splitBitmap = nullptr;
     int hp;
     int maxHp;

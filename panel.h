@@ -166,10 +166,13 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
         al_draw_text(font, al_map_rgb(255, 255, 255), upgrade1BtnX + upgrade1BtnW / 2, upgrade1BtnY + upgrade1BtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, upg1Label);
 
         //upgrade 2 - +1 damage AND faster firing, cost starts at 300 and goes up by 100 each level
+        bool upg2Maxed = selectedTower.damageUpgradeLevel >= maxDamageUpgradeLevel;
         int upg2Cost = 300 + 100 * selectedTower.damageUpgradeLevel;
         char upg2Label[32];
-        snprintf(upg2Label, sizeof(upg2Label), "+1 Damage (%d)", upg2Cost);
-        al_draw_filled_rectangle(upgrade2BtnX, upgrade2BtnY, upgrade2BtnX + upgrade2BtnW, upgrade2BtnY + upgrade2BtnH, al_map_rgb(160, 100, 60));
+        if (upg2Maxed) snprintf(upg2Label, sizeof(upg2Label), "MAXED");
+        else snprintf(upg2Label, sizeof(upg2Label), "+1 Damage (%d)", upg2Cost);
+        ALLEGRO_COLOR upg2Fill = upg2Maxed ? al_map_rgb(50, 100, 50) : al_map_rgb(160, 100, 60);
+        al_draw_filled_rectangle(upgrade2BtnX, upgrade2BtnY, upgrade2BtnX + upgrade2BtnW, upgrade2BtnY + upgrade2BtnH, upg2Fill);
         al_draw_rectangle(upgrade2BtnX, upgrade2BtnY, upgrade2BtnX + upgrade2BtnW, upgrade2BtnY + upgrade2BtnH, al_map_rgb(0, 0, 0), 2);
         al_draw_text(font, al_map_rgb(255, 255, 255), upgrade2BtnX + upgrade2BtnW / 2, upgrade2BtnY + upgrade2BtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, upg2Label);
     }

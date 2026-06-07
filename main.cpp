@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
                 //upgrade 2 - +1 damage AND slightly faster firing per click. Cost ramps: 300, 400, 500...
                 Tower& tower = towers[selectedTowerIndex];
                 int cost = 300 + 100 * tower.damageUpgradeLevel;
-                if (gold >= cost) {
+                if (gold >= cost && tower.damageUpgradeLevel < maxDamageUpgradeLevel) {
                     gold -= cost;
                     tower.damageUpgradeLevel += 1;
                 }
@@ -294,7 +294,7 @@ int main(int argc, char *argv[]) {
                         gold += 100 + (currentWave * 5);
                         //every bank pays out 250 gold at the end of the wave
                         int bankMoney = countBanks(towers, towerCount);
-                        gold += 250 * bankMoney;
+                        gold += 100 * bankMoney;
                         currentWave++;
                         betweenWaves = true;
                         slimeCount = 0;
