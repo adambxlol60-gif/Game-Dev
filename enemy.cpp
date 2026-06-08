@@ -68,8 +68,8 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed) {
     s.pendingSplit = false;
     s.splitCount = 0;
     s.splitHp = 0;
-    s.splitSpeed = 0.0f;
-    s.splitBitmap = nullptr;
+    s.splitSpeed = 0.0f;    
+    s.splitBitmap = nullptr; //nullptr is a better version off null
     s.hp = hp;
     s.maxHp = hp;
     return s;

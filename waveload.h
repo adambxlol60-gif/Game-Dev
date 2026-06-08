@@ -18,13 +18,9 @@ struct Spawn {
     int spawnInterval; // frames to wait before spawning the next enemy
 };
 
+//Bool  for cam slime, 6 is blueCamoSlime, 7 is green, 10 is purple, 12 is rainbow, 14 is red and 16 is yellow camo slime
 inline bool isCamoSpawn(const Spawn& s) {
-    return s.bitmap == bitmaps[6]  || //blueCamoSlime
-           s.bitmap == bitmaps[7]  || //greenCamoSlime
-           s.bitmap == bitmaps[10] || //purpleCamoSlime
-           s.bitmap == bitmaps[12] || //rainbowCamoSlime
-           s.bitmap == bitmaps[14] || //redCamoSlime
-           s.bitmap == bitmaps[16];   //yellowCamoSlime
+    return s.bitmap == bitmaps[6]  || s.bitmap == bitmaps[7]  || s.bitmap == bitmaps[10] || s.bitmap == bitmaps[12] || s.bitmap == bitmaps[14] || s.bitmap == bitmaps[16];   
 }
 
 inline void splitDataFor(const Spawn& s, int& count, int& hp, float& speed, ALLEGRO_BITMAP*& bmp) {
@@ -97,6 +93,7 @@ inline int loadWaves(const char* filename, Wave allWaves[], int maxW) {
         if (waveNum > waveCount) waveCount = waveNum;
 
         // gets the wave at this index (we do waveNum 1 because wave numbers start at 1 but array indices start at 0)
+        //used & to make the waves a refrence not a copy. if we didnt have it the game the spawns would be added to temporary copy that gets thrown away the moment the loop ends.
         Wave& wave = allWaves[waveNum - 1];
 
         // for loop that adds same slime copies onto the waves spawn list
