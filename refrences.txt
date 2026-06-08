@@ -1,0 +1,22 @@
+This text file is  dedicated to the youtube videos and websites that helped us make this game:
+
+websites:
+
+cppreference.com https://en.cppreference.com/
+
+cplusplus.com https://cplusplus.com/reference/
+
+LearnCPP.com https://www.learncpp.com/
+
+GeeksforGeeks C++ section https://www.geeksforgeeks.org/c-plus-plus/
+
+Allegro 5 Official Manual https://www.allegro.cc/manual/5/
+
+Youtube videos:
+
+ https://www.youtube.com/playlist?list=PL6B459AAE1642C8B4 by CodingMadeEasy: very simple and easy to follow series that explain pretty much all of allegro library. Its a bit outdated in places but still a great learning tool
+
+ https://www.youtube.com/playlist?list=PL39779BF3B079F6CD by CodingMadeEasy: this one wasnt as helpful as the first one but served as a good example of how to program our first greenCamoSlime
+
+ 
+

@@ -5,7 +5,7 @@
 
 const int maxSlimes = 200;
 
-//struct for the slime enemy
+//struct for the slime enemy I don't know why I didnt make this an inline.
 struct Slime {
     ALLEGRO_BITMAP* bitmap;
     float x;
@@ -17,10 +17,10 @@ struct Slime {
     bool done;
     bool escaped;
     bool isIced = false;
-    int hitDamageTimer = 0;   //frames left to draw the slime red after being hit (counts down like a tower cooldown)
+    int hitDamageTimer = 0;  
     bool camo = false;
     bool metal = false;
-    bool isKing = false;   //the boss draws bigger but uses a smaller scale since its PNG is 512px
+    bool isKing = false;   
     bool pendingSplit = false;
     int  splitCount = 0;
     int  splitHp = 0;
@@ -30,7 +30,7 @@ struct Slime {
     int maxHp;
 };
 
-//slime path points
+//declalartion for the functions used in enemy.cpp
 Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed);
 void updateSlime(Slime& s);
 void drawSlime(const Slime& s);

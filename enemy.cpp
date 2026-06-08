@@ -17,6 +17,8 @@ int pointCount = 0;
 void loadPathFromMap(ALLEGRO_BITMAP* mapBitmap) {
     int w = al_get_bitmap_width(mapBitmap);
     int h = al_get_bitmap_height(mapBitmap);
+    //https://www.allegro.cc/manual/5/al_lock_bitmap
+    //https://www.allegro.cc/manual/5/al_get_pixel
     al_lock_bitmap(mapBitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY); //this part right is for locking the bitmap map  for reading the pixels, then we get the pixels of the map, then we tell it the computer to use any color space and the we 
     //read only helps with preformance because we dont need to write anything on the bitmap
 
@@ -68,8 +70,8 @@ Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed) {
     s.pendingSplit = false;
     s.splitCount = 0;
     s.splitHp = 0;
-    s.splitSpeed = 0.0f;
-    s.splitBitmap = nullptr;
+    s.splitSpeed = 0.0f;    
+    s.splitBitmap = nullptr; //nullptr is a better version off null
     s.hp = hp;
     s.maxHp = hp;
     return s;
@@ -94,7 +96,10 @@ void updateSlime(Slime& s) {
         s.vy = 0;
         s.target++;
         if (s.target >= pointCount) { s.done = true; s.escaped = true; } //if the slime finishes all the point it is marked as done and escaped
-    } else { //changes vx and vy to new values by using the distance and speed so the slime moves at the proper speed in both x and y direction
+    }
+    else { //changes vx and vy to new values by using the distance and speed so the slime moves at the proper speed in both x and y direction
+        //https://www.studyplan.dev/sdl2/vectors-and-movement
+        //https://gamedev.net/articles/programming/math-and-physics/practical-use-of-vector-math-in-games-r2968/
         s.vx =  s.speed * (dx / dist);
         s.vy = s.speed * (dy / dist);
         s.x = s.x + s.vx; //updayes the slimes position 
@@ -121,7 +126,8 @@ void drawSlime(const Slime& s) {
     if (s.hitDamageTimer > 0) {
         //this is for the red hit indicatior sets the tint to red https://www.allegro.cc/manual/5/al_draw_tinted_scaled_bitmap (this thing explain how tinting works)
         al_draw_tinted_scaled_bitmap(s.bitmap, al_map_rgb(255, 80, 80), 0, 0, w, h, drawX, drawY, w * scale, h * scale, 0);
-    } else {
+    }
+    else {
         al_draw_scaled_bitmap(s.bitmap, 0, 0, w, h, drawX, drawY, w * scale, h * scale, 0);
     }
 }
