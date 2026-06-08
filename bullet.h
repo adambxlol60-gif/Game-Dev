@@ -6,10 +6,10 @@
 #include "enemy.h"
 #include "hud.h"
 
-//maximum amount of bullet the screen can have at once, this array says you can have max 500 alive bullets at once.
+//the maximum amount of bullet the screen can have at once, this array says you can have max 500 alive bullets at once.
 const int maxBullets = 500;
 
-// bullet speed (kept here with the rest of the bullet data)
+//our bullet speed (kept here with the rest of the bullet data)
 const float bulletSpeed = 14.0f;
 
 //varaible for the bullet, saves stuff like velocity, damage, pierce count, ice , explosive damange, and other stuff.

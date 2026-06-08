@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #pragma once
 #include <allegro5/allegro.h>
 
@@ -28,7 +30,7 @@ struct Slime {
     int maxHp;
 };
 
-// slime path points
+//slime path points
 Slime initSlime(ALLEGRO_BITMAP* bitmap, int hp, float speed);
 void updateSlime(Slime& s);
 void drawSlime(const Slime& s);

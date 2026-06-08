@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #ifndef PANEL_H
 #define PANEL_H
 
@@ -8,7 +10,7 @@
 #include "hud.h"
 #include "tower.h"
 
-//panel layout sits on the left side under the hud
+//these are constants and functions related to the tower info panel when you click on sprites
 const int panelX = 30;
 const int panelY = hudHeight + 5;
 const int panelW = 245;
@@ -19,7 +21,7 @@ const int portraitY = panelY + 12;
 const int portraitW = 180;
 const int portraitH = 150;
 
-//two upgrade buttons stacked below the stats. Banks don't show these.
+//these are two upgrade buttons stacked below the stats. Banks don't show these.
 const int upgrade1BtnX = panelX + 30;
 const int upgrade1BtnY = panelY + 222;
 const int upgrade1BtnW = 180;
@@ -35,7 +37,7 @@ const int sellBtnY = panelY + panelH - 60;
 const int sellBtnW = 180;
 const int sellBtnH = 45;
 
-//refundFor returns the gold given back when selling a tower of the given type (70% of cost)
+//For returns the gold given back when selling a tower of the given type (70% of cost)
 inline int refundFor(int type) {
     if (type == towerWeeknd) return (int)(weekndCost * 0.7f);
     if (type == towerElon)   return (int)(elonCost * 0.7f);
@@ -47,8 +49,7 @@ inline int refundFor(int type) {
 }
 
 
-//clickInsidePanel is here so that if you click the panel it wont click the tower behind the panel
-
+//this is a function to check if the mouse is inside the panel
 inline bool clickInsidePanel(int mouseX, int mouseY) {
     return mouseX >= panelX && mouseX <= panelX + panelW && mouseY >= panelY && mouseY <= panelY + panelH;
 }
@@ -57,14 +58,16 @@ inline bool clickInsidePanel(int mouseX, int mouseY) {
 inline bool sellButtonPressed(int mouseX, int mouseY) {
     return mouseX >= sellBtnX && mouseX <= sellBtnX + sellBtnW && mouseY >= sellBtnY && mouseY <= sellBtnY + sellBtnH;
 }
+//this is a function to check if the mouse is inside the upgrade 1 button
 inline bool upgrade1ButtonPressed(int mouseX, int mouseY) {
     return mouseX >= upgrade1BtnX && mouseX <= upgrade1BtnX + upgrade1BtnW && mouseY >= upgrade1BtnY && mouseY <= upgrade1BtnY + upgrade1BtnH;
 }
+//this is a function to check if the mouse is inside the upgrade 2 button
 inline bool upgrade2ButtonPressed(int mouseX, int mouseY) {
     return mouseX >= upgrade2BtnX && mouseX <= upgrade2BtnX + upgrade2BtnW && mouseY >= upgrade2BtnY && mouseY <= upgrade2BtnY + upgrade2BtnH;
 }
 
-//drawTowerPanel shows the portrait, stats and sell button for the currently selected tower
+//this is a function to draw the tower panel
 inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, ALLEGRO_BITMAP* elonBmp, int elonBmpW, int elonBmpH, ALLEGRO_BITMAP* bankBmp, int bankBmpW, int bankBmpH, ALLEGRO_BITMAP* icemanBmp, int icemanBmpW, int icemanBmpH, ALLEGRO_BITMAP* starboyBmp, int starboyBmpW, int starboyBmpH, ALLEGRO_BITMAP* teslaBmp, int teslaBmpW, int teslaBmpH, Tower towers[], int selectedTowerIndex) {
     if (selectedTowerIndex < 0) return;
     Tower& selectedTower = towers[selectedTowerIndex];
@@ -73,7 +76,7 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     al_draw_filled_rectangle(panelX, panelY, panelX + panelW, panelY + panelH, al_map_rgba(25, 45, 25, 230));
     al_draw_rectangle(panelX, panelY, panelX + panelW, panelY + panelH, al_map_rgb(0, 0, 0), 2);
 
-    //pick the portrait sprite to draw based on tower type
+    //this picks the portrait sprite to draw based on tower type
     ALLEGRO_BITMAP* portraitSprite;
     int portraitSrcW;
     int portraitSrcH;
@@ -120,7 +123,7 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     int cropW = portraitSrcW;
     int cropH = portraitSrcH;
 
-    //fit the cropped area inside the portrait box while keeping aspect ratio so neither sprite stretches or gets cut off
+    //this fits the cropped area inside the portrait box while keeping aspect ratio so neither sprite stretches or gets cut off
     float scaleX = (float)portraitW / cropW;
     float scaleY = (float)portraitH / cropH;
     float finalScale = scaleX < scaleY ? scaleX : scaleY;
@@ -132,12 +135,13 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
     int drawY = portraitY + (portraitH - drawH) / 2;
     al_draw_scaled_bitmap(portraitSprite, cropX, cropY, cropW, cropH, drawX, drawY, drawW, drawH, 0);
 
-    //name above stats
+    //this creates a name above the stats
     al_draw_text(font, al_map_rgb(255, 215, 0), panelX + panelW / 2, portraitY + portraitH + 8, ALLEGRO_ALIGN_CENTER, characterName);
 
-    //banks dont get stats or upgrade buttons - they only have the sell button
+    //banks dont get stats or upgrade buttons, they only have the sell button
+    //this is why we check the tower type before drawing the stats and upgrade buttons
     if (selectedTower.type != towerBank) {
-        //damage and range stats - damage includes the upgrade2 bonus
+        //damage and range stats, damage includes the upgrade2 bonus
         char statsBuf[64];
         int effectiveDamage = damageOf(selectedTower.type) + selectedTower.damageUpgradeLevel;
         snprintf(statsBuf, sizeof(statsBuf), "Damage: %d", effectiveDamage);
@@ -145,7 +149,7 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBmp, int dra
         snprintf(statsBuf, sizeof(statsBuf), "Range:  %d", (int)rangeOf(selectedTower.type));
         al_draw_text(font, al_map_rgb(255, 255, 255), panelX + 15, portraitY + portraitH + 40, ALLEGRO_ALIGN_LEFT, statsBuf);
 
-        //upgrade 1 - drake into iceman. Other towers get a "---" placeholder for now
+        //upgrade 1, drake into iceman. Other towers get a "---" placeholder for now
         char upg1Label[32] = "---";
         ALLEGRO_COLOR upg1Fill = al_map_rgb(70, 70, 70);
         if (selectedTower.type == towerDrake) {

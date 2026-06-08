@@ -91,13 +91,15 @@ inline void drawHud(ALLEGRO_FONT* font, int gold, int towerCount, bool drakeSele
     al_draw_text(font, al_map_rgb(255, 255, 255), 1040, hudHeight / 2 - 4, ALLEGRO_ALIGN_CENTER, waveBuf);
 }
 
-//drawDrakeButton draws the Drake selection button on the hud with a black outline and a green fill when selected
+//the drawDrakeButton draws the Drake selection button on the hud with a black outline and a green fill when selected
 inline void placeDrakeButton(ALLEGRO_FONT* font, bool selected) {
     ALLEGRO_COLOR fill = selected ? al_map_rgb(60, 140, 60) : al_map_rgb(60, 60, 60);
     al_draw_filled_rectangle(drakeBtnX, drakeBtnY, drakeBtnX + drakeBtnW, drakeBtnY + drakeBtnH, fill);
     al_draw_rectangle(drakeBtnX, drakeBtnY, drakeBtnX + drakeBtnW, drakeBtnY + drakeBtnH, al_map_rgb(0, 0, 0), 2);
     al_draw_text(font, al_map_rgb(255, 255, 255), drakeBtnX + drakeBtnW / 2, drakeBtnY + drakeBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, "Drake");
 }
+
+//this function places the weeknd button on the hud
 inline void placeWeekndButton(ALLEGRO_FONT* font, bool selected) {
     ALLEGRO_COLOR fill = selected ? al_map_rgb(60, 140, 60) : al_map_rgb(60, 60, 60);
     al_draw_filled_rectangle(weekndBtnX, weekndBtnY, weekndBtnX + weekndBtnW, weekndBtnY + weekndBtnH, fill);
@@ -105,7 +107,7 @@ inline void placeWeekndButton(ALLEGRO_FONT* font, bool selected) {
     al_draw_text(font, al_map_rgb(255, 255, 255), weekndBtnX + weekndBtnW / 2, weekndBtnY + weekndBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, "Weeknd");
 }
 
-
+//this function draws the next wave button on the bottom of our screen
 inline void placeNextWaveButton(ALLEGRO_FONT* font, bool betweenWaves, int currentWave, int waveCount) {
     if (!betweenWaves) return;
     bool allDone = (currentWave >= waveCount);
@@ -126,6 +128,8 @@ inline bool drakeButtonPressed(int mouseX, int mouseY) {
 inline bool weekndButtonPressed(int mouseX, int mouseY) {
     return mouseX >= weekndBtnX && mouseX <= weekndBtnX + weekndBtnW && mouseY >= weekndBtnY && mouseY <= weekndBtnY + weekndBtnH;
 }
+
+//this function draws the elon button on our hud
 inline void placeElonButton(ALLEGRO_FONT* font, bool selected) {
     ALLEGRO_COLOR fill = selected ? al_map_rgb(60, 140, 60) : al_map_rgb(60, 60, 60);
     al_draw_filled_rectangle(elonBtnX, elonBtnY, elonBtnX + elonBtnW, elonBtnY + elonBtnH, fill);
@@ -135,12 +139,14 @@ inline void placeElonButton(ALLEGRO_FONT* font, bool selected) {
 inline bool elonButtonPressed(int mouseX, int mouseY) {
     return mouseX >= elonBtnX && mouseX <= elonBtnX + elonBtnW && mouseY >= elonBtnY && mouseY <= elonBtnY + elonBtnH;
 }
+//this function draws the bank button for our hud
 inline void placeBankButton(ALLEGRO_FONT* font, bool selected) {
     ALLEGRO_COLOR fill = selected ? al_map_rgb(60, 140, 60) : al_map_rgb(60, 60, 60);
     al_draw_filled_rectangle(bankBtnX, bankBtnY, bankBtnX + bankBtnW, bankBtnY + bankBtnH, fill);
     al_draw_rectangle(bankBtnX, bankBtnY, bankBtnX + bankBtnW, bankBtnY + bankBtnH, al_map_rgb(0, 0, 0), 2);
     al_draw_text(font, al_map_rgb(255, 255, 255), bankBtnX + bankBtnW / 2, bankBtnY + bankBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, "Bank");
 }
+//this function returns true if the given mouse coordinates are within the bank button
 inline bool bankButtonPressed(int mouseX, int mouseY) {
     return mouseX >= bankBtnX && mouseX <= bankBtnX + bankBtnW && mouseY >= bankBtnY && mouseY <= bankBtnY + bankBtnH;
 }

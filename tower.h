@@ -9,7 +9,6 @@
 #include "bullet.h"
 #include "hud.h"
 
-//also adds tower limit and cost variable
 //this const maxTowers is there to prevent the player from placing more then 100 towers, there is already a 20 tower limit but this is an extra safety measure
 const int maxTowers = 100;
 //this scale is super important for making the game look good and cohessive, since the towers sprites are in different pixel ratios we need this scale to make them all the same size in game.
@@ -27,7 +26,7 @@ const float modelYFrac = 0.26f;
 const float modelWFrac = 0.26f;
 const float modelHFrac = 0.48f;
 
-// tower ids. We use these to keep track of which tower is which type without it being messy.
+//tower ids. We use these to keep track of which tower is which type without it being messy.
 const int towerDrake = 0;
 const int towerWeeknd = 1;
 const int towerElon = 2;
@@ -221,6 +220,7 @@ inline int findTarget(Tower t, const Slime slimes[], int slimeCount, float range
 //Probably the most complex function in the game right now. It makes the bullets shoot but it also predicts where the slime will be when the bullet reaches it.
 //It does this by solving the equation |P + V*t| = bulletSpeed * t, where P is the vector from the tower to the slime, V is the velocity of the slime, and t is the time it takes for the bullet to reach the slime. This gives us a quadratic equation in t, which we can solve using the quadratic formula. We then choose the positive solution that gives us the earliest intercept time.
 //I was able to find this formula which helped tremedously as before the bullet would miss the slimes a lot
+//Reference: https://www.mathsisfun.com/algebra/quadratic-equation.html
 inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Slime slimes[], int slimeCount, Bullet bullets[], int* bulletCount, ALLEGRO_BITMAP* microphoneBmp, ALLEGRO_BITMAP* drakeMicBmp, ALLEGRO_BITMAP* rocketBmp) {
     for (int i = 0; i < towerCount; i++) { //this part checks for the cooldown and uses the previous function to find a target slime for the tower
         if (towers[i].type == towerBank) continue; //banks dont shoot
@@ -265,8 +265,8 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         //this calculates the direction from the tower to predicted position and creates a bullet with that velocity
         float dx = aimX - centerX;
         float dy = aimY - centerY;
-        float len = sqrtf(dx*dx + dy*dy); //pyothegorean theorem to find the length of the vector, thanks Pythagoras
-        if (len < 0.001f) len = 1.0f; //safety check that prevents dividing by zero
+        float len = sqrtf(dx*dx + dy*dy); //we used pyothegorean theorem to find the length of the vector
+        if (len < 0.001f) len = 1.0f; // the safety check that prevents dividing by zero
             // struct for bullets, gives it properties like speed, damage, pierce, if its alive ex. Also does hit boxchecking
         Bullet bullet;
         bullet.x = centerX; bullet.y = centerY;

@@ -1,3 +1,5 @@
+//created by Noah Basaria and Adam Jurewicz
+
 #ifndef TOWER_PLACEMENT_H
 #define TOWER_PLACEMENT_H
 #include <allegro5/allegro.h>
@@ -10,10 +12,10 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
     if (event.mouse.button != 1) return;
     if (!drakeSelected && !weekndSelected && !elonSelected && !bankSelected) return;
 
-    //bank cap - silently refuse the click if we already have 3
+    //bank cap of 3 to prevent infinite money glitch and also to make the game more fun and challenging
     if (bankSelected && countBanks(towers, towerCount) >= maxBanks) return;
 
-    //pick the footprint dimensions from whichever tower is selected
+    //picks the footprint dimensions from whichever tower is selected
     float towerW;
     float towerH;
     if (drakeSelected) {
@@ -42,7 +44,7 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
 
     Tower model = towerModelRectangle(newTower);
     bool insideScreen = model.x >= 0 && model.y >= 0 && model.x + model.w <= screenW &&model.y + model.h <= screenH;
-    //check to see if we reached the tower limit or if we have enough gold to place the tower, also check if the tower overlaps the path or any other towers, if all checks are passed we place the tower and subtract gold
+    //checks to see if we reached the tower limit or if we have enough gold to place the tower, also check if the tower overlaps the path or any other towers, if all checks are passed we place the tower and subtract gold
     if (insideScreen && towerCount < maxTowerLimit && gold >= towerCost && !towerTouchesPath(map, newTower) && overlapsAnyTower(newTower, towers, towerCount) == false) {
     towers[towerCount++] = newTower;
     gold -= towerCost;
@@ -79,7 +81,7 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
         range = 0.0f;
     }
 
-    //ghost footprint uses the matching sprite's actual dimensions
+    //this is theghost footprint which uses the matching sprite's actual dimensions
     float towerW;
     float towerH;
     if (drakeSelected) {

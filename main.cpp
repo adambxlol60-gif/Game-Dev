@@ -1,24 +1,30 @@
+//Created by: Noah Basaria and Adam Jurewicz
+//Program Name: Canadian Tower Defence
+//Description: A super interesting tower defence game with Canadian characters and amazing upgrades. One of the best tower defence games you will ever play.
+//Date: Jun 7, 2026
+
+
 #include <allegro5/allegro.h>
 #include "function.h"
 #include "waveload.h"
 
-//int main function to run the game
+//used int main function to run the game
 int main(int argc, char *argv[]) {
     if (!initAllegro()) return -1;
 
-    // creates a display and loads the bitmaps for the map, tower, and slime
-    // if error, error message pops up
+    //creates a display and loads the bitmaps for the map, tower, and slime
+    //if error, error message pops up
     ALLEGRO_DISPLAY *display = createDisplay();
     if (!display) return -1;
 
-    //bitmaps for the map, tower, slime, weeknd and microphone projectile
+    //loads bitmaps for the map, tower, slime, weeknd and microphone projectile
     ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr, *heartBmp = nullptr, *drakeMicBmp = nullptr, *elonBmp = nullptr, *rocketBmp = nullptr, *bankBmp = nullptr, *icemanBmp = nullptr, *starboyBmp = nullptr, *teslaBmp = nullptr;
     if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp, heartBmp, drakeMicBmp, elonBmp, rocketBmp, bankBmp, icemanBmp, starboyBmp, teslaBmp)) {
         al_destroy_display(display);
         return -1;
     }
 
-    // creates timer
+    //creates a timer
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     eventQueue(event_queue, display, timer);
@@ -26,16 +32,16 @@ int main(int argc, char *argv[]) {
     al_install_keyboard();
     al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-    loadPathFromMap(image); // loads the slime path from the map bitmap
+    loadPathFromMap(image); //loads the slime path from the map bitmap
 
     Tower towers[maxTowers];
     TowerState towerStates[maxTowers];
     ALLEGRO_FONT* font = al_create_builtin_font();
 
-    // game state variables
+    //game state variables
     int towerCount = 0;
     int gold = 500; // starting amount of gold
-    int playerHealth = 20; // player's health
+    int playerHealth = 20; // player's set health
     bool drakeSelected = false;
     bool weekndSelected = false;
     bool elonSelected = false;
@@ -56,8 +62,9 @@ int main(int argc, char *argv[]) {
     int teslaBmpW = al_get_bitmap_width(teslaBmp);
     int teslaBmpH = al_get_bitmap_height(teslaBmp);
 
-    // arrays for slimes and bullets, and variables for wave manaagement
-    // static: these are too large for Allegro's secondary thread stack on macOS
+    //arrays for slimes and bullets, and variables for wave manaagement
+    //the static arrays are too large for Allegro secondary thread stack
+    //reference: https://en.cppreference.com/cpp/language/storage_duration
     static Slime slimes[maxSlimes];
     int slimeCount = 0;
     static Bullet bullets[maxBullets];
@@ -114,7 +121,7 @@ int main(int argc, char *argv[]) {
 
     al_start_timer(timer);
 
-    // while loop to run the game
+    //used while loop to run the game
     while (running) {
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
@@ -123,7 +130,7 @@ int main(int argc, char *argv[]) {
             running = false;
         }
 
-        //test hotkey: m jumps straight to wave 50 and starts it
+        //used test hotkey: m jumps straight to wave 50 and starts it
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             if (event.keyboard.keycode == ALLEGRO_KEY_M) {
                 gameMenu = 0;
@@ -135,6 +142,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        //this handles all mouse click events our the game
         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
             if (gameMenu == 1) {
                 if (event.mouse.button == 1 && event.mouse.x >= playLeft && event.mouse.x <= playRight && event.mouse.y >= playTop && event.mouse.y <= playBottom) {
@@ -160,7 +168,7 @@ int main(int argc, char *argv[]) {
             }
             
             
-            
+            //selecting towers with the buttions on the hud
             else if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
                 drakeSelected = !drakeSelected;
                 if (drakeSelected) { weekndSelected = false; elonSelected = false; bankSelected = false; }
@@ -249,6 +257,7 @@ int main(int argc, char *argv[]) {
             mouseY = event.mouse.y;
         }
 
+        //this is where the main game logic happens: spawning slimes, updating their movement...
         if (event.type == ALLEGRO_EVENT_TIMER) {
             if (gameMenu == 1) {
                 al_draw_scaled_bitmap(bitmaps[25], 0, 0, al_get_bitmap_width(bitmaps[25]), al_get_bitmap_height(bitmaps[25]), 0, 0, screenW, screenH, 0);
