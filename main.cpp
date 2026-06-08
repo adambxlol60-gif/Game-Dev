@@ -2,23 +2,24 @@
 #include "function.h"
 #include "waveload.h"
 
-//int main function to run the game
+//the main function of the game
 int main(int argc, char *argv[]) {
-    if (!initAllegro()) return -1;
+    if (!initAllegro()) return -1; //check if allegro got setup properly
 
     // creates a display and loads the bitmaps for the map, tower, and slime
-    // if error, error message pops up
+    // if there is an error, error message pops up
     ALLEGRO_DISPLAY *display = createDisplay();
     if (!display) return -1;
 
     //bitmaps for the map, tower, slime, weeknd and microphone projectile
-    ALLEGRO_BITMAP *image = nullptr, *drakeBmp = nullptr, *slimeBmp = nullptr, *weekndBmp = nullptr, *microphoneBmp = nullptr, *heartBmp = nullptr, *drakeMicBmp = nullptr, *elonBmp = nullptr, *rocketBmp = nullptr, *bankBmp = nullptr, *icemanBmp = nullptr, *starboyBmp = nullptr, *teslaBmp = nullptr;
-    if (!Images(display, image, drakeBmp, slimeBmp, weekndBmp, microphoneBmp, heartBmp, drakeMicBmp, elonBmp, rocketBmp, bankBmp, icemanBmp, starboyBmp, teslaBmp)) {
+    ALLEGRO_BITMAP *image = nullptr, *drakeBitmap = nullptr, *slimeBitmap = nullptr, *weekndBitmap = nullptr, *microphoneBitmap = nullptr, *heartBitmap = nullptr, *drakeMicBitmap = nullptr, *elonBitmap = nullptr, *rocketBitmap = nullptr, *bankBitmap = nullptr, *icemanBitmap = nullptr, *starboyBitmap = nullptr, *teslaBitmap = nullptr;
+    if (!Images(display, image, drakeBitmap, slimeBitmap, weekndBitmap, microphoneBitmap, heartBitmap, drakeMicBitmap, elonBitmap, rocketBitmap, bankBitmap, icemanBitmap, starboyBitmap, teslaBitmap)) {
         al_destroy_display(display);
         return -1;
     }
 
-    // creates timer
+    // creates the timer, the timer is one of the most important parts of the game 
+    //it updates the game 60 times a second
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
     ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
     eventQueue(event_queue, display, timer);
@@ -28,6 +29,7 @@ int main(int argc, char *argv[]) {
 
     loadPathFromMap(image); // loads the slime path from the map bitmap
 
+    //arrays that hold every tower and the towers cooldown
     Tower towers[maxTowers];
     TowerState towerStates[maxTowers];
     ALLEGRO_FONT* font = al_create_builtin_font();
@@ -41,23 +43,25 @@ int main(int argc, char *argv[]) {
     bool elonSelected = false;
     bool bankSelected = false;
     int selectedTowerIndex = -1; // -1 means no tower is currently selected
-    int drakeBmpW = al_get_bitmap_width(drakeBmp);
-    int drakeBmpH = al_get_bitmap_height(drakeBmp);
-    int weekndBmpW = al_get_bitmap_width(weekndBmp);
-    int weekndBmpH = al_get_bitmap_height(weekndBmp);
-    int elonBmpW = al_get_bitmap_width(elonBmp);
-    int elonBmpH = al_get_bitmap_height(elonBmp);
-    int bankBmpW = al_get_bitmap_width(bankBmp);
-    int bankBmpH = al_get_bitmap_height(bankBmp);
-    int icemanBmpW = al_get_bitmap_width(icemanBmp);
-    int icemanBmpH = al_get_bitmap_height(icemanBmp);
-    int starboyBmpW = al_get_bitmap_width(starboyBmp);
-    int starboyBmpH = al_get_bitmap_height(starboyBmp);
-    int teslaBmpW = al_get_bitmap_width(teslaBmp);
-    int teslaBmpH = al_get_bitmap_height(teslaBmp);
+    int drakeBitmapW = al_get_bitmap_width(drakeBitmap);
+    int drakeBitmapH = al_get_bitmap_height(drakeBitmap);
+    int weekndBitmapW = al_get_bitmap_width(weekndBitmap);
+    int weekndBitmapH = al_get_bitmap_height(weekndBitmap);
+    int elonBitmapW = al_get_bitmap_width(elonBitmap);
+    int elonBitmapH = al_get_bitmap_height(elonBitmap);
+    int bankBitmapW = al_get_bitmap_width(bankBitmap);
+    int bankBitmapH = al_get_bitmap_height(bankBitmap);
+    int icemanBitmapW = al_get_bitmap_width(icemanBitmap);
+    int icemanBitmapH = al_get_bitmap_height(icemanBitmap);
+    int starboyBitmapW = al_get_bitmap_width(starboyBitmap);
+    int starboyBitmapH = al_get_bitmap_height(starboyBitmap);
+    int teslaBitmapW = al_get_bitmap_width(teslaBitmap);
+    int teslaBitmapH = al_get_bitmap_height(teslaBitmap);
 
     // arrays for slimes and bullets, and variables for wave manaagement
     // static: these are too large for Allegro's secondary thread stack on macOS
+    //https://craftofcoding.wordpress.com/2015/12/07/memory-in-c-the-stack-the-heap-and-static/
+    //https://www.geeksforgeeks.org/cpp/difference-between-stack-allocated-and-heap-allocated-arrays/
     static Slime slimes[maxSlimes];
     int slimeCount = 0;
     static Bullet bullets[maxBullets];
@@ -67,14 +71,14 @@ int main(int argc, char *argv[]) {
     //tracks where the mouse is so we can draw the tower preview at the cursor
     static Wave allWaves[maxWaves];
     int waveCount = loadWaves("waves.txt", allWaves, maxWaves);
-
+    //self explanatory variables, current wave tells your wave,  spawn index tracks which enemies have spawned next, nextSpawnIn is for tracking and betweenwaves is check if the player is between waves
     int currentWave = 0;
     int spawnIndex = 0;
     int nextSpawnIn = 0;
     bool betweenWaves = true;
 
-    int gameMenu = 1;   // 1 = menu, 0 = game, 2 = win, 3 = game over
-    //play button: image drawn scaled + centered; click area scaled to match
+    int gameMenu = 1;   //the gameMenu integer is resposnible for what screen you see 1 = menu, 0 = game, 2 = win screen, 3 = game over screen
+    //play button image is drawn scaled and centered
     const float playScale = 0.6f;
     const int playDrawW = (int)(screenW * playScale);
     const int playDrawH = (int)(screenH * playScale);
@@ -85,7 +89,7 @@ int main(int argc, char *argv[]) {
     const int playTop    = (int)(480 + (384 - 480) * playScale);
     const int playBottom = (int)(480 + (557 - 480) * playScale);
 
-    //retry (top) + menu (bottom) buttons on the win/gameover screens. draw regions big; click areas split so they dont overlap
+    //retry and menu button with area
     const int retryLeft = 265, retryRight = 1015;
     const int retryDrawTop = 240, retryDrawBottom = 800;
     const int menuLeft  = 265, menuRight = 1015;
@@ -94,26 +98,10 @@ int main(int argc, char *argv[]) {
     const int retryClickTop = 240, retryClickBottom = btnClickSplit;
     const int menuClickTop  = btnClickSplit, menuClickBottom = 1000;
 
-    //resetGame puts every gameplay variable back to its starting value so Retry/Menu start fresh
-    auto resetGame = [&]() {
-        towerCount = 0;
-        slimeCount = 0;
-        bulletCount = 0;
-        gold = 500;
-        playerHealth = 20;
-        currentWave = 0;
-        spawnIndex = 0;
-        nextSpawnIn = 0;
-        betweenWaves = true;
-        selectedTowerIndex = -1;
-        drakeSelected = false;
-        weekndSelected = false;
-        elonSelected = false;
-        bankSelected = false;
-    };
-
     al_start_timer(timer);
 
+    //https://gamefromscratch.com/allegro-tutorial-series-part-2-a-simple-game-loop/
+    //https://lazyfoo.net/articles/article06/index.php
     // while loop to run the game
     while (running) {
         ALLEGRO_EVENT event;
@@ -123,7 +111,7 @@ int main(int argc, char *argv[]) {
             running = false;
         }
 
-        //test hotkey: m jumps straight to wave 50 and starts it
+        //m jumps straight to wave 50 and starts it
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             if (event.keyboard.keycode == ALLEGRO_KEY_M) {
                 gameMenu = 0;
@@ -140,17 +128,43 @@ int main(int argc, char *argv[]) {
                 if (event.mouse.button == 1 && event.mouse.x >= playLeft && event.mouse.x <= playRight && event.mouse.y >= playTop && event.mouse.y <= playBottom) {
                     gameMenu = 0;
                 }
-            }
+            } //resets the game when you press the retry button
             else if (gameMenu == 2 || gameMenu == 3) {
                 if (event.mouse.button == 1 && event.mouse.x >= retryLeft && event.mouse.x <= retryRight && event.mouse.y >= retryClickTop && event.mouse.y <= retryClickBottom) {
-                    resetGame();
+                    towerCount = 0;
+                    slimeCount = 0;
+                    bulletCount = 0;
+                    gold = 500;
+                    playerHealth = 20;
+                    currentWave = 0;
+                    spawnIndex = 0;
+                    nextSpawnIn = 0;
+                    betweenWaves = true;
+                    selectedTowerIndex = -1;
+                    drakeSelected = false;
+                    weekndSelected = false;
+                    elonSelected = false;
+                    bankSelected = false;
                     gameMenu = 0;
-                }
+                }//does the same but for menu button
                 else if (event.mouse.button == 1 && event.mouse.x >= menuLeft && event.mouse.x <= menuRight && event.mouse.y >= menuClickTop && event.mouse.y <= menuClickBottom) {
-                    resetGame();
+                    towerCount = 0;
+                    slimeCount = 0;
+                    bulletCount = 0;
+                    gold = 500;
+                    playerHealth = 20;
+                    currentWave = 0;
+                    spawnIndex = 0;
+                    nextSpawnIn = 0;
+                    betweenWaves = true;
+                    selectedTowerIndex = -1;
+                    drakeSelected = false;
+                    weekndSelected = false;
+                    elonSelected = false;
+                    bankSelected = false;
                     gameMenu = 1;
                 }
-            }
+            } //self explanatory
             else if (event.mouse.button == 1 && betweenWaves && nextWaveButtonPressed(event.mouse.x, event.mouse.y)) {
                 if (currentWave < waveCount) {
                     betweenWaves = false;
@@ -160,85 +174,104 @@ int main(int argc, char *argv[]) {
             }
             
             
-            
+            //also self explanatory, if drakebuttonpressed drake is selected if its not its not
             else if (event.mouse.button == 1 && drakeButtonPressed(event.mouse.x, event.mouse.y)) {
                 drakeSelected = !drakeSelected;
                 if (drakeSelected) { weekndSelected = false; elonSelected = false; bankSelected = false; }
                 selectedTowerIndex = -1;
-            } else if (event.mouse.button == 1 && weekndButtonPressed(event.mouse.x, event.mouse.y)) {
+            } 
+            else if (event.mouse.button == 1 && weekndButtonPressed(event.mouse.x, event.mouse.y)) {
                 weekndSelected = !weekndSelected;
                 if (weekndSelected) { drakeSelected = false; elonSelected = false; bankSelected = false; }
                 selectedTowerIndex = -1;
-            } else if (event.mouse.button == 1 && elonButtonPressed(event.mouse.x, event.mouse.y)) {
+            } 
+            else if (event.mouse.button == 1 && elonButtonPressed(event.mouse.x, event.mouse.y)) {
                 elonSelected = !elonSelected;
                 if (elonSelected) { drakeSelected = false; weekndSelected = false; bankSelected = false; }
                 selectedTowerIndex = -1;
-            } else if (event.mouse.button == 1 && bankButtonPressed(event.mouse.x, event.mouse.y)) {
+            } 
+            else if (event.mouse.button == 1 && bankButtonPressed(event.mouse.x, event.mouse.y)) {
                 bankSelected = !bankSelected;
                 if (bankSelected) { drakeSelected = false; weekndSelected = false; elonSelected = false; }
                 selectedTowerIndex = -1;
-            } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && sellButtonPressed(event.mouse.x, event.mouse.y)) {
+            } 
+            else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && sellButtonPressed(event.mouse.x, event.mouse.y)) {
                 gold += refundFor(towers[selectedTowerIndex].type);
                 towers[selectedTowerIndex] = towers[--towerCount];
                 towerStates[selectedTowerIndex] = towerStates[towerCount];
                 selectedTowerIndex = -1;
-            } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && upgrade1ButtonPressed(event.mouse.x, event.mouse.y)) {
-                //upgrade 1 - drake into iceman, or weeknd into starboy. Recenter with the new footprint so it isnt squished
+            } 
+            //this code is responsible for the upgrade button on weeknd, drake and elon musk. It subtracts the gold and recenters the tower since the new sprite is a different size
+            else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && upgrade1ButtonPressed(event.mouse.x, event.mouse.y)) {
                 Tower& tower = towers[selectedTowerIndex];
                 if (tower.type == towerDrake && gold >= drakeUpgradeCost) {
                     gold -= drakeUpgradeCost;
                     float cx = tower.x + tower.w / 2;
                     float cy = tower.y + tower.h / 2;
                     tower.type = towerIceman;
-                    tower.w = icemanBmpW * icemanScale;
-                    tower.h = icemanBmpH * icemanScale;
+                    tower.w = icemanBitmapW * icemanScale;
+                    tower.h = icemanBitmapH * icemanScale;
                     tower.x = cx - tower.w / 2;
                     tower.y = cy - tower.h / 2;
-                } else if (tower.type == towerWeeknd && gold >= weekndUpgradeCost) {
+                } //same code but for the weeknd
+                 if (tower.type == towerWeeknd && gold >= weekndUpgradeCost) {
                     gold -= weekndUpgradeCost;
                     float cx = tower.x + tower.w / 2;
                     float cy = tower.y + tower.h / 2;
                     tower.type = towerStarboy;
-                    tower.w = starboyBmpW * starboyScale;
-                    tower.h = starboyBmpH * starboyScale;
+                    tower.w = starboyBitmapW * starboyScale;
+                    tower.h = starboyBitmapH * starboyScale;
                     tower.x = cx - tower.w / 2;
                     tower.y = cy - tower.h / 2;
-                } else if (tower.type == towerElon && gold >= elonUpgradeCost) {
+                }  //same code but for elon musk
+                if (tower.type == towerElon && gold >= elonUpgradeCost) {
                     gold -= elonUpgradeCost;
                     float cx = tower.x + tower.w / 2;
                     float cy = tower.y + tower.h / 2;
                     tower.type = towerTeslaMan;
-                    tower.w = teslaBmpW * teslaScale;
-                    tower.h = teslaBmpH * teslaScale;
+                    tower.w = teslaBitmapW * teslaScale;
+                    tower.h = teslaBitmapH * teslaScale;
                     tower.x = cx - tower.w / 2;
                     tower.y = cy - tower.h / 2;
                 }
-            } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && upgrade2ButtonPressed(event.mouse.x, event.mouse.y)) {
-                //upgrade 2 - +1 damage AND slightly faster firing per click. Cost ramps: 300, 400, 500...
+            } 
+            //the second universal upgrade button
+            else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && upgrade2ButtonPressed(event.mouse.x, event.mouse.y)) {
                 Tower& tower = towers[selectedTowerIndex];
                 int cost = 300 + 100 * tower.damageUpgradeLevel;
                 if (gold >= cost && tower.damageUpgradeLevel < maxDamageUpgradeLevel) {
                     gold -= cost;
                     tower.damageUpgradeLevel += 1;
                 }
-            } else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && clickInsidePanel(event.mouse.x, event.mouse.y)) {
-                // click landed on the panel area but not on the sell button - do nothing
-            } else if (event.mouse.button == 1) {
+            } 
+            else if (event.mouse.button == 1 && selectedTowerIndex >= 0 && clickInsidePanel(event.mouse.x, event.mouse.y)) {
+                // if click landed on the panel area but not on the sell button it does nothing
+            } 
+            //if the click didnt land on any button we check if the player clicked a tower
+            else if (event.mouse.button == 1) {
                 int clicked = selectTower(event.mouse.x, event.mouse.y, towers, towerCount);
                 if (clicked >= 0) {
+                    //clicking the same tower twice deselects it while clicking a different one selects it
                     if (clicked == selectedTowerIndex) {
                         selectedTowerIndex = -1;
-                    } else {
+                    }
+                    else {
                         selectedTowerIndex = clicked;
                         drakeSelected = false;
                         weekndSelected = false;
                         elonSelected = false;
                         bankSelected = false;
                     }
-                } else {
+                }
+                else {
+                    //if no tower was clicked  we try to place one if a tower button is selected
                     selectedTowerIndex = -1;
-                    int cost = drakeSelected ? drakeCost : (weekndSelected ? weekndCost : (elonSelected ? elonCost : bankCost));
-                    handleMouseClick(event, towers, towerCount, image, drakeBmp, drakeBmpW, drakeBmpH, weekndBmpW, weekndBmpH, elonBmpW, elonBmpH, bankBmpW, bankBmpH, gold, drakeSelected, weekndSelected, elonSelected, bankSelected, cost);
+                    int cost;
+                    if (drakeSelected) { cost = drakeCost; }
+                    else if (weekndSelected) { cost = weekndCost; }
+                    else if (elonSelected) { cost = elonCost; }
+                    else { cost = bankCost; }
+                    handleMouseClick(event, towers, towerCount, image, drakeBitmap, drakeBitmapW, drakeBitmapH, weekndBitmapW, weekndBitmapH, elonBitmapW, elonBitmapH, bankBitmapW, bankBitmapH, gold, drakeSelected, weekndSelected, elonSelected, bankSelected, cost);
                 }
             }
         }
@@ -250,137 +283,161 @@ int main(int argc, char *argv[]) {
         }
 
         if (event.type == ALLEGRO_EVENT_TIMER) {
+            //we draw the menu screen here, the title image and the play button
             if (gameMenu == 1) {
                 al_draw_scaled_bitmap(bitmaps[25], 0, 0, al_get_bitmap_width(bitmaps[25]), al_get_bitmap_height(bitmaps[25]), 0, 0, screenW, screenH, 0);
                 al_draw_scaled_bitmap(bitmaps[26], 0, 0, al_get_bitmap_width(bitmaps[26]), al_get_bitmap_height(bitmaps[26]), playDrawX, playDrawY, playDrawW, playDrawH, 0);
                 al_flip_display();
             }
+            //we draw the win or gameover screen depending on gameMenu, then the retry and menu buttons on top
             else if (gameMenu == 3 || gameMenu == 2) {
-                ALLEGRO_BITMAP* backdrop = (gameMenu == 3) ? bitmaps[27] : bitmaps[28];
+                ALLEGRO_BITMAP* backdrop;
+                if (gameMenu == 3) { backdrop = bitmaps[27]; } else { backdrop = bitmaps[28]; }
                 al_draw_scaled_bitmap(backdrop, 0, 0, al_get_bitmap_width(backdrop), al_get_bitmap_height(backdrop), 0, 0, screenW, screenH, 0);
                 al_draw_scaled_bitmap(bitmaps[29], 0, 0, al_get_bitmap_width(bitmaps[29]), al_get_bitmap_height(bitmaps[29]), retryLeft, retryDrawTop, retryRight - retryLeft, retryDrawBottom - retryDrawTop, 0);
                 al_draw_scaled_bitmap(bitmaps[30], 0, 0, al_get_bitmap_width(bitmaps[30]), al_get_bitmap_height(bitmaps[30]), menuLeft, menuDrawTop, menuRight - menuLeft, menuDrawBottom - menuDrawTop, 0);
                 al_flip_display();
             }
             else {
+            //if statemtn that so that we only spawn slimes if a wave is currently running
             if (!betweenWaves) {
                 if (spawnIndex < allWaves[currentWave].spawnCount) {
+                    //we count down to the next spawn, when it hits 0 we spawn the next slime
                     if (nextSpawnIn <= 0) {
                         Spawn& s = allWaves[currentWave].spawns[spawnIndex];
                         if (slimeCount < maxSlimes) {
+                            //this part is for spawning the slime and giving it the camo or metal variable
                             Slime newSlime = initSlime(s.bitmap, s.hp, s.speed);
                             if (isCamoSpawn(s)) newSlime.camo = true;
                             if (isMetalSpawn(s)) newSlime.metal = true;
-                            int sc; int shp; float sspd; ALLEGRO_BITMAP* sbmp;
-                            splitDataFor(s, sc, shp, sspd, sbmp);
-                            if (sc > 0) {
-                                newSlime.splitCount  = sc;
-                                newSlime.splitHp     = shp;
-                                newSlime.splitSpeed  = sspd;
-                                newSlime.splitBitmap = sbmp;
+                            int splitCount; int splitHp; float splitSpeed; ALLEGRO_BITMAP* splitBitmap;
+                            splitDataFor(s, splitCount, splitHp, splitSpeed, splitBitmap);
+                            //if a slime splits we save its datat in here
+                            if (splitCount > 0) {
+                                newSlime.splitCount  = splitCount;
+                                newSlime.splitHp     = splitHp;
+                                newSlime.splitSpeed  = splitSpeed;
+                                newSlime.splitBitmap = splitBitmap;
                             }
                             slimes[slimeCount++] = newSlime;
                         }
+                        //the spawning mechanic
                         nextSpawnIn = s.spawnInterval;
                         spawnIndex++;
-                    } else {
+                    } 
+                    else {
                         nextSpawnIn--;
                     }
-                } else {
+                } 
+                else {
+                    //we check if all the slimes are dead if they are we end the wave
                     bool allDone = true;
                     for (int i = 0; i < slimeCount; i++)
                         if (!slimes[i].done) { allDone = false; break; }
                     if (allDone) {
+                        //when wave is over the game gives the player their gold  
                         gold += 100 + (currentWave * 5);
-                        //every bank pays out 250 gold at the end of the wave
                         int bankMoney = countBanks(towers, towerCount);
-                        gold += 100 * bankMoney;
+                        gold += 150 * bankMoney; //every bank pays out 150 gold at end of wave
                         currentWave++;
                         betweenWaves = true;
                         slimeCount = 0;
-                        if (currentWave >= waveCount) gameMenu = 2;   //all waves cleared - win screen
+                        if (currentWave >= waveCount) gameMenu = 2; //all waves done go to win screen
                     }
                 }
             }
 
-            //for loop to update the enemies, towers, and bullets, then draw them on the screen
+            //we move every slime forward and check if any escaped, if they did we take a life fromthe player
             for (int i = 0; i < slimeCount; i++) {
                 updateSlime(slimes[i]);
                 if (slimes[i].escaped) {
-                    if (slimes[i].isKing) gameMenu = 3;   //king reaching the end is an instant loss
+                    if (slimes[i].isKing) gameMenu = 3; //king slime escaping is instant game over
                     playerHealth--;
                     slimes[i].escaped = false;
                     if (playerHealth <=0) {
-                        gameMenu = 3;   // game over screen
+                        gameMenu = 3;
                     }
                 }
             }
-            updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBmp, drakeMicBmp, rocketBmp);
+            //we make the towers shoot at slimes and move the bullets
+            updateTowers(towers, towerStates, towerCount, slimes, slimeCount, bullets, &bulletCount, microphoneBitmap, drakeMicBitmap, rocketBitmap);
             updateBullets(bullets, &bulletCount, slimes, slimeCount, &gold);
+            //this code spawns slimelets of slimes that can split 
             for (int i = 0; i < slimeCount; i++) {
                 if (!slimes[i].pendingSplit) continue;
                 slimes[i].pendingSplit = false;
                 for (int c = 0; c < slimes[i].splitCount && slimeCount < maxSlimes; c++) {
-                    Slime child = initSlime(slimes[i].splitBitmap, slimes[i].splitHp, slimes[i].splitSpeed);
-                    child.x = slimes[i].x;
-                    child.y = slimes[i].y;
-                    child.target = slimes[i].target;
-                    if (child.bitmap == bitmaps[9]) {
-                        child.splitCount = 2;
-                        child.splitHp = child.hp/2;
-                        child.splitSpeed = child.speed*1.3f;
-                        child.splitBitmap = bitmaps[2];
+                    Slime slimelet = initSlime(slimes[i].splitBitmap, slimes[i].splitHp, slimes[i].splitSpeed);
+                    slimelet.x = slimes[i].x;
+                    slimelet.y = slimes[i].y;
+                    slimelet.target = slimes[i].target;
+                    //purple slime's slimelets also split into basic slimes
+                    if (slimelet.bitmap == bitmaps[9]) {
+                        slimelet.splitCount = 2;
+                        slimelet.splitHp = slimelet.hp/2;
+                        slimelet.splitSpeed = slimelet.speed*1.3f;
+                        slimelet.splitBitmap = bitmaps[2];
                     }
-                    slimes[slimeCount++] = child;
+                    slimes[slimeCount++] = slimelet;
                 }
             }
-            // draws everthing
+            //we draw everything here, map first then towers then slimes then bullets then hud on top
+            //without it nothing would appear
             al_draw_bitmap(image, 0, 0, 0);
             for (int i = 0; i < towerCount; i++) {
                 ALLEGRO_BITMAP* sprite;
                 int sw, sh;
                 if (towers[i].type == towerWeeknd) {
-                    sprite = weekndBmp; 
-                    sw = weekndBmpW; 
-                    sh = weekndBmpH;
-                } else if (towers[i].type == towerElon) {
-                    sprite = elonBmp; 
-                    sw = elonBmpW;   
-                    sh = elonBmpH;
-                } else if (towers[i].type == towerBank) {
-                    sprite = bankBmp;   
-                    sw = bankBmpW;   sh = bankBmpH;
-                } else if (towers[i].type == towerIceman) {
-                    sprite = icemanBmp; 
-                    sw = icemanBmpW; 
-                    sh = icemanBmpH;
-                } else if (towers[i].type == towerStarboy) {
-                    sprite = starboyBmp; 
-                    sw = starboyBmpW; 
-                    sh = starboyBmpH;
-                } else if (towers[i].type == towerTeslaMan) {
-                    sprite = teslaBmp;
-                     sw = teslaBmpW; 
-                     sh = teslaBmpH;
-                } else {
-                    sprite = drakeBmp;  
-                    sw = drakeBmpW;  
-                    sh = drakeBmpH;
+                    sprite = weekndBitmap; 
+                    sw = weekndBitmapW; 
+                    sh = weekndBitmapH;
+                }
+                else if (towers[i].type == towerElon) {
+                    sprite = elonBitmap; 
+                    sw = elonBitmapW;   
+                    sh = elonBitmapH;
+                } 
+                else if (towers[i].type == towerBank) {
+                    sprite = bankBitmap;   
+                    sw = bankBitmapW;   sh = bankBitmapH;
+                } 
+                else if (towers[i].type == towerIceman) {
+                    sprite = icemanBitmap; 
+                    sw = icemanBitmapW; 
+                    sh = icemanBitmapH;
+                } 
+                else if (towers[i].type == towerStarboy) {
+                    sprite = starboyBitmap; 
+                    sw = starboyBitmapW; 
+                    sh = starboyBitmapH;
+                } 
+                else if (towers[i].type == towerTeslaMan) {
+                    sprite = teslaBitmap;
+                     sw = teslaBitmapW; 
+                     sh = teslaBitmapH;
+                } 
+                else {
+                    sprite = drakeBitmap;  
+                    sw = drakeBitmapW;  
+                    sh = drakeBitmapH;
                 }
                 al_draw_scaled_bitmap(sprite, 0, 0, sw, sh, towers[i].x, towers[i].y, towers[i].w, towers[i].h, 0);
             }
-            highlightTower(towers, selectedTowerIndex, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, icemanBmp, icemanBmpW, icemanBmpH, starboyBmp, starboyBmpW, starboyBmpH, teslaBmp, teslaBmpW, teslaBmpH);
+            //highlighttower like the name suggest highlights the tower to indicate 
+            highlightTower(towers, selectedTowerIndex, drakeBitmap, drakeBitmapW, drakeBitmapH, weekndBitmap, weekndBitmapW, weekndBitmapH, elonBitmap, elonBitmapW, elonBitmapH, bankBitmap, bankBitmapW, bankBitmapH, icemanBitmap, icemanBitmapW, icemanBitmapH, starboyBitmap, starboyBitmapW, starboyBitmapH, teslaBitmap, teslaBitmapW, teslaBitmapH);
             for (int i = 0; i < slimeCount; i++) drawSlime(slimes[i]);
             drawBullets(bullets, bulletCount);
             //draws the ghost tower and range circle under the hud so the hud always stays on top
-            towerPlacement(drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected, elonSelected, bankSelected);
-            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, elonSelected, bankSelected, playerHealth, heartBmp, currentWave, waveCount);
+            towerPlacement(drakeBitmap, drakeBitmapW, drakeBitmapH, weekndBitmap, weekndBitmapW, weekndBitmapH, elonBitmap, elonBitmapW, elonBitmapH, bankBitmap, bankBitmapW, bankBitmapH, mouseX, mouseY, image, towers, towerCount, gold, drakeSelected, weekndSelected, elonSelected, bankSelected);
+            //we draw all the hud elements on top so they are always visible
+            drawHud(font, gold, towerCount, drakeSelected, weekndSelected, elonSelected, bankSelected, playerHealth, heartBitmap, currentWave, waveCount);
             placeDrakeButton(font, drakeSelected);
             placeWeekndButton(font, weekndSelected);
             placeElonButton(font, elonSelected);
             placeBankButton(font, bankSelected);
-            drawTowerPanel(font, drakeBmp, drakeBmpW, drakeBmpH, weekndBmp, weekndBmpW, weekndBmpH, elonBmp, elonBmpW, elonBmpH, bankBmp, bankBmpW, bankBmpH, icemanBmp, icemanBmpW, icemanBmpH, starboyBmp, starboyBmpW, starboyBmpH, teslaBmp, teslaBmpW, teslaBmpH, towers, selectedTowerIndex);
+            drawTowerPanel(font, drakeBitmap, drakeBitmapW, drakeBitmapH, weekndBitmap, weekndBitmapW, weekndBitmapH, elonBitmap, elonBitmapW, elonBitmapH, bankBitmap, bankBitmapW, bankBitmapH, icemanBitmap, icemanBitmapW, icemanBitmapH, starboyBitmap, starboyBitmapW, starboyBitmapH, teslaBitmap, teslaBitmapW, teslaBitmapH, towers, selectedTowerIndex);
             placeNextWaveButton(font, betweenWaves, currentWave, waveCount);
+            //we push everything we drew to the actual screen, without this nothing would show up
             al_flip_display();
             }
         }
@@ -388,6 +445,6 @@ int main(int argc, char *argv[]) {
 
     // cleans up the program resources at the end of the program
     al_destroy_font(font);
-    deleteAllegro(timer, event_queue, slimeBmp, drakeBmp, weekndBmp, microphoneBmp, image, display);
+    deleteAllegro(timer, event_queue, slimeBitmap, drakeBitmap, weekndBitmap, microphoneBitmap, image, display);
     return 0;
 }

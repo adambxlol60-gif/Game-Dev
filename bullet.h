@@ -1,5 +1,5 @@
 //created by Noah Basaria and Adam Jurewicz
-#ifndef BULLET_H
+#ifndef BULLET_H //tutorial to explain what ifndef does and why we use it https://www.scaler.com/topics/ifndef-cpp/
 #define BULLET_H
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -35,6 +35,7 @@ struct Bullet {
 //calcuate distance between two points squared
 //I found this article which says that square rooting like in the pythagorem theorum is useless for comparing distances and makes the cpu and gpu work more for zero benefit
 //https://mflerackers.wordpress.com/2013/07/07/optimization-tip-dont-use-sqrt-when-comparing-distances/
+//https://gamedev.net/forums/topic/660273-distance-formula-in-c/5176037/
 inline float distance(float ax, float ay, float bx, float by) {
     float deltaX = ax - bx, deltaY = ay - by;
     return deltaX*deltaX + deltaY*deltaY;
@@ -132,6 +133,7 @@ inline void updateBullets(Bullet bullets[], int* bulletCount, Slime slimes[], in
     //this is because moving the array down is extremely inefficent when yoou have hundreds of bullets
     //this version is much more efficent because it doesnt move the whole array down but just put new bullet in the dead bullets place
     //https://www.studyplan.dev/structure-of-arrays/swap-and-pop this guide explained this method in more detail
+    //https://gamedev.net/forums/topic/665250-efficient-way-to-erase-an-element-from-stdvector/5207368/
     for (int i = 0; i < *bulletCount; ) {
         if (!bullets[i].alive)
             bullets[i] = bullets[--(*bulletCount)];

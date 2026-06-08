@@ -6,28 +6,31 @@
 #include "hud.h"
 
 //checks if each variable is checked befroe placing the tower, if all checks are passed the tower is placed and gold is subtracted
-inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, int weekndBmpW, int weekndBmpH, int elonBmpW, int elonBmpH, int bankBmpW, int bankBmpH, int &gold, bool& drakeSelected, bool& weekndSelected, bool& elonSelected, bool& bankSelected, int towerCost) {
+inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& towerCount, ALLEGRO_BITMAP* map, ALLEGRO_BITMAP* drakeBitmap, int drakeBitmapW, int drakeBitmapH, int weekndBitmapW, int weekndBitmapH, int elonBitmapW, int elonBitmapH, int bankBitmapW, int bankBitmapH, int &gold, bool& drakeSelected, bool& weekndSelected, bool& elonSelected, bool& bankSelected, int towerCost) {
     if (event.mouse.button != 1) return;
     if (!drakeSelected && !weekndSelected && !elonSelected && !bankSelected) return;
 
-    //bank cap - silently refuse the click if we already have 3
+    //bank cap, its here so the player wont spam banks
     if (bankSelected && countBanks(towers, towerCount) >= maxBanks) return;
 
     //pick the footprint dimensions from whichever tower is selected
     float towerW;
     float towerH;
     if (drakeSelected) {
-        towerW = drakeBmpW * towerScale;
-        towerH = drakeBmpH * towerScale;
-    } else if (weekndSelected) {
-        towerW = weekndBmpW * weekndScale;
-        towerH = weekndBmpH * weekndScale;
-    } else if (elonSelected) {
-        towerW = elonBmpW * elonScale;
-        towerH = elonBmpH * elonScale;
-    } else {
-        towerW = bankBmpW * bankScale;
-        towerH = bankBmpH * bankScale;
+        towerW = drakeBitmapW * towerScale;
+        towerH = drakeBitmapH * towerScale;
+    }
+    else if (weekndSelected) {
+        towerW = weekndBitmapW * weekndScale;
+        towerH = weekndBitmapH * weekndScale;
+    }
+    else if (elonSelected) {
+        towerW = elonBitmapW * elonScale;
+        towerH = elonBitmapH * elonScale;
+    }
+    else {
+        towerW = bankBitmapW * bankScale;
+        towerH = bankBitmapH * bankScale;
     }
     //code for placing the tower, it creates a new tower based on the mouse position and the selected tower type, then it checks if the tower can be placed and if it can it adds it to the towers array and subtracts gold
     Tower newTower;
@@ -50,32 +53,35 @@ inline void handleMouseClick(const ALLEGRO_EVENT& event, Tower towers[], int& to
 }
 
 //code for hover ghost tower, it picks the drake or weeknd sprite based on which button is selected and shows a green or red tint plus the tower range circle
-inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, ALLEGRO_BITMAP* elonBmp, int elonBmpW, int elonBmpH, ALLEGRO_BITMAP* bankBmp, int bankBmpW, int bankBmpH, int mouseX, int mouseY, ALLEGRO_BITMAP* map, Tower towers[], int towerCount, int gold, bool drakeSelected, bool weekndSelected, bool elonSelected, bool bankSelected) {
+inline void towerPlacement(ALLEGRO_BITMAP* drakeBitmap, int drakeBitmapW, int drakeBitmapH, ALLEGRO_BITMAP* weekndBitmap, int weekndBitmapW, int weekndBitmapH, ALLEGRO_BITMAP* elonBitmap, int elonBitmapW, int elonBitmapH, ALLEGRO_BITMAP* bankBitmap, int bankBitmapW, int bankBitmapH, int mouseX, int mouseY, ALLEGRO_BITMAP* map, Tower towers[], int towerCount, int gold, bool drakeSelected, bool weekndSelected, bool elonSelected, bool bankSelected) {
     if (!drakeSelected && !weekndSelected && !elonSelected && !bankSelected) return;
 
-    ALLEGRO_BITMAP* spriteBmp;
+    ALLEGRO_BITMAP* spriteBitmap;
     int spriteW;
     int spriteH;
     float range;
     if (drakeSelected) {
-        spriteBmp = drakeBmp;
-        spriteW = drakeBmpW;
-        spriteH = drakeBmpH;
+        spriteBitmap = drakeBitmap;
+        spriteW = drakeBitmapW;
+        spriteH = drakeBitmapH;
         range = towerRange;
-    } else if (weekndSelected) {
-        spriteBmp = weekndBmp;
-        spriteW = weekndBmpW;
-        spriteH = weekndBmpH;
+    }
+    else if (weekndSelected) {
+        spriteBitmap = weekndBitmap;
+        spriteW = weekndBitmapW;
+        spriteH = weekndBitmapH;
         range = weekndRange;
-    } else if (elonSelected) {
-        spriteBmp = elonBmp;
-        spriteW = elonBmpW;
-        spriteH = elonBmpH;
+    }
+    else if (elonSelected) {
+        spriteBitmap = elonBitmap;
+        spriteW = elonBitmapW;
+        spriteH = elonBitmapH;
         range = elonRange;
-    } else {
-        spriteBmp = bankBmp;
-        spriteW = bankBmpW;
-        spriteH = bankBmpH;
+    }
+    else {
+        spriteBitmap = bankBitmap;
+        spriteW = bankBitmapW;
+        spriteH = bankBitmapH;
         range = 0.0f;
     }
 
@@ -83,18 +89,22 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     float towerW;
     float towerH;
     if (drakeSelected) {
-        towerW = drakeBmpW * towerScale;
-        towerH = drakeBmpH * towerScale;
-    } else if (weekndSelected) {
-        towerW = weekndBmpW * weekndScale;
-        towerH = weekndBmpH * weekndScale;
-    } else if (elonSelected) {
-        towerW = elonBmpW * elonScale;
-        towerH = elonBmpH * elonScale;
-    } else {
-        towerW = bankBmpW * bankScale;
-        towerH = bankBmpH * bankScale;
+        towerW = drakeBitmapW * towerScale;
+        towerH = drakeBitmapH * towerScale;
     }
+    else if (weekndSelected) {
+        towerW = weekndBitmapW * weekndScale;
+        towerH = weekndBitmapH * weekndScale;
+    }
+    else if (elonSelected) {
+        towerW = elonBitmapW * elonScale;
+        towerH = elonBitmapH * elonScale;
+    }
+    else {
+        towerW = bankBitmapW * bankScale;
+        towerH = bankBitmapH * bankScale;
+    }
+    //this is for the tower ghost so the player can see where the tower will be placed
     Tower preview;
     preview.x = mouseX - towerW / 2;
     preview.y = mouseY - towerH / 2;
@@ -111,7 +121,7 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     else cost = bankCost;
     //this canPlace variable is used to determine the color of the ghost tower and whether the player can place the tower or not, it checks all the same conditions as the handleMouseClick function
     bool canPlace = insideScreen && towerCount < maxTowerLimit && gold >= cost && !towerTouchesPath(map, preview) && !overlapsAnyTower(preview, towers, towerCount);
-    //extra restriction - banks are capped at maxBanks regardless of total tower limit
+    //extra restriction such as banks are capped at maxBanks regardless of total tower limit
     if (bankSelected && countBanks(towers, towerCount) >= maxBanks) canPlace = false;
     float centerX = model.x + model.w * 0.5f;
     float centerY = model.y + model.h * 0.5f;
@@ -121,48 +131,55 @@ inline void towerPlacement(ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmp
     ALLEGRO_COLOR tint;
     if (canPlace) {
         tint = al_map_rgba(0, 180, 0, 150);
-    } else {
+    } 
+    else {
         tint = al_map_rgba(180, 0, 0, 150);
     }
-    al_draw_tinted_scaled_bitmap(spriteBmp, tint, 0, 0, spriteW, spriteH, preview.x, preview.y, preview.w, preview.h, 0);
+    al_draw_tinted_scaled_bitmap(spriteBitmap, tint, 0, 0, spriteW, spriteH, preview.x, preview.y, preview.w, preview.h, 0);
 }
 
 //highlightTower redraws the selected tower with a grey transparent tint over the actual sprite shape
-inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMAP* drakeBmp, int drakeBmpW, int drakeBmpH, ALLEGRO_BITMAP* weekndBmp, int weekndBmpW, int weekndBmpH, ALLEGRO_BITMAP* elonBmp, int elonBmpW, int elonBmpH, ALLEGRO_BITMAP* bankBmp, int bankBmpW, int bankBmpH, ALLEGRO_BITMAP* icemanBmp, int icemanBmpW, int icemanBmpH, ALLEGRO_BITMAP* starboyBmp, int starboyBmpW, int starboyBmpH, ALLEGRO_BITMAP* teslaBmp, int teslaBmpW, int teslaBmpH) {
+inline void highlightTower(Tower towers[], int selectedTowerIndex, ALLEGRO_BITMAP* drakeBitmap, int drakeBitmapW, int drakeBitmapH, ALLEGRO_BITMAP* weekndBitmap, int weekndBitmapW, int weekndBitmapH, ALLEGRO_BITMAP* elonBitmap, int elonBitmapW, int elonBitmapH, ALLEGRO_BITMAP* bankBitmap, int bankBitmapW, int bankBitmapH, ALLEGRO_BITMAP* icemanBitmap, int icemanBitmapW, int icemanBitmapH, ALLEGRO_BITMAP* starboyBitmap, int starboyBitmapW, int starboyBitmapH, ALLEGRO_BITMAP* teslaBitmap, int teslaBitmapW, int teslaBitmapH) {
     if (selectedTowerIndex < 0) return;
     Tower& selectedTower = towers[selectedTowerIndex];
-
+    //
     ALLEGRO_BITMAP* towerSprite;
     int spriteWidth;
     int spriteHeight;
     if (selectedTower.type == towerWeeknd) {
-        towerSprite  = weekndBmp;
-        spriteWidth  = weekndBmpW;
-        spriteHeight = weekndBmpH;
-    } else if (selectedTower.type == towerElon) {
-        towerSprite  = elonBmp;
-        spriteWidth  = elonBmpW;
-        spriteHeight = elonBmpH;
-    } else if (selectedTower.type == towerBank) {
-        towerSprite  = bankBmp;
-        spriteWidth  = bankBmpW;
-        spriteHeight = bankBmpH;
-    } else if (selectedTower.type == towerIceman) {
-        towerSprite  = icemanBmp;
-        spriteWidth  = icemanBmpW;
-        spriteHeight = icemanBmpH;
-    } else if (selectedTower.type == towerStarboy) {
-        towerSprite  = starboyBmp;
-        spriteWidth  = starboyBmpW;
-        spriteHeight = starboyBmpH;
-    } else if (selectedTower.type == towerTeslaMan) {
-        towerSprite  = teslaBmp;
-        spriteWidth  = teslaBmpW;
-        spriteHeight = teslaBmpH;
-    } else {
-        towerSprite  = drakeBmp;
-        spriteWidth  = drakeBmpW;
-        spriteHeight = drakeBmpH;
+        towerSprite  = weekndBitmap;
+        spriteWidth  = weekndBitmapW;
+        spriteHeight = weekndBitmapH;
+    }
+    else if (selectedTower.type == towerElon) {
+        towerSprite  = elonBitmap;
+        spriteWidth  = elonBitmapW;
+        spriteHeight = elonBitmapH;
+    }
+    else if (selectedTower.type == towerBank) {
+        towerSprite  = bankBitmap;
+        spriteWidth  = bankBitmapW;
+        spriteHeight = bankBitmapH;
+    }
+    else if (selectedTower.type == towerIceman) {
+        towerSprite  = icemanBitmap;
+        spriteWidth  = icemanBitmapW;
+        spriteHeight = icemanBitmapH;
+    }
+    else if (selectedTower.type == towerStarboy) {
+        towerSprite  = starboyBitmap;
+        spriteWidth  = starboyBitmapW;
+        spriteHeight = starboyBitmapH;
+    }
+    else if (selectedTower.type == towerTeslaMan) {
+        towerSprite  = teslaBitmap;
+        spriteWidth  = teslaBitmapW;
+        spriteHeight = teslaBitmapH;
+    }
+    else {
+        towerSprite  = drakeBitmap;
+        spriteWidth  = drakeBitmapW;
+        spriteHeight = drakeBitmapH;
     }
 
     ALLEGRO_COLOR grey = al_map_rgba(160, 160, 160, 200);

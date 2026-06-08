@@ -66,8 +66,8 @@ inline Tower towerModelRectangle(Tower t) {
 //This is for the bullet speed, tower range (field of view) and cooldow time between shots.
 // Makes it super easy to adjust the towers in the future without changing much code.
 const float towerRange = 200.0f;
-const float weekndRange = 300.0f;
-const float starboyRange = 380.0f;
+const float weekndRange = 320.0f;
+const float starboyRange = 350.0f;
 const float elonRange   = 250.0f;
 const float icemanRange = 260.0f;   //slightly longer than drake
 const int   towerCooldown = 30;
@@ -93,14 +93,14 @@ inline float rangeOf(int towerType) {
 const int drakeDamage = 1;
 const int weekndDamage = 1;
 const int elonDamage = 4;
-const int icemanDamage = 2;   //+1 over drake
-const int starboyDamage = 2;  //a bit more than weeknd
+const int icemanDamage = 1;
+const int starboyDamage = 1;
 const int teslaDamage = 5;
 const int drakePierce = 0;
 const int weekndPierce = 1;
 const int elonPierce = 0;
 const int icemanPierce = 0;
-const int drakeIce = 0;   //base drake no longer freezes - upgrade to iceman to get freeze
+const int drakeIce = 0;
 const int weekndIce = 0;
 const int elonIce = 0;
 const int icemanIce = 1;      //iceman freezes
@@ -110,18 +110,18 @@ const int elonVision = 0;
 const int elonUpgVision = 1;
 const int icemanVision = 0;
 
-//explosive blast radius (pixels) per tower. 0 = no explosion
+//explosive blast radius (pixels) per tower.
 const int weekndExplosive  = 0;     //weeknd has no blast, just pierce
 const int starboyExplosive = 55;    //small blast added on top of starboy's pierce
-const int elonExplosive    = 110;   //big
-const int teslaExplosive   = 150;   //biggest
-//explosive damage dealt to every other slime caught in the blast
+const int elonExplosive    = 80;
+const int teslaExplosive   = 140;   
+//explosive damage does damage to all slimes in the areaos
 const int weekndExplosiveDamage  = 0;
 const int starboyExplosiveDamage = 1;
 const int elonExplosiveDamage    = 1;
 const int teslaExplosiveDamage   = 2;
 
-//explosiveOf returns the blast radius for a tower type (0 = no explosion)
+//explosiveOf returns the blast radius for a tower type (0 is no explosion)
 inline int explosiveOf(int towerType) {
     if (towerType == towerWeeknd)   return weekndExplosive;
     if (towerType == towerStarboy)  return starboyExplosive;
@@ -155,8 +155,8 @@ inline int pierceOf(int towerType) {
     if (towerType == towerElon)    return elonPierce;
     if (towerType == towerBank)    return 0;
     if (towerType == towerIceman)  return icemanPierce;
-    if (towerType == towerStarboy) return weekndPierce;   //same as weeknd for now
-    if (towerType == towerTeslaMan) return elonPierce;    //same as elon for now
+    if (towerType == towerStarboy) return weekndPierce;  
+    if (towerType == towerTeslaMan) return elonPierce;
     return drakePierce;
 }
 inline int iceOf(int towerType) {
@@ -164,14 +164,14 @@ inline int iceOf(int towerType) {
     if (towerType == towerElon)    return elonIce;
     if (towerType == towerBank)    return 0;
     if (towerType == towerIceman)  return icemanIce;
-    if (towerType == towerStarboy) return weekndIce;   //same as weeknd for now
-    if (towerType == towerTeslaMan) return elonIce;    //same as elon for now
+    if (towerType == towerStarboy) return weekndIce;   
+    if (towerType == towerTeslaMan) return elonIce;    
     return drakeIce;
 }
 
 inline int visionOf(int towerType, int upgradeLevel) {
     if (towerType == towerWeeknd)   return weekndVision;
-    if (towerType == towerStarboy)  return weekndVision;   //starboy keeps weeknd's camo vision
+    if (towerType == towerStarboy)  return weekndVision;  
     if (towerType == towerTeslaMan) return elonUpgVision;  //tesla (upgraded elon) can see camo
     if (towerType == towerElon && upgradeLevel >= 1) return elonUpgVision;
     return drakeVision;
@@ -183,14 +183,14 @@ inline int cooldownOf(int towerType) {
     if (towerType == towerIceman)   return icemanCooldown;
     if (towerType == towerStarboy)  return starboyCooldown;
     if (towerType == towerTeslaMan) return teslaCooldown;
-    return drakeCooldown;   //drake (bank never fires)
+    return drakeCooldown;   
 }
 //Saves information about the tower's cooldown and whether a bullet is alive or not
 struct TowerState {
     int cooldown = 0;
 };
 
-//counts how many banks currently exist so the placement code can enforce the 3-bank cap
+//counts how many banks currently exist so the placement code can enforce the 3 bank cap
 inline int countBanks(Tower towers[], int towerCount) {
     int n = 0;
     for (int i = 0; i < towerCount; i++) if (towers[i].type == towerBank) n++;
@@ -239,6 +239,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
         float py = slimes[idx].y - centerY;
         float vx = slimes[idx].vx;
         float vy = slimes[idx].vy;
+        // I found the prediction equation on these 2 webstie which helped a lothttps://www.gamedeveloper.com/programming/predictive-aim-mathematics-for-ai-targeting https://indyandyjones.wordpress.com/2010/04/08/intercepting-a-target-with-projectile/
         float a = vx*vx + vy*vy - bulletSpeed * bulletSpeed;
         float b_ = 2.0f * (px*vx + py*vy); //b is discrimant 
         float c  = px*px + py*py;
@@ -249,14 +250,17 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
                 float t = -c / b_;
                 if (t > 0) { aimX = slimes[idx].x + vx * t; aimY = slimes[idx].y + vy * t; }
             }
-        } else { //this actually solves the quadratic equation
+        }
+        else { //this actually solves the quadratic equation
             float disc = b_*b_ - 4*a*c;
             if (disc >= 0) {
                 float sq = sqrtf(disc);
                 float t1 = (-b_ - sq) / (2*a);
                 float t2 = (-b_ + sq) / (2*a);
                 float t = -1;
-                if (t1 > 0 && t2 > 0) t = (t1 < t2) ? t1 : t2;
+                if (t1 > 0 && t2 > 0) {
+                    if (t1 < t2) { t = t1; } else { t = t2; }
+                }
                 else if (t1 > 0) t = t1;
                 else if (t2 > 0) t = t2;
                 if (t > 0) { aimX = slimes[idx].x + vx * t; aimY = slimes[idx].y + vy * t; }
@@ -310,6 +314,7 @@ inline void updateTowers(Tower towers[], TowerState states[], int towerCount, Sl
 //it checks for the color of the pixel where the cursor is and if the color is close to the path color (red > 160, green > 120, blue < 120)
 //the main point of it is to prevent the player from placing the tower on the path
 //It probably would be better longterm to have a different bitmap just for the path but this works well enough :)
+// these 2 websites help us learn about al lock pixel and get pixels https://liballeg.org/a5docs/trunk/graphics.html#al_get_pixel https://liballeg.org/a5docs/trunk/graphics.html#al_lock_bitmap
 inline bool onPath(ALLEGRO_BITMAP* map, int mouseX, int mouseY) {
     ALLEGRO_COLOR color = al_get_pixel(map, mouseX, mouseY);
     unsigned char r, g, b;
@@ -319,6 +324,7 @@ inline bool onPath(ALLEGRO_BITMAP* map, int mouseX, int mouseY) {
 //this is another function made for tower placement, this time its for making sure you cant place a tower on top of another tower
 //funny thing is that the hitbox is not the drake itself it is a smaller rectangle in the middle of the tower
 //the reasion for this is because the png of drake is bigger than what it looks like, so the rectangle is there to make it more accurate
+//we used this article to learn about collisions better: https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection
 inline bool towersOverlap(Tower a, Tower b) {
     Tower ma = towerModelRectangle(a);
     Tower mb = towerModelRectangle(b);

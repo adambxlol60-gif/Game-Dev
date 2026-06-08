@@ -6,7 +6,7 @@
 #include "function.h"
 
 // maximum number of waves the game can have
-const int maxWaves = 100;
+const int maxWaves = 51;
 // maximum number of individual enemy spawns allowed in a single wave
 const int maxSpawnsPerWave = 200;
 
@@ -15,7 +15,7 @@ struct Spawn {
     ALLEGRO_BITMAP* bitmap;
     int hp;
     float speed;
-    int spawnInterval; // time in miliseconds when the enemy spawns
+    int spawnInterval; // frames to wait before spawning the next enemy
 };
 
 inline bool isCamoSpawn(const Spawn& s) {
@@ -28,7 +28,7 @@ inline bool isCamoSpawn(const Spawn& s) {
 }
 
 inline void splitDataFor(const Spawn& s, int& count, int& hp, float& speed, ALLEGRO_BITMAP*& bmp) {
-    if (s.bitmap == bitmaps[31]) {            //kingSlime boss - bursts into a swarm of red slimes on death
+    if (s.bitmap == bitmaps[31]) {            //kingSlime boss, he bursts into bunch of red slime on death
         count = 10; hp = 100; speed = s.speed*2.0f; bmp = bitmaps[13]; return;
     }
     if (s.bitmap == bitmaps[13]) {
@@ -66,10 +66,10 @@ inline ALLEGRO_BITMAP* getBitmapByName(const char* name) {
     if (strcmp(name, "yellowSlime") == 0) return bitmaps[15];
     if (strcmp(name, "yellowCamoSlime") == 0) return bitmaps[16];
     if (strcmp(name, "kingSlime") == 0) return bitmaps[31];
-    return bitmaps[2]; // default to basic slime if name not found
+    return bitmaps[2]; // defaults to basic slime if name not found
 }
 
-// loadWaves reads waves.txt and fills the allWaves array
+// loadWaves reads waves.txt and fills the allWaves array with neccesary informationg
 inline int loadWaves(const char* filename, Wave allWaves[], int maxW) {
     FILE* file = fopen(filename, "r");
     if (!file) {
@@ -80,8 +80,8 @@ inline int loadWaves(const char* filename, Wave allWaves[], int maxW) {
     char line[256];
 
     while (fgets(line, sizeof(line), file)) {
-        //skips comments or any blank lines
-        if (line[0] == '#' || line[0] == '\n' || line[0] == '\r') continue;
+        //skips blank lines
+        if (line[0] == '\n' || line[0] == '\r') continue;
 
         int waveNum, count, hp, spawnInterval;
         float speed;
@@ -90,16 +90,16 @@ inline int loadWaves(const char* filename, Wave allWaves[], int maxW) {
         // scanfs the 6 expected values from the line, it skips it if its wrong
         if (sscanf(line, "%d %s %d %d %f %d", &waveNum, type, &count, &hp, &speed, &spawnInterval) != 6) continue;
 
-        // it skips the number if its out of range
+        // it skips the number if its out of range simple safetly check
         if (waveNum < 1 || waveNum > maxW) continue;
 
         // if statement tracks the highest wave number seen so far
         if (waveNum > waveCount) waveCount = waveNum;
 
-        // gets the wave at this index (we do waveNum - 1 because wave numbers start at 1 but array indices start at 0)
+        // gets the wave at this index (we do waveNum 1 because wave numbers start at 1 but array indices start at 0)
         Wave& wave = allWaves[waveNum - 1];
 
-        // for loop adds count copies of this enemy type to the wave's spawn list
+        // for loop that adds same slime copies onto the waves spawn list
         for(int i = 0; i < count; i++) {
             if (wave.spawnCount >= maxSpawnsPerWave) break; // prevents overflow
             Spawn& s = wave.spawns[wave.spawnCount++];

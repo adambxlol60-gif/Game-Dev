@@ -99,6 +99,8 @@
 43 slime 10 3 1.5 28
 43 purpleSlime 7 9 3.0 28
 44 slime 50 3 1.5 16
+44 yellowSlime 12 8 2.5 20
+44 purpleSlime 6 9 3.0 26
 45 purpleSlime 80 9 3.0 12
 45 slime 10 3 1.5 22
 45 redSlime 4 22 2.0 55
