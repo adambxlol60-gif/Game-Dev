@@ -1,4 +1,3 @@
-//created by Noah Basaria and Adam Jurewicz
 #ifndef BULLET_H //tutorial to explain what ifndef does and why we use it https://www.scaler.com/topics/ifndef-cpp/
 #define BULLET_H
 #include <allegro5/allegro.h>

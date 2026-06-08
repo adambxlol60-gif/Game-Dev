@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
             if (event.keyboard.keycode == ALLEGRO_KEY_M) {
                 gameMenu = 0;
                 currentWave = 49;
+                gold = 50000;
                 slimeCount = 0;
                 betweenWaves = false;
                 spawnIndex = 0;
@@ -437,6 +438,7 @@ int main(int argc, char *argv[]) {
             placeBankButton(font, bankSelected);
             drawTowerPanel(font, drakeBitmap, drakeBitmapW, drakeBitmapH, weekndBitmap, weekndBitmapW, weekndBitmapH, elonBitmap, elonBitmapW, elonBitmapH, bankBitmap, bankBitmapW, bankBitmapH, icemanBitmap, icemanBitmapW, icemanBitmapH, starboyBitmap, starboyBitmapW, starboyBitmapH, teslaBitmap, teslaBitmapW, teslaBitmapH, towers, selectedTowerIndex);
             placeNextWaveButton(font, betweenWaves, currentWave, waveCount);
+            drawTipBar(font, currentWave);
             //we push everything we drew to the actual screen, without this nothing would show up
             al_flip_display();
             }
