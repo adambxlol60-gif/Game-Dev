@@ -38,7 +38,7 @@
 16 greenCamoSlime 40 4 2.0 20
 16 yellowSlime 8 5 2.5 28
 17 yellowSlime 12 5 2.5 24
-18 greenCamoSlime 60 4 2.0 16
+18 greenCamoSlime 50 4 2.0 18
 19 slime 10 2 1.5 24
 19 blueSlime 4 3 1.8 28
 19 greenCamoSlime 5 4 2.0 28

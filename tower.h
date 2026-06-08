@@ -70,7 +70,6 @@ const float weekndRange = 320.0f;
 const float starboyRange = 350.0f;
 const float elonRange   = 250.0f;
 const float icemanRange = 260.0f;   //slightly longer than drake
-const int   towerCooldown = 30;
 //per-tower fire cooldown in frames. lower = shoots faster
 const int drakeCooldown   = 30;   //normal
 const int icemanCooldown  = 30;   //same as drake
