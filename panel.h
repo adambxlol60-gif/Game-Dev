@@ -22,20 +22,20 @@ const int portraitW = 180;
 const int portraitH = 150;
 
 //two upgrade buttons stacked below the stats. Banks don't show these as they dont need any upgrades
-const int upgrade1BtnX = panelX + 30;
-const int upgrade1BtnY = panelY + 222;
-const int upgrade1BtnW = 180;
-const int upgrade1BtnH = 38;
+const int upgrade1ButtonX = panelX + 30;
+const int upgrade1ButtonY = panelY + 222;
+const int upgrade1ButtonW = 180;
+const int upgrade1ButtonH = 38;
 
-const int upgrade2BtnX = panelX + 30;
-const int upgrade2BtnY = panelY + 264;
-const int upgrade2BtnW = 180;
-const int upgrade2BtnH = 38;
+const int upgrade2ButtonX = panelX + 30;
+const int upgrade2ButtonY = panelY + 264;
+const int upgrade2ButtonW = 180;
+const int upgrade2ButtonH = 38;
 
-const int sellBtnX = panelX + 30;
-const int sellBtnY = panelY + panelH - 60;
-const int sellBtnW = 180;
-const int sellBtnH = 45;
+const int sellButtonX = panelX + 30;
+const int sellButtonY = panelY + panelH - 60;
+const int sellButtonW = 180;
+const int sellButtonH = 45;
 
 //For returns the gold given back when selling a tower of the given type (70% of cost)
 inline int refundFor(int type) {
@@ -56,15 +56,15 @@ inline bool clickInsidePanel(int mouseX, int mouseY) {
 
 //bool forsellButtonPressed that sells the tower works same as all the other panels
 inline bool sellButtonPressed(int mouseX, int mouseY) {
-    return mouseX >= sellBtnX && mouseX <= sellBtnX + sellBtnW && mouseY >= sellBtnY && mouseY <= sellBtnY + sellBtnH;
+    return mouseX >= sellButtonX && mouseX <= sellButtonX + sellButtonW && mouseY >= sellButtonY && mouseY <= sellButtonY + sellButtonH;
 }
 //this is a function to check if the mouse is inside the upgrade 1 button
 inline bool upgrade1ButtonPressed(int mouseX, int mouseY) {
-    return mouseX >= upgrade1BtnX && mouseX <= upgrade1BtnX + upgrade1BtnW && mouseY >= upgrade1BtnY && mouseY <= upgrade1BtnY + upgrade1BtnH;
+    return mouseX >= upgrade1ButtonX && mouseX <= upgrade1ButtonX + upgrade1ButtonW && mouseY >= upgrade1ButtonY && mouseY <= upgrade1ButtonY + upgrade1ButtonH;
 }
 //this is a function to check if the mouse is inside the upgrade 2 button
 inline bool upgrade2ButtonPressed(int mouseX, int mouseY) {
-    return mouseX >= upgrade2BtnX && mouseX <= upgrade2BtnX + upgrade2BtnW && mouseY >= upgrade2BtnY && mouseY <= upgrade2BtnY + upgrade2BtnH;
+    return mouseX >= upgrade2ButtonX && mouseX <= upgrade2ButtonX + upgrade2ButtonW && mouseY >= upgrade2ButtonY && mouseY <= upgrade2ButtonY + upgrade2ButtonH;
 }
 
 //drawTowerPanel shows the portrait, stats and sell button for the currently selected tower
@@ -182,9 +182,9 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBitmap, int 
             snprintf(upg1Label, sizeof(upg1Label), "MAXED");
             upg1Fill = al_map_rgb(50, 100, 50);
         }
-        al_draw_filled_rectangle(upgrade1BtnX, upgrade1BtnY, upgrade1BtnX + upgrade1BtnW, upgrade1BtnY + upgrade1BtnH, upg1Fill);
-        al_draw_rectangle(upgrade1BtnX, upgrade1BtnY, upgrade1BtnX + upgrade1BtnW, upgrade1BtnY + upgrade1BtnH, al_map_rgb(0, 0, 0), 2);
-        al_draw_text(font, al_map_rgb(255, 255, 255), upgrade1BtnX + upgrade1BtnW / 2, upgrade1BtnY + upgrade1BtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, upg1Label);
+        al_draw_filled_rectangle(upgrade1ButtonX, upgrade1ButtonY, upgrade1ButtonX + upgrade1ButtonW, upgrade1ButtonY + upgrade1ButtonH, upg1Fill);
+        al_draw_rectangle(upgrade1ButtonX, upgrade1ButtonY, upgrade1ButtonX + upgrade1ButtonW, upgrade1ButtonY + upgrade1ButtonH, al_map_rgb(0, 0, 0), 2);
+        al_draw_text(font, al_map_rgb(255, 255, 255), upgrade1ButtonX + upgrade1ButtonW / 2, upgrade1ButtonY + upgrade1ButtonH / 2 - 4, ALLEGRO_ALIGN_CENTER, upg1Label);
 
         //upgrade 2 gives +1 damage AND faster firing, cost starts at 300 and goes up by 100 each level
         bool upg2Maxed = selectedTower.damageUpgradeLevel >= maxDamageUpgradeLevel;
@@ -194,17 +194,17 @@ inline void drawTowerPanel(ALLEGRO_FONT* font, ALLEGRO_BITMAP* drakeBitmap, int 
         else snprintf(upg2Label, sizeof(upg2Label), "+1 Damage (%d)", upg2Cost);
         ALLEGRO_COLOR upg2Fill;
         if (upg2Maxed) { upg2Fill = al_map_rgb(50, 100, 50); } else { upg2Fill = al_map_rgb(160, 100, 60); }
-        al_draw_filled_rectangle(upgrade2BtnX, upgrade2BtnY, upgrade2BtnX + upgrade2BtnW, upgrade2BtnY + upgrade2BtnH, upg2Fill);
-        al_draw_rectangle(upgrade2BtnX, upgrade2BtnY, upgrade2BtnX + upgrade2BtnW, upgrade2BtnY + upgrade2BtnH, al_map_rgb(0, 0, 0), 2);
-        al_draw_text(font, al_map_rgb(255, 255, 255), upgrade2BtnX + upgrade2BtnW / 2, upgrade2BtnY + upgrade2BtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, upg2Label);
+        al_draw_filled_rectangle(upgrade2ButtonX, upgrade2ButtonY, upgrade2ButtonX + upgrade2ButtonW, upgrade2ButtonY + upgrade2ButtonH, upg2Fill);
+        al_draw_rectangle(upgrade2ButtonX, upgrade2ButtonY, upgrade2ButtonX + upgrade2ButtonW, upgrade2ButtonY + upgrade2ButtonH, al_map_rgb(0, 0, 0), 2);
+        al_draw_text(font, al_map_rgb(255, 255, 255), upgrade2ButtonX + upgrade2ButtonW / 2, upgrade2ButtonY + upgrade2ButtonH / 2 - 4, ALLEGRO_ALIGN_CENTER, upg2Label);
     }
 
     //sell button with refund amount 70% of original cost
-    al_draw_filled_rectangle(sellBtnX, sellBtnY, sellBtnX + sellBtnW, sellBtnY + sellBtnH, al_map_rgb(210, 50, 50));
-    al_draw_rectangle(sellBtnX, sellBtnY, sellBtnX + sellBtnW, sellBtnY + sellBtnH, al_map_rgb(0, 0, 0), 2);
+    al_draw_filled_rectangle(sellButtonX, sellButtonY, sellButtonX + sellButtonW, sellButtonY + sellButtonH, al_map_rgb(210, 50, 50));
+    al_draw_rectangle(sellButtonX, sellButtonY, sellButtonX + sellButtonW, sellButtonY + sellButtonH, al_map_rgb(0, 0, 0), 2);
     char sellBuf[32];
     snprintf(sellBuf, sizeof(sellBuf), "Sell (+%d)", refundFor(selectedTower.type));
-    al_draw_text(font, al_map_rgb(255, 255, 255), sellBtnX + sellBtnW / 2, sellBtnY + sellBtnH / 2 - 4, ALLEGRO_ALIGN_CENTER, sellBuf);
+    al_draw_text(font, al_map_rgb(255, 255, 255), sellButtonX + sellButtonW / 2, sellButtonY + sellButtonH / 2 - 4, ALLEGRO_ALIGN_CENTER, sellBuf);
 }
 
 #endif
