@@ -43,6 +43,10 @@ inline bool isMetalSpawn(const Spawn& s) {
     return s.bitmap == bitmaps[8]; // metalslime
 }
 
+inline bool isKingSpawn(const Spawn& s) {
+    return s.bitmap == bitmaps[31]; // kingSlime
+}
+
 //this struct holds all the spawns for one full wave
 struct Wave {
     Spawn spawns[maxSpawnsPerWave];

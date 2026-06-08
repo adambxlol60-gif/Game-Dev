@@ -123,4 +123,4 @@
 50 redSlime 2 95 0.8 150
 50 rainbowSlime 5 55 3.5 45
 50 rainbowCamoSlime 4 55 3.5 50
-50 kingSlime 1 820 0.9 300
+50 kingSlime 1 1000 0.9 300

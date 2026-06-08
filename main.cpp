@@ -320,6 +320,7 @@ int main(int argc, char *argv[]) {
                             Slime newSlime = initSlime(s.bitmap, s.hp, s.speed);
                             if (isCamoSpawn(s)) newSlime.camo = true;
                             if (isMetalSpawn(s)) newSlime.metal = true;
+                            if (isKingSpawn(s)) newSlime.isKing = true;
                             int splitCount; int splitHp; float splitSpeed; ALLEGRO_BITMAP* splitBitmap;
                             splitDataFor(s, splitCount, splitHp, splitSpeed, splitBitmap);
                             //if a slime splits we save its datat in here
