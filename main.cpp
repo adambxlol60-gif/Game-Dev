@@ -301,7 +301,7 @@ int main(int argc, char *argv[]) {
         //this is where the main game logic happens: spawning slimes, updating their movement...
         if (event.type == ALLEGRO_EVENT_TIMER) {
             //we scale everything we draw so our 1280x960 layout fills the (possibly smaller) window
-            //this is what actually makes the game shrink to fit short screens like the teachers desktop
+            //this is what actually makes the game shrink to fit short screens
             //reference: https://liballeg.org/a5docs/trunk/transformations.html#al_scale_transform
             ALLEGRO_TRANSFORM scaleTransform;
             al_identity_transform(&scaleTransform);

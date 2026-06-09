@@ -18,7 +18,7 @@
 const int screenW = 1280;
 const int screenH = 960;
 
-//displayScale shrinks the whole game window to fit smaller screens (like the teachers desktop)
+//displayScale shrinks the whole game window to fit smaller screens
 //before this the window was locked at 1280x960, so on a short screen the bottom got cut off and you couldnt click the start wave button
 //it stays 1.0 on big screens and gets smaller on short screens so the window is never taller than the monitor
 inline float displayScale = 1.0f;
