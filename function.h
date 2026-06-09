@@ -18,6 +18,11 @@
 const int screenW = 1280;
 const int screenH = 960;
 
+//displayScale shrinks the whole game window to fit smaller screens (like the teachers desktop)
+//before this the window was locked at 1280x960, so on a short screen the bottom got cut off and you couldnt click the start wave button
+//it stays 1.0 on big screens and gets smaller on short screens so the window is never taller than the monitor
+inline float displayScale = 1.0f;
+
 #include "bullet.h"
 #include "hud.h"
 #include "tower.h"
@@ -56,7 +61,25 @@ inline bool initAllegro() {
 //Reference: inline functions in C++ GeeksforGeeks: https://www.geeksforgeeks.org/cpp/inline-functions-cpp/
 
 inline ALLEGRO_DISPLAY* createDisplay() {
-    ALLEGRO_DISPLAY* display = al_create_display(screenW, screenH);
+    //we ask the computer how big the monitor is so the window can shrink to fit smaller screens
+    //reference: https://liballeg.org/a5docs/trunk/monitor.html#al_get_monitor_info
+    ALLEGRO_MONITOR_INFO monitor;
+    int winW = screenW;
+    int winH = screenH;
+    if (al_get_monitor_info(0, &monitor)) {
+        int monitorW = monitor.x2 - monitor.x1; //x2 - x1 gives the monitor width in pixels
+        int monitorH = monitor.y2 - monitor.y1; //y2 - y1 gives the monitor height in pixels
+        //we work out how much we would have to scale to fit the width and the height, leaving a little room so the window doesnt hide behind the taskbar or title bar
+        float fitWidth  = (monitorW * 0.95f) / screenW;
+        float fitHeight = (monitorH * 0.90f) / screenH;
+        //we pick the smaller of the two scales so the whole 4:3 window fits and keeps its shape
+        displayScale = fitWidth;
+        if (fitHeight < displayScale) displayScale = fitHeight;
+        if (displayScale > 1.0f) displayScale = 1.0f; //we never make the window bigger than the original 1280x960
+        winW = (int)(screenW * displayScale);
+        winH = (int)(screenH * displayScale);
+    }
+    ALLEGRO_DISPLAY* display = al_create_display(winW, winH);
     if (!display) {
         al_show_native_message_box(nullptr, "Error", "Error",
             "Display couldnt load", nullptr, ALLEGRO_MESSAGEBOX_ERROR);

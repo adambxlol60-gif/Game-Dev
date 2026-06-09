@@ -114,6 +114,13 @@ int main(int argc, char *argv[]) {
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
 
+        //the window can be scaled down to fit smaller screens, but the mouse still reports the real window position
+        //so we divide by displayScale to turn it back into our 1280x960 layout, otherwise every button would be in the wrong spot
+        if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN || event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+            event.mouse.x = (int)(event.mouse.x / displayScale);
+            event.mouse.y = (int)(event.mouse.y / displayScale);
+        }
+
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             running = false;
         }
@@ -293,6 +300,13 @@ int main(int argc, char *argv[]) {
 
         //this is where the main game logic happens: spawning slimes, updating their movement...
         if (event.type == ALLEGRO_EVENT_TIMER) {
+            //we scale everything we draw so our 1280x960 layout fills the (possibly smaller) window
+            //this is what actually makes the game shrink to fit short screens like the teachers desktop
+            //reference: https://liballeg.org/a5docs/trunk/transformations.html#al_scale_transform
+            ALLEGRO_TRANSFORM scaleTransform;
+            al_identity_transform(&scaleTransform);
+            al_scale_transform(&scaleTransform, displayScale, displayScale);
+            al_use_transform(&scaleTransform);
             //we draw the menu screen here, the title image and the play button
             if (gameMenu == 1) {
                 al_draw_scaled_bitmap(bitmaps[25], 0, 0, al_get_bitmap_width(bitmaps[25]), al_get_bitmap_height(bitmaps[25]), 0, 0, screenW, screenH, 0);
